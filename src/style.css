@@ -92,33 +92,40 @@ a {
 /* ---------- Header ---------- */
 
 .site-header {
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .tent {
-  height: 34px;
-  background: repeating-linear-gradient(90deg, var(--tent-red) 0 44px, var(--cream) 44px 88px);
-  -webkit-mask: radial-gradient(circle at 22px 12px, #000 21px, transparent 22px) 0 0 / 44px 34px repeat-x,
-    linear-gradient(#000, #000) 0 0 / 100% 12px no-repeat;
-  mask: radial-gradient(circle at 22px 12px, #000 21px, transparent 22px) 0 0 / 44px 34px repeat-x,
-    linear-gradient(#000, #000) 0 0 / 100% 12px no-repeat;
+  height: 22px;
+  background: repeating-linear-gradient(90deg, var(--tent-red) 0 32px, var(--cream) 32px 64px);
+  -webkit-mask: radial-gradient(circle at 16px 8px, #000 15px, transparent 16px) 0 0 / 32px 22px repeat-x,
+    linear-gradient(#000, #000) 0 0 / 100% 8px no-repeat;
+  mask: radial-gradient(circle at 16px 8px, #000 15px, transparent 16px) 0 0 / 32px 22px repeat-x,
+    linear-gradient(#000, #000) 0 0 / 100% 8px no-repeat;
 }
 
+/* One compact row: sign · tagline + credits · toggles. */
 .header-row {
   max-width: 1280px;
-  margin: 10px auto 0;
+  margin: 8px auto 0;
   padding: 0 16px;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 10px 22px;
+}
+
+/* Next to the sign: tagline, with the credits line under it. */
+.header-info {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
 }
 
 .marquee {
-  padding: 12px 26px 14px;
-  border: 7px dotted #ffe08a;
-  border-radius: 22px;
+  padding: 6px 20px 7px;
+  border: 5px dotted #ffe08a;
+  border-radius: 16px;
   background: linear-gradient(180deg, #7d1225, #4c0b2a);
   box-shadow: 0 0 0 5px #7d1225, 0 0 28px rgba(255, 210, 110, 0.45);
   animation: bulbs 0.9s steps(1) infinite;
@@ -131,7 +138,7 @@ a {
 }
 
 .marquee h1 {
-  font-size: clamp(28px, 5vw, 54px);
+  font-size: clamp(26px, 3.4vw, 40px);
   font-weight: 900;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -141,10 +148,10 @@ a {
 }
 
 .tagline {
-  margin: 6px 0 0;
+  margin: 0;
   color: var(--cream);
-  font-weight: 700;
-  font-size: clamp(13px, 1.6vw, 17px);
+  font-weight: 800;
+  font-size: clamp(14px, 1.5vw, 17px);
 }
 
 .site-footer {
@@ -159,8 +166,14 @@ a {
 /* App-wide toggles (debug, sound) at the top right, usable in setup and during a race. */
 .header-toggles {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.header-toggles .btn {
+  font-size: 13px;
+  padding: 6px 12px;
 }
 
 .btn.ghost.on {
@@ -1693,6 +1706,34 @@ details pre.empty {
 
 }
 
+/* Tablets and phones: sign and toggles on top, tagline and credits underneath. */
+@media (max-width: 900px) {
+  .header-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .header-info {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+/* Phones: icon-only toggles in one row beside the sign. */
+@media (max-width: 640px) {
+  .header-toggles {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  .header-toggles .toggle-label {
+    display: none;
+  }
+
+  .header-toggles .btn {
+    padding: 5px 7px;
+  }
+}
+
 /* Race settings on tablets: distance + time limit, difficulty, then start. */
 @media (max-width: 1000px) {
   .controls {
@@ -1962,4 +2003,39 @@ details pre.empty {
   font-size: 13.5px;
   font-weight: 800;
   white-space: nowrap;
+}
+
+/* ---------- Credits under the marquee ---------- */
+
+.credits {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: rgba(255, 246, 226, 0.75);
+  letter-spacing: 0.02em;
+}
+
+.credits a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(246, 195, 67, 0.6);
+}
+
+.credits a:hover {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+.credits .dot {
+  margin: 0 8px;
+  opacity: 0.6;
+}
+
+.credits .version {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.present .credits {
+  display: none;
 }

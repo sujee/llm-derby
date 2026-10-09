@@ -15,6 +15,7 @@ npm test          # unit tests (vitest)
 npm run build     # type-check + production build into dist/
 npm run preview   # serve the production build (strict CSP), http://localhost:4173
 npm run calibrate -- --models a,b   # check the question bank against real models (needs keys from .env)
+npm run version:bump                # raise the version by one (v1 → v2); do this before every push to main
 ```
 
 Run `npm test` and `npm run build` after every change. Test UI changes in a browser against `npm run preview`; the "Simulated (no API calls)" provider needs no keys.
@@ -46,6 +47,7 @@ Run `npm test` and `npm run build` after every change. Test UI changes in a brow
 
 - **Never commit or push without asking the user first, every time.** Ask in plain words what will be committed and where it will be pushed, and wait for an explicit yes. Permission for one commit or push does not carry over to the next one.
 - The same applies to anything else that changes the repository or what's published: amending or rewriting history, creating or deleting branches and tags, opening pull requests, changing GitHub settings (Pages, description, topics), or triggering a deploy.
+- **Every push to `main` raises the version by one.** The version is a whole number in `version.json` (v1, v2, v3, …), shown in the app header and footer and saved in exports. Run `npm run version:bump` (it also sets `package.json` and `package-lock.json` to `N.0.0`), include the change in the commit, and name the new version when asking for permission (e.g. "commit and push as v4?"). One bump per push, however many commits it contains.
 - Never force-push.
 - Before asking, check `git status` and list what's included. Make sure no `.env` file, key, or `calibration/` output is staged.
 - Reading is always fine: `git status`, `git diff`, `git log`.
@@ -68,6 +70,7 @@ Run `npm test` and `npm run build` after every change. Test UI changes in a brow
 | `src/prompt.ts` | The system prompt every model gets |
 | `src/debuglog.ts` | Human-readable request/response logging (🐞 Debug toggle) |
 | `src/export.ts` | JSON / CSV results export |
+| `version.json`, `src/version.ts`, `scripts/bump-version.mjs` | App version (whole number) and the script that raises it |
 
 ## Conventions
 

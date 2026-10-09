@@ -14,6 +14,7 @@ import { Announcer } from './announcer';
 import { Commentator, displayNames } from './commentary';
 // The question bank as a file next to the app, so "See all questions" shows this exact version.
 import questionsUrl from './questions.json?url';
+import { APP_VERSION_LABEL } from './version';
 import { SERIES_POINTS, seriesClinched, seriesDone, seriesStandings, type SeriesState } from './series';
 import { SHARE_PREFIX, decodeSetup, encodeSetup, type ShareLimits } from './sharelink';
 import type { AnswerResult, Difficulty, Endpoint, Question } from './types';
@@ -272,10 +273,16 @@ function newQuestions() {
 // Shell
 // ---------------------------------------------------------------------------
 
-const soundBtn = h('button', { class: 'btn ghost sound-btn', type: 'button', onclick: toggleSound });
+/** Header toggle text: an icon plus a label (the label hides on phones; aria-label keeps it for screen readers). */
+function toggleLabel(btn: HTMLElement, icon: string, label: string) {
+  btn.replaceChildren(h('span', { 'aria-hidden': 'true' }, icon), h('span', { class: 'toggle-label' }, ` ${label}`));
+  btn.setAttribute('aria-label', label);
+}
+
+const soundBtn = h('button', { class: 'btn ghost sound-btn', type: 'button', title: 'Turn sound effects on or off', onclick: toggleSound });
 
 function renderSoundBtn() {
-  soundBtn.textContent = S.sound ? '🔊 Sound on' : '🔇 Sound off';
+  toggleLabel(soundBtn, S.sound ? '🔊' : '🔇', S.sound ? 'Sound on' : 'Sound off');
   soundBtn.setAttribute('aria-pressed', String(S.sound));
 }
 
@@ -294,7 +301,7 @@ const announcerBtn = h('button', {
 });
 
 function renderAnnouncerBtn() {
-  announcerBtn.textContent = S.announcer ? '📣 Announcer on' : '📣 Announcer off';
+  toggleLabel(announcerBtn, '📣', S.announcer ? 'Announcer on' : 'Announcer off');
   announcerBtn.setAttribute('aria-pressed', String(S.announcer));
   document.body.classList.toggle('no-announcer', !S.announcer);
 }
@@ -313,7 +320,7 @@ const debugBtn = h('button', {
 });
 
 function renderDebugBtn() {
-  debugBtn.textContent = S.debug ? '🐞 Debug on' : '🐞 Debug off';
+  toggleLabel(debugBtn, '🐞', S.debug ? 'Debug on' : 'Debug off');
   debugBtn.setAttribute('aria-pressed', String(S.debug));
   debugBtn.classList.toggle('on', S.debug);
 }
@@ -339,11 +346,21 @@ $('#app').append(
     h(
       'div',
       { class: 'header-row' },
+      h('div', { class: 'marquee' }, h('h1', null, 'LLM Derby')),
       h(
         'div',
-        { class: 'marquee' },
-        h('h1', null, 'LLM Derby'),
+        { class: 'header-info' },
         h('p', { class: 'tagline' }, 'Step right up! The fastest, smartest model wins the derby!'),
+        h(
+          'p',
+          { class: 'credits' },
+          'by ',
+          h('a', { href: 'https://sujee.dev', target: '_blank', rel: 'noopener' }, 'sujee.dev'),
+          h('span', { class: 'dot', 'aria-hidden': 'true' }, '·'),
+          h('a', { href: 'https://github.com/sujee/llm-derby', target: '_blank', rel: 'noopener', title: 'Source code on GitHub' }, 'GitHub ↗'),
+          h('span', { class: 'dot', 'aria-hidden': 'true' }, '·'),
+          h('span', { class: 'version', title: 'App version' }, APP_VERSION_LABEL),
+        ),
       ),
       h('div', { class: 'header-toggles' }, debugBtn, announcerBtn, soundBtn),
     ),
@@ -352,7 +369,8 @@ $('#app').append(
   h(
     'footer',
     { class: 'site-footer' },
-    'Runs entirely in your browser. API keys are kept in memory only and sent only to the provider you pick.',
+    'Runs entirely in your browser. API keys are kept in memory only and sent only to the provider you pick. ',
+    `LLM Derby ${APP_VERSION_LABEL}`,
   ),
 );
 renderSoundBtn();

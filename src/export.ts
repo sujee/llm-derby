@@ -1,10 +1,12 @@
 import { answerCost } from './api';
 import { statsOf, tokensPerSec, type RaceSummary, type RacerState } from './race';
 import type { Question } from './types';
+import { APP_VERSION } from './version';
 
 /** Everything about a finished race, safe to share: never includes API keys. */
 export interface RaceExport {
   app: 'llm-derby';
+  appVersion: number;
   exportVersion: 1;
   exportedAt: string;
   race: {
@@ -91,6 +93,7 @@ export function buildExport(
   const who = (r: RacerState) => ({ lane: r.lane + 1, provider: r.entry.endpoint.provider.name, model: r.entry.model });
   return {
     app: 'llm-derby',
+    appVersion: APP_VERSION,
     exportVersion: 1,
     exportedAt: now.toISOString(),
     race: {

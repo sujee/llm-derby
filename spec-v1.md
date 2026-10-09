@@ -103,6 +103,8 @@ One panel. On desktop: **Winning distance** and **Time limit** on the first row,
 
 Colorful, animated carnival theme: striped tent banner, marquee title with blinking bulbs, turf race lanes, a checkered finish line, and original SVG horses with jockeys in lane colors.
 
+**Header:** one compact row. The marquee sign (title only, blinking bulbs), then the tagline with a small credits line under it ("by **sujee.dev** · **GitHub ↗** · v1", both links open in a new tab), and the Debug / Announcer / Sound toggles on the right. On tablets the tagline and credits move under the sign; on phones the toggles become icon-only buttons in one row beside the sign. The footer also ends with the version. The header is hidden in presentation mode.
+
 ### Race header
 
 - Race time, the question the leader is on, and the finish line.
@@ -184,6 +186,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 
 - **Stack:** Vite + vanilla TypeScript, no UI framework. Builds to static files with relative paths, so it works under `https://<user>.github.io/<repo>/`.
 - **Deployment:** a GitHub Actions workflow runs the tests, builds, and publishes to GitHub Pages on every push to `main`.
+- **Version:** a whole number (v1, v2, v3, …) in `version.json`, raised by one on every push to `main` with `npm run version:bump` (which also sets `package.json` to `N.0.0`). Shown in the header and footer and saved in JSON exports as `appVersion`.
 - **Layout:** responsive from phone width (no sideways page scrolling) to large screens, suitable for screen recording.
 - **Tests** (`npm test`): answer extraction and grading; that every question bank answer grades as correct and each level has at least 50 questions; question selection and splitting; expert generators checked against independent calculations; race statistics and ranking; and exports (including that no API key appears in them).
 
