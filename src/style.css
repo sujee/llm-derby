@@ -65,8 +65,14 @@ main {
    stretch the whole page on small screens. Let them shrink; wide parts scroll inside. */
 main > *,
 #setup > *,
-#race > * {
+#race > *,
+.race-page > * {
   min-width: 0;
+}
+
+.race-page {
+  display: grid;
+  gap: 18px;
 }
 
 h1,
@@ -387,48 +393,140 @@ select {
   font-weight: 600;
 }
 
+/* ---------- Race settings panel ---------- */
+
 .settings-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 16px;
-  flex-wrap: wrap;
 }
 
-.settings-fields {
-  display: flex;
-  align-items: end;
-  gap: 14px 22px;
-  flex-wrap: wrap;
-  flex: 1 1 100%;
+.controls {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) minmax(300px, 360px);
+  grid-template-areas:
+    'distance time . start'
+    'difficulty difficulty difficulty start';
+  gap: 16px 32px;
+  align-items: start;
 }
 
-/* Start button sits at the right end of the top row (distance, difficulty). */
-.settings-fields .start-btn {
-  margin-left: auto;
+.ctl-distance {
+  grid-area: distance;
 }
 
-.limit-help {
-  flex-basis: 100%;
-  margin: -4px 0 0;
-  font-size: 12.5px;
+.ctl-time {
+  grid-area: time;
+}
+
+.ctl-difficulty {
+  grid-area: difficulty;
+}
+
+.ctl-start {
+  grid-area: start;
+  align-self: center;
+}
+
+.ctl {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  min-width: 0;
+}
+
+.ctl-label {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--muted);
 }
 
-.limit-help strong {
-  color: var(--ink);
+.ctl-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
+.ctl .unit {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ctl .unit.off,
 .limit-help.off {
   opacity: 0.5;
 }
 
-.options {
-  flex-basis: 100%;
-  display: flex;
+.ctl-distance input {
+  width: 76px;
+  padding: 6px 8px;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.ctl-time input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: none;
+  accent-color: var(--tent-red);
+}
+
+.ctl-time .seconds {
+  width: 64px;
+  padding: 6px 8px;
+  font-size: 18px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.limit-help {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* Race format switch with the Start button right under it. */
+.ctl-start {
+  justify-items: stretch;
+  gap: 10px;
+}
+
+.ctl-difficulty {
+  grid-template-columns: auto auto;
+  justify-content: start;
   align-items: center;
-  gap: 10px 32px;
-  flex-wrap: wrap;
+  column-gap: 24px;
+}
+
+.ctl-difficulty .ctl-label {
+  grid-column: 1 / -1;
+}
+
+.segmented.format {
+  display: flex;
+}
+
+.segmented.format button {
+  flex: 1 1 auto;
+  padding: 7px 10px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.segmented.format button + button {
+  border-left: 2px solid #7d1225;
+}
+
+.ctl-start .start-btn {
+  width: 100%;
+}
+
+.preview {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .option {
@@ -460,13 +558,6 @@ select {
   margin: 0;
   flex: none;
   accent-color: var(--tent-red);
-}
-
-.option .seconds {
-  width: 64px;
-  padding: 5px 8px;
-  text-align: center;
-  font-weight: 800;
 }
 
 .level-checks {
@@ -527,7 +618,6 @@ select {
   list-style: none;
   margin: 0;
   padding: 10px 12px;
-  flex-basis: 100%;
   display: grid;
   gap: 5px;
   border-radius: 10px;
@@ -561,15 +651,18 @@ select {
 
 .q-info {
   margin: 0;
-  flex-basis: 100%;
-  font-size: 14px;
+  font-size: 13.5px;
 }
 
-.distance input {
-  width: 90px;
-  font-size: 20px;
-  font-weight: 800;
-  text-align: center;
+.setup-notice {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--cream);
+  color: var(--ink);
+  font-weight: 700;
+  border: 3px solid var(--gold);
+  overflow-wrap: anywhere;
 }
 
 .setup-error {
@@ -619,6 +712,66 @@ select {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+/* ---------- Announcer ---------- */
+
+/* Hidden with the 📣 Announcer toggle; commentary keeps running so it can be switched back on mid-race. */
+.no-announcer .announcer {
+  display: none;
+}
+
+.announcer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 8px 18px;
+  border-radius: var(--radius);
+  border: 4px dotted #ffe08a;
+  background: linear-gradient(180deg, #7d1225, #4c0b2a);
+  box-shadow: 0 0 0 4px #7d1225, 0 0 22px rgba(255, 210, 110, 0.3);
+  color: var(--cream);
+  font-size: clamp(15px, 1.8vw, 19px);
+  font-weight: 800;
+  min-width: 0;
+}
+
+.announcer .mic {
+  flex: none;
+  font-size: 1.3em;
+}
+
+.announcer .call {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.announcer.pop .call {
+  animation: call-in 0.45s ease-out;
+}
+
+@keyframes call-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Horse names in their lane color, as readable pills on the dark banner. */
+.call-name {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--c);
+  color: var(--ink, #fff);
+}
+
+@media (max-width: 760px) {
+  .announcer .call {
+    white-space: normal;
+  }
 }
 
 /* ---------- Race track ---------- */
@@ -1133,21 +1286,22 @@ select {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  min-width: 720px;
+  min-width: 960px;
 }
 
 .standings th {
   text-align: left;
-  font-size: 11px;
+  font-size: 10.5px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--muted);
-  padding: 8px;
+  padding: 8px 6px;
+  vertical-align: bottom;
   border-bottom: 3px solid var(--gold);
 }
 
 .standings td {
-  padding: 8px;
+  padding: 8px 6px;
   border-bottom: 1px solid var(--cream-2);
   vertical-align: middle;
 }
@@ -1161,17 +1315,16 @@ select {
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: 280px;
+  max-width: 230px;
+}
+
+.standings .who .model {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .standings .who > div {
   min-width: 0;
-}
-
-.status-cell {
-  font-size: 13px;
-  color: var(--muted);
-  max-width: 260px;
 }
 
 .results-actions.export {
@@ -1412,6 +1565,11 @@ details pre.reasoning {
   color: #5d4a36;
 }
 
+details pre.empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
 .detail-label {
   margin-top: 6px;
   font-weight: 800;
@@ -1530,9 +1688,47 @@ details pre.reasoning {
     font-size: 20px;
   }
 
-  .settings-fields .start-btn {
-    width: 100%;
-    margin-left: 0;
+}
+
+/* Race settings on tablets: distance + time limit, difficulty, then start. */
+@media (max-width: 1000px) {
+  .controls {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'distance time'
+      'difficulty difficulty'
+      'start start';
+  }
+
+  .ctl-start {
+    grid-template-columns: auto minmax(220px, 1fr);
+    align-items: center;
+  }
+
+  .ctl-difficulty {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Phones: one column, with the start block last (after the sample questions). */
+@media (max-width: 640px) {
+  .settings-row {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .controls {
+    display: contents;
+  }
+
+  .preview {
+    order: 1;
+    margin-top: 0;
+  }
+
+  .ctl-start {
+    order: 2;
   }
 }
 
@@ -1544,4 +1740,204 @@ details pre.reasoning {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ---------- Presentation mode (📺 Present) ---------- */
+
+.present .site-header,
+.present .site-footer,
+.present .grid-panel,
+.present .board-note {
+  display: none;
+}
+
+.present main {
+  max-width: none;
+  padding-top: 16px;
+}
+
+.present #race {
+  zoom: 1.15;
+}
+
+.present .announcer {
+  min-height: 72px;
+  font-size: 1.35em;
+}
+
+.present .lane {
+  min-height: 128px;
+}
+
+.present .lane-info .model {
+  font-size: 1.2em;
+}
+
+@media (min-width: 1700px) {
+  .present #race {
+    zoom: 1.35;
+  }
+}
+
+@media (max-width: 900px) {
+  .present #race {
+    zoom: 1;
+  }
+}
+
+/* ---------- Series (best of 3 / 5) ---------- */
+
+.series-panel {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 3px dashed var(--gold-deep);
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+}
+
+.series-panel.over {
+  border-style: solid;
+  background: color-mix(in srgb, var(--gold) 26%, transparent);
+}
+
+.series-panel h3 {
+  margin: 0 0 6px;
+  text-align: center;
+  color: #7d1225;
+  font-size: 20px;
+}
+
+.series-panel.over h3 {
+  font-size: 26px;
+}
+
+.series-panel .muted {
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+.standings.series-table {
+  min-width: 0;
+}
+
+.series-table .points {
+  font-weight: 900;
+  font-size: 1.15em;
+}
+
+/* ---------- Series history: race strip and past races ---------- */
+
+.race-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.race-strip[hidden] {
+  display: none;
+}
+
+.strip-label {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-right: 4px;
+}
+
+.strip-race {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 3px solid var(--gold);
+  background: var(--cream);
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+  /* Long model names are cut with "…"; the full name is in the tooltip. */
+  max-width: 230px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.strip-race.tally-btn {
+  max-width: none;
+}
+
+/* Headlines name the winner: keep a very long model name from blowing up the layout. */
+.headline,
+.series-panel h3 {
+  overflow-wrap: anywhere;
+}
+
+.strip-race:hover:not(:disabled) {
+  background: #fff;
+}
+
+.strip-race:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.strip-race.on {
+  background: var(--gold);
+  border-color: #fff;
+  box-shadow: 0 0 0 3px var(--gold);
+}
+
+.strip-race:focus-visible {
+  outline: 3px solid #1e6fd9;
+  outline-offset: 2px;
+}
+
+/* A past race is read-only: no race controls, no announcer, no "next race" buttons. */
+.race-page.archived .hud-controls,
+.race-page.archived .announcer,
+.race-page.archived .series-box .results-actions {
+  display: none;
+}
+
+.strip-race.tally-btn {
+  margin-left: auto;
+  border-color: #7d1225;
+}
+
+.tally[hidden] {
+  display: none;
+}
+
+.tally {
+  padding: 18px;
+  gap: 10px;
+}
+
+.results-actions.auto {
+  align-items: center;
+}
+
+.auto-next {
+  flex-basis: 100%;
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  font-size: 17px;
+  color: #7d1225;
+}
+
+.preview-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 16px;
+  flex-wrap: wrap;
+}
+
+.all-questions {
+  font-size: 13.5px;
+  font-weight: 800;
+  white-space: nowrap;
 }

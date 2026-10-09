@@ -107,7 +107,9 @@
     "category": "Geography",
     "question": "What is the capital of Kazakhstan?",
     "answer": "Astana",
-    "aliases": [],
+    "aliases": [
+      "Nur-Sultan"
+    ],
     "difficulty": "medium"
   },
   {
@@ -599,7 +601,7 @@
     "question": "How many prime numbers are there between 1 and 50?",
     "answer": "15",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 66,
@@ -1371,7 +1373,7 @@
     "question": "How many times does the letter \"r\" appear in the word \"strawberry\"?",
     "answer": "3",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 150,
@@ -1379,7 +1381,7 @@
     "question": "Which number is larger: 9.11 or 9.9?",
     "answer": "9.9",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 151,
@@ -1387,7 +1389,7 @@
     "question": "How many times does the letter \"s\" appear in the word \"Mississippi\"?",
     "answer": "4",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 152,
@@ -1395,7 +1397,7 @@
     "question": "If you write out every integer from 1 to 100, how many times do you write the digit 9?",
     "answer": "20",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 153,
@@ -1406,7 +1408,7 @@
       "5 cents",
       "0.05"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 154,
@@ -1418,7 +1420,7 @@
       "all of them",
       "all 12"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 155,
@@ -1426,7 +1428,7 @@
     "question": "How many trailing zeros does 100! (100 factorial) have?",
     "answer": "24",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 156,
@@ -1434,7 +1436,7 @@
     "question": "What is the remainder when 2^100 is divided by 7?",
     "answer": "2",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 157,
@@ -1442,7 +1444,7 @@
     "question": "What is 37 multiplied by 43?",
     "answer": "1591",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 158,
@@ -1458,7 +1460,7 @@
     "question": "What is the sum of the digits of 2^15?",
     "answer": "26",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 160,
@@ -1466,7 +1468,7 @@
     "question": "How many diagonals does a regular decagon have?",
     "answer": "35",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 161,
@@ -1474,7 +1476,7 @@
     "question": "What is the least common multiple of 12, 18 and 30?",
     "answer": "180",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 162,
@@ -1482,7 +1484,7 @@
     "question": "How many distinct arrangements are there of the letters in the word \"LEVEL\"?",
     "answer": "30",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 163,
@@ -1490,7 +1492,7 @@
     "question": "What day of the week was 1 January 2000?",
     "answer": "Saturday",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 164,
@@ -1498,7 +1500,7 @@
     "question": "What is the 12th prime number?",
     "answer": "37",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 165,
@@ -1506,7 +1508,7 @@
     "question": "What is the Roman numeral MCMXCIV as an ordinary number?",
     "answer": "1994",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 166,
@@ -1516,7 +1518,7 @@
     "aliases": [
       "0xff"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 167,
@@ -1524,7 +1526,7 @@
     "question": "What is the capital of Palau?",
     "answer": "Ngerulmud",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 168,
@@ -1532,7 +1534,7 @@
     "question": "Which letter of the alphabet does not appear in the name of any U.S. state?",
     "answer": "Q",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 169,
@@ -1543,7 +1545,7 @@
       "wolfram",
       "w"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 170,
@@ -1561,7 +1563,7 @@
     "question": "What is the smallest prime number greater than 1000?",
     "answer": "1009",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 172,
@@ -1573,7 +1575,7 @@
       "edwin aldrin",
       "edwin buzz aldrin"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 173,
@@ -1583,7 +1585,7 @@
     "aliases": [
       "berg"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 174,
@@ -1591,7 +1593,7 @@
     "question": "Which country has the longest coastline in the world?",
     "answer": "Canada",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 175,
@@ -1599,7 +1601,7 @@
     "question": "Which planet in our solar system has the highest average surface temperature?",
     "answer": "Venus",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 176,
@@ -1619,7 +1621,7 @@
     "question": "What is the smallest number expressible as the sum of two positive cubes in two different ways?",
     "answer": "1729",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 178,
@@ -1627,7 +1629,7 @@
     "question": "How many edges does a regular icosahedron have?",
     "answer": "30",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 179,
@@ -1637,7 +1639,7 @@
     "aliases": [
       "eratosthenes of cyrene"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 180,
@@ -1649,7 +1651,7 @@
       "king richard iii",
       "the tragedy of king richard the third"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 181,
@@ -1661,7 +1663,7 @@
       "antarctic",
       "antarctic polar desert"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 182,
@@ -1669,7 +1671,7 @@
     "question": "What is the capital of the U.S. state of Kentucky?",
     "answer": "Frankfort",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 183,
@@ -1677,15 +1679,17 @@
     "question": "What is the capital of the U.S. state of Illinois?",
     "answer": "Springfield",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 184,
     "category": "Science",
     "question": "What is the most abundant chemical element in Earth's crust by mass?",
     "answer": "Oxygen",
-    "aliases": [],
-    "difficulty": "hard"
+    "aliases": [
+      "O"
+    ],
+    "difficulty": "medium"
   },
   {
     "id": 185,
@@ -1693,7 +1697,7 @@
     "question": "How many minutes are in one week?",
     "answer": "10080",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 186,
@@ -1701,7 +1705,7 @@
     "question": "What is 2 raised to the power of 20?",
     "answer": "1048576",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 187,
@@ -1709,7 +1713,7 @@
     "question": "What is the square root of 1764?",
     "answer": "42",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 188,
@@ -1719,7 +1723,7 @@
     "aliases": [
       "br"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 189,
@@ -1727,7 +1731,7 @@
     "question": "What is the capital of the Canadian province of British Columbia?",
     "answer": "Victoria",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 190,
@@ -1735,7 +1739,7 @@
     "question": "Which country has the most pyramids?",
     "answer": "Sudan",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 191,
@@ -1746,7 +1750,7 @@
       "none",
       "no bones"
     ],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 192,
@@ -1754,7 +1758,7 @@
     "question": "What color is a polar bear's skin?",
     "answer": "Black",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 193,
@@ -1762,7 +1766,7 @@
     "question": "What is the smallest positive integer divisible by every integer from 1 to 10?",
     "answer": "2520",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 194,
@@ -1770,7 +1774,7 @@
     "question": "How many vowels are in the word \"onomatopoeia\"?",
     "answer": "8",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 195,
@@ -1778,7 +1782,7 @@
     "question": "What is 17 cubed?",
     "answer": "4913",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 196,
@@ -1786,7 +1790,7 @@
     "question": "Which country has the most islands in the world?",
     "answer": "Sweden",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 197,
@@ -1794,13 +1798,586 @@
     "question": "What has been the official name of the tower that houses Big Ben since 2012?",
     "answer": "Elizabeth Tower",
     "aliases": [],
-    "difficulty": "hard"
+    "difficulty": "medium"
   },
   {
     "id": 198,
     "category": "Reasoning",
     "question": "If today is Wednesday, what day of the week will it be 100 days from now?",
     "answer": "Friday",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 199,
+    "category": "Math",
+    "question": "What is the sum of the digits of 2 to the power 50?",
+    "answer": "76",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 200,
+    "category": "Math",
+    "question": "How many trailing zeros does 250! (250 factorial) have?",
+    "answer": "62",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 201,
+    "category": "Math",
+    "question": "What is the 50th prime number?",
+    "answer": "229",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 202,
+    "category": "Math",
+    "question": "How many positive divisors does 720 have?",
+    "answer": "30",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 203,
+    "category": "Math",
+    "question": "What is the smallest positive integer that has exactly 15 positive divisors?",
+    "answer": "144",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 204,
+    "category": "Math",
+    "question": "In how many different ways can you make 50 cents using pennies, nickels, dimes and quarters?",
+    "answer": "49",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 205,
+    "category": "Math",
+    "question": "What is the sum of all integers from 1 to 1000 that are divisible by 3 or 5?",
+    "answer": "234168",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 206,
+    "category": "Math",
+    "question": "What is the last digit of 7 to the power 2023?",
+    "answer": "3",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 207,
+    "category": "Math",
+    "question": "How many squares of any size are there on a standard 8×8 chessboard?",
+    "answer": "204",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 208,
+    "category": "Math",
+    "question": "How many rectangles of any size (including squares) are there on a standard 8×8 chessboard?",
+    "answer": "1296",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 209,
+    "category": "Math",
+    "question": "What is the greatest common divisor of 3587 and 2431?",
+    "answer": "17",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 210,
+    "category": "Math",
+    "question": "What is the decimal number 1000 written in base 7?",
+    "answer": "2626",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 211,
+    "category": "Math",
+    "question": "What is the 25th Fibonacci number, if the sequence starts 1, 1, 2, 3?",
+    "answer": "75025",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 212,
+    "category": "Math",
+    "question": "How many diagonals does a 20-sided polygon have?",
+    "answer": "170",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 213,
+    "category": "Math",
+    "question": "What is the remainder when 123456789 is divided by 97?",
+    "answer": "39",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 214,
+    "category": "Math",
+    "question": "How many prime numbers are there below 200?",
+    "answer": "46",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 215,
+    "category": "Math",
+    "question": "What is the 100th digit after the decimal point in the decimal expansion of 1/7?",
+    "answer": "8",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 216,
+    "category": "Math",
+    "question": "How many positive integers below 100 share no common factor with 100 other than 1?",
+    "answer": "40",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 217,
+    "category": "Math",
+    "question": "What are the last three digits of 2 to the power 64?",
+    "answer": "616",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 218,
+    "category": "Math",
+    "question": "How many distinct arrangements are there of the letters in the word MISSISSIPPI?",
+    "answer": "34650",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 219,
+    "category": "Math",
+    "question": "What is 999999 × 999999?",
+    "answer": "999998000001",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 220,
+    "category": "Math",
+    "question": "How many times does the digit 7 appear when you write all the integers from 1 to 100?",
+    "answer": "20",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 221,
+    "category": "Math",
+    "question": "How many digits do you write in total when writing all the integers from 1 to 1000?",
+    "answer": "2893",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 222,
+    "category": "Math",
+    "question": "What is the sum of all the digits of all the integers from 1 to 100?",
+    "answer": "901",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 223,
+    "category": "Math",
+    "question": "How many integers from 1 to 1000 are perfect squares or perfect cubes (or both)?",
+    "answer": "38",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 224,
+    "category": "Math",
+    "question": "What is the sum of all the positive divisors of 100, including 1 and 100?",
+    "answer": "217",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 225,
+    "category": "Math",
+    "question": "What is the third perfect number?",
+    "answer": "496",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 226,
+    "category": "Math",
+    "question": "How many digits does 2 to the power 100 have?",
+    "answer": "31",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 227,
+    "category": "Math",
+    "question": "What is 3 to the power 20?",
+    "answer": "3486784401",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 228,
+    "category": "Math",
+    "question": "A car drives 60 km at 30 km/h and then another 60 km at 60 km/h. What is its average speed for the whole trip, in km/h?",
+    "answer": "40",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 229,
+    "category": "Math",
+    "question": "How many different handshakes happen if each of 30 people shakes hands once with every other person?",
+    "answer": "435",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 230,
+    "category": "Reasoning",
+    "question": "If today is a Wednesday, what day of the week will it be 1000 days from now?",
+    "answer": "Tuesday",
+    "aliases": [
+      "Tue"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 231,
+    "category": "Reasoning",
+    "question": "On what day of the week did 1 January 2000 fall?",
+    "answer": "Saturday",
+    "aliases": [
+      "Sat"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 232,
+    "category": "Reasoning",
+    "question": "On what day of the week was 4 July 1776?",
+    "answer": "Thursday",
+    "aliases": [
+      "Thu"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 233,
+    "category": "Reasoning",
+    "question": "How many leap years were there from 1901 to 2000, inclusive?",
+    "answer": "25",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 234,
+    "category": "Reasoning",
+    "question": "What is the largest number of Friday the 13ths that can occur in a single calendar year?",
+    "answer": "3",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 235,
+    "category": "Reasoning",
+    "question": "A snail at the bottom of a 10-metre well climbs 3 metres each day and slips back 2 metres each night. On which day does it reach the top?",
+    "answer": "8",
+    "aliases": [
+      "day 8",
+      "the 8th day",
+      "eighth day",
+      "8th"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 236,
+    "category": "Reasoning",
+    "question": "How many minutes after 3:00 do the hour and minute hands of a clock first point in exactly the same direction? Round to the nearest whole minute.",
+    "answer": "16",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 237,
+    "category": "Reasoning",
+    "question": "What is the minimum number of moves needed to solve the Tower of Hanoi puzzle with 7 disks?",
+    "answer": "127",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 238,
+    "category": "Reasoning",
+    "question": "Sally has 3 brothers. Each of her brothers has 2 sisters. How many sisters does Sally have?",
+    "answer": "1",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 239,
+    "category": "Reasoning",
+    "question": "Divide 30 by one half, then add 10. What is the result?",
+    "answer": "70",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 240,
+    "category": "Reasoning",
+    "question": "How many months of the year have at least 28 days?",
+    "answer": "12",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 241,
+    "category": "Reasoning",
+    "question": "What is the only number whose English name has exactly as many letters as the number itself?",
+    "answer": "4",
+    "aliases": [
+      "four"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 242,
+    "category": "Reasoning",
+    "question": "What is the next term in the look-and-say sequence 1, 11, 21, 1211, 111221, …?",
+    "answer": "312211",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 243,
+    "category": "Reasoning",
+    "question": "If the words of the sentence \"time flies like an arrow\" are sorted alphabetically, which word comes third?",
+    "answer": "flies",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 244,
+    "category": "Language & Tech",
+    "question": "How many times does the letter \"r\" appear in the word \"refrigerator\"?",
+    "answer": "4",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 245,
+    "category": "Language & Tech",
+    "question": "How many times does the letter \"e\" appear in the sentence \"The quick brown fox jumps over the lazy dog\"?",
+    "answer": "3",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 246,
+    "category": "Language & Tech",
+    "question": "What is the 5th letter of the English word for the number 12?",
+    "answer": "V",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 247,
+    "category": "Language & Tech",
+    "question": "If A=1, B=2, … Z=26, what is the sum of the letters in the word CAT?",
+    "answer": "24",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 248,
+    "category": "Language & Tech",
+    "question": "In Morse code, which letter is written as dot-dot-dot-dash (...-)?",
+    "answer": "V",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 249,
+    "category": "Language & Tech",
+    "question": "What is the 12th letter of the Greek alphabet?",
+    "answer": "Mu",
+    "aliases": [
+      "μ"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 250,
+    "category": "Language & Tech",
+    "question": "What is the name of a polygon with 11 sides?",
+    "answer": "Hendecagon",
+    "aliases": [
+      "Undecagon",
+      "Endecagon"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 251,
+    "category": "Language & Tech",
+    "question": "In what year did Ray Tomlinson send the first network email between two computers?",
+    "answer": "1971",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 252,
+    "category": "Geography",
+    "question": "What is the only U.S. state whose name has just one syllable?",
+    "answer": "Maine",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 253,
+    "category": "Geography",
+    "question": "What is the smallest country in Africa by area?",
+    "answer": "Seychelles",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 254,
+    "category": "Geography",
+    "question": "What is the longest river in Europe?",
+    "answer": "Volga",
+    "aliases": [
+      "Volga River"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 255,
+    "category": "Geography",
+    "question": "How many time zones does Russia have?",
+    "answer": "11",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 256,
+    "category": "Geography",
+    "question": "What is the largest desert in the world, counting polar deserts?",
+    "answer": "Antarctica",
+    "aliases": [
+      "Antarctic Desert",
+      "Antarctic"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 258,
+    "category": "Space",
+    "question": "Which planet in our solar system takes the longest to rotate once on its axis?",
+    "answer": "Venus",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 259,
+    "category": "Space",
+    "question": "Titania is a moon of which planet?",
+    "answer": "Uranus",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 261,
+    "category": "Science",
+    "question": "What is the SI unit of inductance?",
+    "answer": "Henry",
+    "aliases": [
+      "H"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 262,
+    "category": "Science",
+    "question": "Which naturally occurring noble gas has the highest boiling point?",
+    "answer": "Radon",
+    "aliases": [
+      "Rn"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 263,
+    "category": "Science",
+    "question": "How many bones are in one adult human hand, including the wrist?",
+    "answer": "27",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 264,
+    "category": "Literature",
+    "question": "What does the first \"J\" in J. R. R. Tolkien stand for?",
+    "answer": "John",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 265,
+    "category": "Literature",
+    "question": "Who was the first woman to win the Nobel Prize in Literature?",
+    "answer": "Selma Lagerlöf",
+    "aliases": [
+      "Lagerlöf"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 266,
+    "category": "Sports",
+    "question": "What is the sum of all the numbers around a standard dartboard?",
+    "answer": "210",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 267,
+    "category": "Sports",
+    "question": "How many intersections (points where stones can be placed) are there on a standard 19×19 Go board?",
+    "answer": "361",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 268,
+    "category": "Art & Music",
+    "question": "How many black keys does a standard 88-key piano have?",
+    "answer": "36",
     "aliases": [],
     "difficulty": "hard"
   }

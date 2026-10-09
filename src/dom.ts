@@ -44,6 +44,33 @@ export function fmtClock(ms: number): string {
   return `${String(m).padStart(2, '0')}:${(s - m * 60).toFixed(1).padStart(4, '0')}`;
 }
 
+/** A time limit as a short label: 30000 → "30s", 7500 → "7.5s". */
+export function fmtLimit(ms: number): string {
+  const s = ms / 1000;
+  return `${Number.isInteger(s) ? s : s.toFixed(1)}s`;
+}
+
+/** Token count: 950 → "950", 12345 → "12.3k", 2500000 → "2.5M". `~` marks an estimate. */
+export function fmtTok(n: number | undefined, estimated = false): string {
+  if (n == null) return '–';
+  const s = n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e4 ? `${Math.round(n / 1e3)}k` : n >= 1e3 ? `${(n / 1e3).toFixed(1)}k` : String(n);
+  return estimated ? `~${s}` : s;
+}
+
+/** Tokens per second: 87 tok/s, 4.2 tok/s. "–" when unknown. */
+export function fmtTps(n: number | null | undefined, estimated = false): string {
+  if (n == null) return '–';
+  const s = n >= 10 ? String(Math.round(n)) : n.toFixed(1);
+  return estimated ? `~${s}` : s;
+}
+
+/** Dollars with enough precision for tiny per-race costs: $1.23, $0.042, $0.00041. "–" when unknown. */
+export function fmtUsd(n: number | null | undefined, estimated = false): string {
+  if (n == null) return '–';
+  const s = n >= 1 ? n.toFixed(2) : n >= 0.01 ? n.toFixed(3) : n === 0 ? '0' : n.toPrecision(2);
+  return `${estimated ? '~' : ''}$${s}`;
+}
+
 export function fmtPct(x: number | null): string {
   return x == null ? '–' : `${Math.round(x * 100)}%`;
 }

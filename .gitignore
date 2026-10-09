@@ -1,3 +1,15 @@
 node_modules
 dist
 .DS_Store
+
+# Secrets: API keys live in .env (and any .env.* variant). Only .env.example is committed.
+.env
+.env.*
+!.env.example
+
+# Editor swap files
+*.swp
+*~
+
+# Question calibration output (npm run calibrate)
+calibration/

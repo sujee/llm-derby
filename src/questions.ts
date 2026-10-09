@@ -8,7 +8,7 @@ export const BANK = bank as Question[];
 export const LEVELS: Difficulty[] = ['easy', 'medium', 'hard', 'expert'];
 
 /** Default selection: the three bank levels. */
-export const DEFAULT_LEVELS: Difficulty[] = ['easy', 'medium', 'hard'];
+export const DEFAULT_LEVELS: Difficulty[] = ['hard', 'expert'];
 
 export const byLevel = (level: Difficulty, from: Question[] = BANK) => from.filter((q) => q.difficulty === level);
 

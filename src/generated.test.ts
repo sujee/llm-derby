@@ -94,6 +94,7 @@ describe('expert generators produce correct answer keys', () => {
       const g = GENERATORS.baseConvert(rand);
       const [, n, base] = g.question.match(/number (\d+) in base (\d+)/)!;
       expect(parseInt(g.answer, Number(base))).toBe(Number(n));
+      expect(isCorrect(g.answer.toUpperCase(), [g.answer, ...g.aliases])).toBe(true); // "1A3F" = "1a3f"
     }
   });
   it('modular power (checked with plain BigInt power)', () => {
@@ -115,10 +116,61 @@ describe('expert generators produce correct answer keys', () => {
   });
 });
 
+describe('new expert generators', () => {
+  it('digit sum of a power (checked digit by digit with BigInt)', () => {
+    const rand = seeded(11);
+    for (let i = 0; i < N; i++) {
+      const g = GENERATORS.digitSum(rand);
+      const [b, e] = g.question.match(/digits of (\d+) to the power (\d+)/)!.slice(1).map(BigInt);
+      let x = b ** e;
+      let sum = 0n;
+      while (x > 0n) {
+        sum += x % 10n;
+        x /= 10n;
+      }
+      expect(BigInt(g.answer)).toBe(sum);
+    }
+    expect(GENERATORS.digitSum(() => 0).answer).toBe(String([...String(3n ** 30n)].reduce((s, c) => s + Number(c), 0)));
+  });
+  it('Collatz steps (checked by replaying the sequence backwards)', () => {
+    const rand = seeded(12);
+    for (let i = 0; i < N; i++) {
+      const g = GENERATORS.collatz(rand);
+      let n = Number(g.question.match(/Start at (\d+)/)![1]);
+      for (let s = 0; s < Number(g.answer); s++) {
+        expect(n).not.toBe(1); // reaches 1 only at the end
+        n = n % 2 ? 3 * n + 1 : n / 2;
+      }
+      expect(n).toBe(1);
+    }
+    // Known value: 27 takes 111 steps.
+    let n = 27;
+    let steps = 0;
+    while (n !== 1) {
+      n = n % 2 ? 3 * n + 1 : n / 2;
+      steps++;
+    }
+    expect(steps).toBe(111);
+  });
+  it('k-th prime after N (checked with a sieve)', () => {
+    const sieve = new Uint8Array(110_000).fill(1);
+    sieve[0] = sieve[1] = 0;
+    for (let i = 2; i * i < sieve.length; i++) if (sieve[i]) for (let j = i * i; j < sieve.length; j += i) sieve[j] = 0;
+    const rand = seeded(13);
+    for (let i = 0; i < N; i++) {
+      const g = GENERATORS.primeAfter(rand);
+      const [, k, start] = g.question.match(/the (\d+)\w\w prime number greater than (\d+)/)!;
+      let n = Number(start);
+      for (let found = 0; found < Number(k); ) if (sieve[++n]) found++;
+      expect(Number(g.answer)).toBe(n);
+    }
+  });
+});
+
 describe('generateExpert', () => {
   it('uses every generator type and grades its own answers as correct', () => {
     const qs = generateExpert(400, seeded(9));
-    expect(new Set(qs.map((q) => q.category)).size).toBeGreaterThanOrEqual(7);
+    expect(new Set(qs.map((q) => q.category)).size).toBeGreaterThanOrEqual(9);
     for (const q of qs) {
       expect(isCorrect(extractFinalAnswer(`Working…\nANSWER: ${q.answer}`), [q.answer, ...q.aliases]), q.question).toBe(true);
     }

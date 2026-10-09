@@ -31,7 +31,8 @@ The build uses relative paths, so it works under `https://<user>.github.io/<repo
 Nebius Token Factory, OpenAI, Anthropic, Google Gemini, Together AI, Groq, Fireworks AI,
 OpenRouter, DeepInfra, Mistral AI, Cerebras, Hugging Face, GMI Cloud, Baseten, any custom
 OpenAI-compatible endpoint, plus a simulated provider. All presets accept direct browser
-calls (CORS), so no proxy is needed. Each horse can use a different provider.
+calls (CORS), so no proxy is needed. Each horse can use a different provider, and
+each Custom horse can point at its own server.
 
 To add a provider, add an entry to `src/providers.ts`.
 
@@ -44,12 +45,12 @@ spending limit.
 
 ## Questions
 
-`src/questions.json` holds 198 questions tagged `easy`, `medium` or `hard`. Each has a
+`src/questions.json` holds 266 questions tagged `easy`, `medium` or `hard`. Each has a
 display `answer` and a list of accepted `aliases`. Tick any combination of levels in
 setup; questions are split evenly across them, optionally ordered easy → hard.
 
-The **Expert** level is generated fresh for each race by `src/generated.ts` (arithmetic,
-calendar, counting, string and number-base puzzles) with answers computed in code, so
+The **Expert** level is generated fresh for each race by `src/generated.ts` (11 kinds: big
+multiplications, calendars, counting, strings, number bases, primes, Collatz and more) with answers computed in code, so
 models can't have memorized them. `npm test` checks each generator against an
 independent calculation.
 
@@ -57,6 +58,22 @@ Models are asked to end with `ANSWER: <short answer>`. The answer is
 normalized (case, punctuation, accents, leading articles, number words) and matched
 against the accepted answers. Run `npm test` after editing; it checks that every answer
 grades as correct and that each level keeps at least 50 questions.
+
+### Calibrating the bank
+
+`npm run calibrate` asks real models every bank question (plus some generated Expert
+ones), with the same prompt and grading as the game, and writes
+`calibration/report.md` (git-ignored). The report shows accuracy by level per model and flags
+questions where models agree on a different answer (often a missing alias or a wrong
+key), questions every model misses, Easy questions most models miss, and Hard/Expert
+questions every model gets.
+
+```bash
+set -a; . ./.env; set +a     # keys from .env (see .env.example)
+npm run calibrate -- --models google/gemma-3-27b-it,openai/gpt-oss-120b
+# options: --base-url URL (default Nebius Token Factory) --key-env NAME (default NEBIUS_API_KEY)
+#          --expert N (default 24) --limit N (bank questions) --concurrency N (default 8)
+```
 
 An optional per-question **time limit** (default 30 s) counts slow answers as wrong.
 Use ~10 s to reward speed, 15–30 s for a balanced race, and 60 s+ for reasoning models

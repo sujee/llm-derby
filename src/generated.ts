@@ -59,12 +59,12 @@ type Generated = Pick<Question, 'category' | 'question' | 'answer' | 'aliases'>;
 
 export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
   multiply(rand) {
-    const a = int(rand, 1000, 9999);
-    const b = int(rand, 1000, 9999);
-    return { category: 'Arithmetic', question: `What is ${a} × ${b}?`, answer: String(a * b), aliases: [] };
+    const a = int(rand, 100_000, 999_999);
+    const b = int(rand, 10_000, 99_999);
+    return { category: 'Arithmetic', question: `What is ${a} × ${b}?`, answer: String(BigInt(a) * BigInt(b)), aliases: [] };
   },
   weekday(rand) {
-    const d = randomDate(rand, 1900, 2199);
+    const d = randomDate(rand, 1600, 2399);
     const day = WEEKDAYS[d.getUTCDay()];
     return {
       category: 'Calendar',
@@ -75,7 +75,7 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
   },
   letterCount(rand) {
     const letters = [...'abcdefghk'];
-    const s = Array.from({ length: 40 }, () => pick(rand, letters)).join('');
+    const s = Array.from({ length: 80 }, () => pick(rand, letters)).join('');
     const target = pick(rand, letters);
     const n = [...s].filter((c) => c === target).length;
     return {
@@ -86,7 +86,7 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     };
   },
   reverse(rand) {
-    const s = Array.from({ length: 12 }, () => pick(rand, [...'bcdfghjklmnpqrstvwxz'])).join('');
+    const s = Array.from({ length: 24 }, () => pick(rand, [...'bcdfghjklmnpqrstvwxz'])).join('');
     return {
       category: 'Strings',
       question: `Write this string backwards: ${s}`,
@@ -95,8 +95,8 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     };
   },
   daysBetween(rand) {
-    const a = randomDate(rand, 1950, 2049);
-    const diff = int(rand, 30, 4000);
+    const a = randomDate(rand, 1800, 2099);
+    const diff = int(rand, 1000, 30_000);
     const b = new Date(a.getTime() + diff * DAY_MS);
     return {
       category: 'Calendar',
@@ -106,19 +106,20 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     };
   },
   baseConvert(rand) {
-    const n = int(rand, 1000, 99_999);
-    const base = pick(rand, [3, 5, 6, 7, 9]);
+    const n = int(rand, 100_000, 9_999_999);
+    const base = pick(rand, [3, 5, 6, 7, 9, 12, 16]);
+    const answer = n.toString(base);
     return {
       category: 'Number bases',
-      question: `Write the decimal number ${n} in base ${base}.`,
-      answer: n.toString(base),
-      aliases: [],
+      question: `Write the decimal number ${n} in base ${base}.${base > 10 ? ' (Use the letters a, b, … for digits above 9.)' : ''}`,
+      answer,
+      aliases: base === 16 ? [`0x${answer}`] : [],
     };
   },
   modPow(rand) {
-    const m = pick(rand, [7, 11, 13, 17, 19, 23, 29, 31, 37]);
-    const b = int(rand, 2, 40);
-    const e = int(rand, 50, 500);
+    const m = pick(rand, [41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]);
+    const b = int(rand, 2, 999);
+    const e = int(rand, 1000, 99_999);
     return {
       category: 'Modular arithmetic',
       question: `What is the remainder when ${b} to the power ${e} is divided by ${m}?`,
@@ -127,8 +128,8 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     };
   },
   sortWords(rand) {
-    const words = shuffle(WORDS, rand).slice(0, 8);
-    const k = int(rand, 2, 7);
+    const words = shuffle(WORDS, rand).slice(0, 12);
+    const k = int(rand, 2, 11);
     const sorted = [...words].sort();
     return {
       category: 'Sorting',
@@ -137,7 +138,51 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
       aliases: [],
     };
   },
+  digitSum(rand) {
+    const b = int(rand, 3, 9);
+    const e = int(rand, 30, 90);
+    const sum = [...String(BigInt(b) ** BigInt(e))].reduce((s, c) => s + Number(c), 0);
+    return {
+      category: 'Arithmetic',
+      question: `What is the sum of the digits of ${b} to the power ${e}?`,
+      answer: String(sum),
+      aliases: [],
+    };
+  },
+  collatz(rand) {
+    const start = int(rand, 1000, 99_999);
+    let n = start;
+    let steps = 0;
+    while (n !== 1) {
+      n = n % 2 ? 3 * n + 1 : n / 2;
+      steps++;
+    }
+    return {
+      category: 'Sequences',
+      question: `Start at ${start}. If the number is even, halve it; if it is odd, multiply by 3 and add 1. How many steps does it take to reach 1?`,
+      answer: String(steps),
+      aliases: [],
+    };
+  },
+  primeAfter(rand) {
+    const start = int(rand, 10_000, 99_999);
+    const k = int(rand, 1, 3);
+    let n = start;
+    for (let found = 0; found < k; ) if (isPrime(++n)) found++;
+    return {
+      category: 'Primes',
+      question: `What is the ${ordinal(k)} prime number greater than ${start}?`,
+      answer: String(n),
+      aliases: [],
+    };
+  },
 };
+
+function isPrime(n: number): boolean {
+  if (n < 2) return false;
+  for (let d = 2; d * d <= n; d++) if (n % d === 0) return false;
+  return true;
+}
 
 /** n fresh expert questions, cycling through the generator types so a race gets a variety. */
 export function generateExpert(n: number, rand: Rand = Math.random): Question[] {

@@ -1,4 +1,5 @@
-import { statsOf, type RaceSummary, type RacerState } from './race';
+import { answerCost } from './api';
+import { statsOf, tokensPerSec, type RaceSummary, type RacerState } from './race';
 import type { Question } from './types';
 
 /** Everything about a finished race, safe to share: never includes API keys. */
@@ -24,12 +25,19 @@ export interface RaceExport {
     finishMs: number | null;
     correct: number;
     incorrect: number;
-    tooSlow: number;
+    timeouts: number;
     errors: number;
     answered: number;
     accuracy: number | null;
+    ttftP50Ms: number | null;
     latencyP50Ms: number | null;
-    latencyP90Ms: number | null;
+    tokPerSecP50: number | null;
+    tokensIn: number;
+    tokensOut: number;
+    tokensReasoning: number;
+    tokensCached: number | null;
+    tokensEstimated: boolean;
+    costUsd: number | null;
     withdrawnReason: string | null;
   }[];
   questions: {
@@ -46,6 +54,14 @@ export interface RaceExport {
       result: AnswerOutcome;
       answer: string;
       latencyMs: number | null;
+      ttftMs: number | null;
+      tokPerSec: number | null;
+      tokensIn: number | null;
+      tokensOut: number | null;
+      tokensReasoning: number | null;
+      tokensCached: number | null;
+      tokensEstimated: boolean;
+      costUsd: number | null;
       error: string | null;
       reply: string;
       reasoning: string;
@@ -53,7 +69,7 @@ export interface RaceExport {
   }[];
 }
 
-export type AnswerOutcome = 'correct' | 'wrong' | 'too slow' | 'error' | 'not answered';
+export type AnswerOutcome = 'correct' | 'wrong' | 'timeout' | 'error' | 'not answered';
 
 export interface ExportMeta {
   startedAt: Date;
@@ -62,6 +78,7 @@ export interface ExportMeta {
 }
 
 const round = (x: number | null | undefined) => (x == null ? null : Math.round(x));
+const round1 = (x: number | null | undefined) => (x == null ? null : Math.round(x * 10) / 10);
 
 export function buildExport(
   racers: RacerState[],
@@ -94,12 +111,19 @@ export function buildExport(
         finishMs: round(r.finishMs),
         correct: st.correct,
         incorrect: st.incorrect,
-        tooSlow: st.timeouts,
+        timeouts: st.timeouts,
         errors: st.errors,
         answered: st.answered,
         accuracy: st.accuracy,
+        ttftP50Ms: round(st.ttftP50Ms),
         latencyP50Ms: round(st.medianLatencyMs),
-        latencyP90Ms: round(st.p90LatencyMs),
+        tokPerSecP50: round1(st.tokPerSecP50),
+        tokensIn: st.tokensIn,
+        tokensOut: st.tokensOut,
+        tokensReasoning: st.tokensReasoning,
+        tokensCached: st.tokensCached,
+        tokensEstimated: st.tokensEstimated,
+        costUsd: st.costUsd,
         withdrawnReason: r.dnfReason ?? null,
       };
     }),
@@ -119,7 +143,7 @@ export function buildExport(
           const result: AnswerOutcome = !res
             ? 'not answered'
             : res.timedOut
-              ? 'too slow'
+              ? 'timeout'
               : res.error
                 ? 'error'
                 : res.correct
@@ -130,6 +154,14 @@ export function buildExport(
             result,
             answer: res?.answer ?? '',
             latencyMs: res && !res.error ? round(res.latencyMs) : null,
+            ttftMs: round(res?.ttftMs),
+            tokPerSec: res ? round1(tokensPerSec(res)) : null,
+            tokensIn: res?.tokens?.in ?? null,
+            tokensOut: res?.tokens?.out ?? null,
+            tokensReasoning: res?.tokens?.reasoning ?? null,
+            tokensCached: res?.tokens?.cached ?? null,
+            tokensEstimated: !!res?.tokens?.estimated,
+            costUsd: answerCost(res?.tokens, r.entry.pricing) ?? null,
             error: res?.error ?? null,
             reply: res?.raw ?? '',
             reasoning: res?.reasoning ?? '',
@@ -148,7 +180,8 @@ export function csvField(value: unknown): string {
 
 const CSV_COLUMNS = [
   'question_no', 'difficulty', 'category', 'question', 'expected_answer',
-  'lane', 'provider', 'model', 'result', 'answer', 'latency_ms', 'error',
+  'lane', 'provider', 'model', 'result', 'answer', 'ttft_ms', 'latency_ms', 'tok_per_sec',
+  'tokens_in', 'tokens_cached', 'tokens_out', 'tokens_reasoning', 'tokens_estimated', 'cost_usd', 'error',
 ] as const;
 
 /** One row per question per model (long format, easy to pivot in a spreadsheet). */
@@ -158,7 +191,8 @@ export function toCsv(data: RaceExport): string {
     for (const a of q.answers) {
       rows.push([
         q.number, q.difficulty, q.category, q.question, q.expectedAnswer,
-        a.lane, a.provider, a.model, a.result, a.answer, a.latencyMs, a.error,
+        a.lane, a.provider, a.model, a.result, a.answer, a.ttftMs, a.latencyMs, a.tokPerSec,
+        a.tokensIn, a.tokensCached, a.tokensOut, a.tokensReasoning, a.tokensEstimated ? 'yes' : 'no', a.costUsd, a.error,
       ]);
     }
   }

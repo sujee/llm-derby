@@ -46,6 +46,10 @@ function formatUsage(usage: unknown): string | null {
   const u = usage as Record<string, unknown> & { completion_tokens_details?: { reasoning_tokens?: number } };
   const parts: string[] = [];
   if (typeof u.prompt_tokens === 'number') parts.push(`prompt ${u.prompt_tokens}`);
+  const cached =
+    (u as { prompt_tokens_details?: { cached_tokens?: number } }).prompt_tokens_details?.cached_tokens ??
+    (u as { prompt_cache_hit_tokens?: number }).prompt_cache_hit_tokens;
+  if (typeof cached === 'number') parts.push(`(cached ${cached})`);
   if (typeof u.completion_tokens === 'number') parts.push(`completion ${u.completion_tokens}`);
   const reasoning = u.completion_tokens_details?.reasoning_tokens;
   if (typeof reasoning === 'number' && reasoning > 0) parts.push(`(reasoning ${reasoning})`);
@@ -80,23 +84,28 @@ export function logResult(ctx: LogContext, res: AnswerResult, trace?: Trace, err
   let tail: string;
   let style: string;
   if (res.timedOut) {
-    tail = `· ⏱ too slow (no answer within ${secs(res.latencyMs)})`;
+    tail = `· ⏱ timeout (${Math.round(res.latencyMs / 100) / 10}s)`;
     style = 'color:#5f3dc4;font-weight:700';
   } else if (res.error) {
     tail = `· ⚠ error: ${res.error}`;
     style = 'color:#b8590b;font-weight:700';
   } else if (res.correct) {
-    tail = `· ✓ correct "${res.answer}" · ${secs(res.latencyMs)}`;
+    tail = `· ✓ correct "${res.answer}" · ${secs(res.latencyMs)}${res.ttftMs != null ? ` (TTFT ${secs(res.ttftMs)})` : ''}`;
     style = 'color:#2f9e44;font-weight:700';
   } else {
-    tail = `· ✗ wrong "${res.answer || '(no answer)'}" (expected "${ctx.question.answer}") · ${secs(res.latencyMs)}`;
+    tail = `· ✗ wrong "${res.answer || '(no answer)'}" (expected "${ctx.question.answer}") · ${secs(res.latencyMs)}${res.ttftMs != null ? ` (TTFT ${secs(res.ttftMs)})` : ''}`;
     style = 'color:#c92a2a;font-weight:700';
   }
   console.groupCollapsed(...headline(ctx, '←', tail, style));
 
   questionRows(ctx);
   if (res.timedOut) {
-    row('Result', `⏱ too slow: the request was cancelled after ${secs(res.latencyMs)} (counts as wrong)`, style);
+    row(
+      'Result',
+      `⏱ timeout: cancelled after ${secs(res.latencyMs)} (counts as wrong); ` +
+        (res.ttftMs != null ? `the model had started after ${secs(res.ttftMs)}` : 'no response was received'),
+      style,
+    );
   } else if (res.error) {
     row('Result', `⚠ ${res.error}`, style);
   } else {
@@ -109,12 +118,15 @@ export function logResult(ctx: LogContext, res: AnswerResult, trace?: Trace, err
     row('Response', `${status}${trace.requestId ? ` · request id ${trace.requestId}` : ''}`);
     row(
       'Timing',
-      `total ${secs(res.latencyMs)} · first byte ${secs(trace.firstByteMs)} · ` +
+      `total ${secs(res.latencyMs)} · first token ${secs(trace.firstTokenMs)} · first byte ${secs(trace.firstByteMs)} · ` +
         `${trace.streamed ? `${trace.chunks} streamed chunks` : 'not streamed'} · ` +
         `${trace.attempts} attempt${trace.attempts === 1 ? '' : 's'}`,
     );
     const usage = formatUsage(trace.usage);
     if (usage) row('Tokens', usage);
+    else if (res.tokens?.out != null) {
+      row('Tokens', `~in ${res.tokens.in ?? '–'} · ~out ${res.tokens.out} (estimated from text length; provider sent no usage)`);
+    }
     if (trace.finishReason) {
       row(
         'Finish',
@@ -133,8 +145,9 @@ export function logResult(ctx: LogContext, res: AnswerResult, trace?: Trace, err
     if (err.debug.body) textBlock('Response body', err.debug.body);
     if (err.debug.cause) console.log('Cause', err.debug.cause);
   }
-  textBlock('Reasoning', res.reasoning);
-  textBlock('Reply', res.raw);
+  // On a timeout these hold whatever arrived before the cutoff.
+  textBlock(res.timedOut ? 'Partial reasoning (cut off)' : 'Reasoning', res.reasoning);
+  textBlock(res.timedOut ? 'Partial reply (cut off)' : 'Reply', res.raw);
   console.groupEnd();
 }
 

@@ -42,14 +42,14 @@ describe('buildExport', () => {
   });
   it('captures race settings and standings', () => {
     expect(data.race).toMatchObject({ durationMs: 12_346, winningDistance: 20, questionCount: 3, difficulty: 'Easy + Hard', timeLimitSec: 10 });
-    expect(data.standings.map((s) => [s.place, s.model, s.correct, s.tooSlow, s.errors])).toEqual([
+    expect(data.standings.map((s) => [s.place, s.model, s.correct, s.timeouts, s.errors])).toEqual([
       [1, 'org/model-0', 1, 0, 0],
       [2, 'org/model-1', 0, 1, 1],
     ]);
   });
   it('records each answer outcome and skips unreached questions', () => {
     expect(data.questions).toHaveLength(2);
-    expect(data.questions[0].answers.map((a) => a.result)).toEqual(['correct', 'too slow']);
+    expect(data.questions[0].answers.map((a) => a.result)).toEqual(['correct', 'timeout']);
     expect(data.questions[1].answers.map((a) => a.result)).toEqual(['wrong', 'error']);
     expect(data.questions[1].answers[1].latencyMs).toBeNull();
     expect(data.questions[0].answers[0].reasoning).toBe('hmm');
@@ -60,7 +60,7 @@ describe('CSV', () => {
   it('has a header plus one row per question per model', () => {
     const lines = toCsv(data).trimEnd().split('\r\n');
     expect(lines).toHaveLength(1 + 2 * 2);
-    expect(lines[0]).toBe('question_no,difficulty,category,question,expected_answer,lane,provider,model,result,answer,latency_ms,error');
+    expect(lines[0]).toBe('question_no,difficulty,category,question,expected_answer,lane,provider,model,result,answer,ttft_ms,latency_ms,tok_per_sec,tokens_in,tokens_cached,tokens_out,tokens_reasoning,tokens_estimated,cost_usd,error');
     expect(lines[3]).toContain('"What is 17, cubed?"');
   });
   it('quotes and neutralizes formulas', () => {

@@ -1,4 +1,4 @@
-import { ask, ApiError, describeError, logError, type Phase, type Trace } from './api';
+import { answerCost, ask, ApiError, describeError, logError, type Phase, type Pricing, type Trace } from './api';
 import { logRequest, logResult, type LogContext } from './debuglog';
 import { extractFinalAnswer, isCorrect, splitThinking } from './grading';
 import type { AnswerResult, Endpoint, Question } from './types';
@@ -11,6 +11,8 @@ export interface RaceEntry {
   model: string;
   /** Lane color, used to tag this horse in debug logs. */
   color?: string;
+  /** Published price for this model, if the provider lists one. */
+  pricing?: Pricing;
 }
 
 export type RacerStatus = 'waiting' | 'running' | 'finished' | 'done' | 'dnf' | 'stopped';
@@ -37,10 +39,24 @@ export interface RacerStats {
   /** Not answered within the time limit. */
   timeouts: number;
   accuracy: number | null;
-  /** Median (p50) latency. */
+  /** Median (p50) end-to-end latency. */
   medianLatencyMs: number | null;
-  /** 90th percentile latency: how slow it gets on its slower answers. */
-  p90LatencyMs: number | null;
+  /** Median (p50) time to first token, over streamed answers. */
+  ttftP50Ms: number | null;
+  /** Median (p50) output speed in tokens per second, after the first token. */
+  tokPerSecP50: number | null;
+  /** True if any speed sample used estimated token counts. */
+  tokPerSecEstimated: boolean;
+  /** Token totals over all answers (including timeouts' partial output). */
+  tokensIn: number;
+  tokensOut: number;
+  tokensReasoning: number;
+  /** Cached input tokens, or null when the provider never reported them. */
+  tokensCached: number | null;
+  /** True if any count was estimated rather than reported. */
+  tokensEstimated: boolean;
+  /** Total cost in USD, or null when there's no price or no token counts. */
+  costUsd: number | null;
 }
 
 export type EndReason = 'finish' | 'exhausted' | 'stopped';
@@ -70,9 +86,26 @@ export function percentile(xs: number[], p: number): number | null {
   return s[lo] + (s[hi] - s[lo]) * (pos - lo);
 }
 
+/** Shortest generation time worth measuring; anything quicker arrived in one burst. */
+const MIN_GEN_MS = 100;
+
+/**
+ * Output speed of one answer: output tokens (reasoning included) per second,
+ * from the first token to the end. Null without a first-token time or token count,
+ * for errors and timeouts, and when the reply arrived all at once.
+ */
+export function tokensPerSec(res: AnswerResult): number | null {
+  if (res.error || res.timedOut || res.ttftMs == null) return null;
+  const out = res.tokens?.out;
+  const genMs = res.latencyMs - res.ttftMs;
+  if (!out || out < 2 || genMs < MIN_GEN_MS) return null;
+  return out / (genMs / 1000);
+}
+
 export function statsOf(r: RacerState): RacerStats {
   const done = r.results.filter((x): x is AnswerResult => !!x);
   const ok = done.filter((x) => !x.error && !x.timedOut);
+  const speeds = ok.filter((x) => tokensPerSec(x) != null);
   const timeouts = done.filter((x) => x.timedOut).length;
   return {
     answered: done.length,
@@ -82,7 +115,23 @@ export function statsOf(r: RacerState): RacerStats {
     timeouts,
     accuracy: done.length ? r.correct / done.length : null,
     medianLatencyMs: percentile(ok.map((x) => x.latencyMs), 0.5),
-    p90LatencyMs: percentile(ok.map((x) => x.latencyMs), 0.9),
+    tokensIn: done.reduce((s, x) => s + (x.tokens?.in ?? 0), 0),
+    tokensOut: done.reduce((s, x) => s + (x.tokens?.out ?? 0), 0),
+    tokensReasoning: done.reduce((s, x) => s + (x.tokens?.reasoning ?? 0), 0),
+    tokensEstimated: done.some((x) => x.tokens?.estimated && (x.tokens.out ?? 0) > 0),
+    tokensCached: done.some((x) => x.tokens?.cached != null)
+      ? done.reduce((s, x) => s + (x.tokens?.cached ?? 0), 0)
+      : null,
+    costUsd: (() => {
+      const costs = done.map((x) => answerCost(x.tokens, r.entry.pricing)).filter((c): c is number => c != null);
+      return costs.length ? costs.reduce((s, c) => s + c, 0) : null;
+    })(),
+    ttftP50Ms: percentile(
+      ok.map((x) => x.ttftMs).filter((x): x is number => x != null),
+      0.5,
+    ),
+    tokPerSecP50: percentile(speeds.map((x) => tokensPerSec(x)!), 0.5),
+    tokPerSecEstimated: speeds.some((x) => x.tokens?.estimated),
   };
 }
 
@@ -187,18 +236,26 @@ export class Race {
           reasoning: [out.reasoning.trim(), thinking].filter(Boolean).join('\n\n'),
           correct: isCorrect(answer, [q.answer, ...q.aliases]),
           latencyMs: out.latencyMs,
+          ttftMs: out.ttftMs,
+          tokens: out.tokens,
         };
         consecutiveErrors = 0;
       } catch (e) {
         if (this.over) return;
         if (timedOut) {
+          // Keep whatever arrived before the cutoff, for display and debugging. It is never graded.
+          const partial = e instanceof ApiError ? e.partial : undefined;
+          const split = splitThinking(partial?.content ?? '');
+          trace = partial?.trace;
           res = {
             questionIndex: qi,
-            raw: '',
+            raw: split.reply,
             answer: '',
-            reasoning: '',
+            reasoning: [partial?.reasoning.trim() ?? '', split.thinking].filter(Boolean).join('\n\n'),
             correct: false,
             latencyMs: this.timeLimitMs!,
+            ttftMs: partial?.trace.firstTokenMs,
+            tokens: partial?.tokens,
             timedOut: true,
           };
         } else {

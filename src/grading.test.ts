@@ -41,6 +41,12 @@ describe('normalize', () => {
     expect(normalize('300,000')).toBe('300000');
     expect(normalize('7.0')).toBe('7');
     expect(normalize('42.2 km.')).toBe('42.2 km');
+    expect(normalize('50,201,940')).toBe('50201940');
+    expect(normalize('50.201.940.')).toBe('50201940');
+    expect(normalize('50 201 940')).toBe('50201940');
+    expect(normalize('50\u202f201\u202f940')).toBe('50201940');
+    expect(normalize('1.234')).toBe('1.234');
+    expect(normalize('3.141.59')).toBe('3.141.59');
   });
 });
 
@@ -60,6 +66,14 @@ describe('isCorrect', () => {
     ['Marie Skłodowska-Curie', ['marie sklodowska curie'], true],
     ['300,000 km/s', ['300000'], true],
     ['Ω', ['Ohm', 'Ω'], true],
+    ['50,201,940', ['50201940'], true],
+    ['50.201.940', ['50201940'], true],
+    ['50 201 940', ['50201940'], true],
+    ['ANSWER is 50,201,940 km', ['50201940'], true],
+    ['50,201,941', ['50201940'], false],
+    ['502,019,40', ['50201940'], false],
+    ['5020 1940', ['50201940'], false],
+    ['1.234', ['1234'], false],
   ])('%j vs %j -> %s', (answer, accepted, expected) => {
     expect(isCorrect(answer, accepted)).toBe(expected);
   });

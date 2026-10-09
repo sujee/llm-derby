@@ -1,8 +1,8 @@
 import './style.css';
-import { PROVIDERS, providerById } from './providers';
-import { describeError, listModels, logError } from './api';
+import { PROVIDER_MENU, providerById } from './providers';
+import { describeError, listModels, logError, type Pricing } from './api';
 import { Race, statsOf, type RaceSummary, type RacerState } from './race';
-import { $, fmtClock, fmtPct, fmtSec, h, wait } from './dom';
+import { $, fmtClock, fmtLimit, fmtPct, fmtSec, fmtTok, fmtTps, fmtUsd, h, wait } from './dom';
 import { horseSvg } from './horse';
 import { sound } from './sound';
 import { confetti } from './confetti';
@@ -10,6 +10,12 @@ import { DEFAULT_LEVELS, LEVELS, available, byLevel, ordered, pickQuestions, que
 import { GENERATORS, generateExpert } from './generated';
 import { buildExport, download, exportBaseName, toCsv } from './export';
 import { debugLog, logRaceEnd, logRaceStart } from './debuglog';
+import { Announcer } from './announcer';
+import { Commentator, displayNames } from './commentary';
+// The question bank as a file next to the app, so "See all questions" shows this exact version.
+import questionsUrl from './questions.json?url';
+import { SERIES_POINTS, seriesClinched, seriesDone, seriesStandings, type SeriesState } from './series';
+import { SHARE_PREFIX, decodeSetup, encodeSetup, type ShareLimits } from './sharelink';
 import type { AnswerResult, Difficulty, Endpoint, Question } from './types';
 
 const LANES = [
@@ -29,14 +35,19 @@ const MAX_DISTANCE = 60;
 interface HorseConfig {
   providerId: string;
   model: string;
+  /** Base URL when the provider is Custom; each horse can point at its own server. */
+  baseUrl?: string;
 }
 
 interface Settings {
   horseCount: number;
   horses: HorseConfig[];
   distance: number;
-  customBaseUrl: string;
   sound: boolean;
+  /** Show the race announcer's commentary bar. */
+  announcer: boolean;
+  /** Races per series: 1 for a single race, or best of 3 / 5. */
+  series: number;
   /** Selected difficulty levels (at least one). */
   levels: Difficulty[];
   /** Questions run easy → medium → hard → expert. */
@@ -50,15 +61,16 @@ interface Settings {
 // Kept from the app's original name so existing saved settings still load.
 const SETTINGS_KEY = 'llm-horse-racing.settings';
 /** Bump when a default changes and older saved values should be replaced by it. */
-const SETTINGS_VERSION = 2; // v2: default time limit raised to 30s
+const SETTINGS_VERSION = 3; // v2: default time limit raised to 30s · v3: default levels Hard + Expert
 
 function loadSettings(): Settings {
   const defaults: Settings = {
     horseCount: 4,
     horses: LANES.map(() => ({ providerId: 'nebius', model: '' })),
     distance: 20,
-    customBaseUrl: '',
     sound: true,
+    announcer: true,
+    series: 1,
     debug: false,
     levels: [...DEFAULT_LEVELS],
     rising: false,
@@ -67,23 +79,27 @@ function loadSettings(): Settings {
   };
   try {
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? 'null') as
-      | (Partial<Settings> & { difficulty?: string; v?: number })
+      | (Partial<Settings> & { difficulty?: string; v?: number; customBaseUrl?: string })
       | null;
     if (!saved) return defaults;
     // Settings saved before v2 hold the old 10s/15s default time limit: switch them to 30s once.
     if ((saved.v ?? 1) < 2) delete saved.timeLimitSec;
+    // Settings saved before v3 hold the old default levels: switch them to Hard + Expert once.
+    if ((saved.v ?? 1) < 3) delete saved.levels;
     // Older versions saved a single `difficulty` ('mixed' or one level).
     let levels = ordered(Array.isArray(saved.levels) ? saved.levels : []);
     if (!levels.length && saved.difficulty) {
       levels = saved.difficulty === 'mixed' ? [...DEFAULT_LEVELS] : ordered([saved.difficulty as Difficulty]);
     }
-    const { difficulty: _legacy, v: _version, ...rest } = saved;
+    const { difficulty: _legacy, v: _version, customBaseUrl: legacyUrl, ...rest } = saved;
     return {
       ...defaults,
       ...rest,
       levels: levels.length ? levels : defaults.levels,
       horses: defaults.horses.map((d, i) => {
         const h = { ...d, ...(saved.horses?.[i] ?? {}) };
+        // Older versions had one custom base URL shared by all horses.
+        if (providerById(h.providerId).editableUrl && !h.baseUrl && legacyUrl) h.baseUrl = legacyUrl;
         // API keys don't survive a reload, so don't restore models that need one.
         return providerById(h.providerId).noKey ? h : { ...h, model: '' };
       }),
@@ -95,20 +111,28 @@ function loadSettings(): Settings {
 
 const S = {
   ...loadSettings(),
+  // Keys, model lists, prices and load status are per source: the provider ID, or `custom-<lane>`
+  // for a Custom horse (each has its own server). See sourceOf().
   keys: {} as Record<string, string>,
   models: {} as Record<string, string[]>,
+  /** Published prices by source, then model ID (only for providers that list them). */
+  pricing: {} as Record<string, Record<string, Pricing>>,
   modelStatus: {} as Record<string, { state: 'loading' | 'ok' | 'error'; msg: string; detail?: string }>,
   setupError: '',
+  /** Information shown above the setup (e.g. after opening a shared link). */
+  setupNotice: '',
   questions: [] as Question[],
   /** Difficulty settings the current questions were drawn with. */
   questionsLabel: '',
   race: null as Race | null,
+  /** The series in progress, if racing a best-of series. */
+  seriesState: null as SeriesState | null,
   /** Wall-clock start of the current race, for exports. */
   raceStartedAt: new Date(),
 };
 
 function saveSettings() {
-  const { horseCount, horses, distance, customBaseUrl, sound: snd, levels, rising, timeLimitOn, timeLimitSec, debug } = S;
+  const { horseCount, horses, distance, sound: snd, announcer, series, levels, rising, timeLimitOn, timeLimitSec, debug } = S;
   try {
     localStorage.setItem(
       SETTINGS_KEY,
@@ -117,8 +141,9 @@ function saveSettings() {
         horseCount,
         horses,
         distance,
-        customBaseUrl,
         sound: snd,
+        announcer,
+        series,
         levels,
         rising,
         timeLimitOn,
@@ -135,13 +160,28 @@ sound.enabled = S.sound;
 
 const activeHorses = () => S.horses.slice(0, S.horseCount);
 
-function endpointFor(providerId: string): Endpoint {
-  const provider = providerById(providerId);
-  return {
-    provider,
-    baseUrl: provider.editableUrl ? S.customBaseUrl : provider.baseUrl,
-    apiKey: S.keys[providerId] ?? '',
-  };
+/** Where horse i's key, models and prices live: its provider, or its own slot for a Custom horse. */
+function sourceOf(i: number): string {
+  const hc = S.horses[i];
+  return providerById(hc.providerId).editableUrl ? `custom-${i}` : hc.providerId;
+}
+
+/** "https://api.example.com:8443/v1" -> "api.example.com:8443" */
+function hostLabel(url: string): string {
+  try {
+    return new URL(url).host || url;
+  } catch {
+    return url;
+  }
+}
+
+function endpointFor(i: number): Endpoint {
+  const hc = S.horses[i];
+  const p = providerById(hc.providerId);
+  const baseUrl = p.editableUrl ? (hc.baseUrl ?? '') : p.baseUrl;
+  // A Custom horse is named after its server, so different custom endpoints are told apart everywhere.
+  const provider = p.editableUrl && baseUrl ? { ...p, name: hostLabel(baseUrl) } : p;
+  return { provider, baseUrl, apiKey: S.keys[sourceOf(i)] ?? '' };
 }
 
 /** "meta-llama/Llama-3.3-70B-Instruct" -> "Llama-3.3-70B-Instruct" */
@@ -159,6 +199,67 @@ const LEVEL_SAMPLE: Record<Difficulty, string> = (() => {
 const levelsLabel = (levels: Difficulty[]) => ordered(levels).map((l) => LEVEL_LABEL[l]).join(' + ');
 const MIN_TIME_LIMIT = 3;
 const MAX_TIME_LIMIT = 300;
+
+const SHARE_LIMITS: ShareLimits = {
+  isProvider: (id) => PROVIDER_MENU.some((p) => p.id === id),
+  hasCustomUrl: (id) => !!providerById(id).editableUrl,
+  minDistance: MIN_DISTANCE,
+  maxDistance: MAX_DISTANCE,
+  minTimeLimit: MIN_TIME_LIMIT,
+  maxTimeLimit: MAX_TIME_LIMIT,
+};
+
+/** Link that reopens the current setup (never includes API keys). */
+function setupLink(): string {
+  const code = encodeSetup({
+    horses: activeHorses().map((hc) => ({
+      providerId: hc.providerId,
+      model: hc.model,
+      ...(providerById(hc.providerId).editableUrl && hc.baseUrl ? { baseUrl: hc.baseUrl } : {}),
+    })),
+    distance: S.distance,
+    levels: S.levels,
+    rising: S.rising,
+    timeLimitSec: S.timeLimitOn ? S.timeLimitSec : null,
+  });
+  return `${location.origin}${location.pathname}${SHARE_PREFIX}${code}`;
+}
+
+async function copySetupLink(btn: HTMLButtonElement) {
+  const link = setupLink();
+  try {
+    await navigator.clipboard.writeText(link);
+    btn.textContent = '✓ Link copied';
+    setTimeout(() => (btn.textContent = '🔗 Copy setup link'), 2000);
+  } catch {
+    // Clipboard blocked (e.g. not a secure context): show the link so it can be copied by hand.
+    S.setupNotice = `Copy this link: ${link}`;
+    renderSetup();
+  }
+}
+
+/** Apply a setup from the page's link (#setup=…), then drop it from the address bar. */
+function applySharedSetup() {
+  if (!location.hash.startsWith(SHARE_PREFIX)) return;
+  const shared = decodeSetup(location.hash, SHARE_LIMITS);
+  history.replaceState(null, '', location.pathname + location.search);
+  if (!shared) {
+    S.setupNotice = 'That setup link could not be read, so your previous setup is shown.';
+    return;
+  }
+  S.horseCount = shared.horses.length;
+  shared.horses.forEach((x, i) => (S.horses[i] = { ...x }));
+  S.distance = shared.distance;
+  S.levels = shared.levels;
+  S.rising = shared.rising;
+  S.timeLimitOn = shared.timeLimitSec != null;
+  if (shared.timeLimitSec != null) S.timeLimitSec = shared.timeLimitSec;
+  saveSettings();
+  const custom = shared.horses.some((x) => x.baseUrl);
+  S.setupNotice =
+    'Setup loaded from a shared link. Add your API keys to race.' +
+    (custom ? ' It includes custom servers: check each Base URL before entering a key there.' : '');
+}
 
 /** Draw a fresh question set using the current difficulty settings. */
 function newQuestions() {
@@ -183,6 +284,25 @@ function toggleSound() {
   sound.enabled = S.sound;
   saveSettings();
   renderSoundBtn();
+}
+
+const announcerBtn = h('button', {
+  class: 'btn ghost',
+  type: 'button',
+  title: 'Show or hide the race commentary',
+  onclick: toggleAnnouncer,
+});
+
+function renderAnnouncerBtn() {
+  announcerBtn.textContent = S.announcer ? '📣 Announcer on' : '📣 Announcer off';
+  announcerBtn.setAttribute('aria-pressed', String(S.announcer));
+  document.body.classList.toggle('no-announcer', !S.announcer);
+}
+
+function toggleAnnouncer() {
+  S.announcer = !S.announcer;
+  saveSettings();
+  renderAnnouncerBtn();
 }
 
 const debugBtn = h('button', {
@@ -225,7 +345,7 @@ $('#app').append(
         h('h1', null, 'LLM Derby'),
         h('p', { class: 'tagline' }, 'Step right up! The fastest, smartest model wins the derby!'),
       ),
-      h('div', { class: 'header-toggles' }, debugBtn, soundBtn),
+      h('div', { class: 'header-toggles' }, debugBtn, announcerBtn, soundBtn),
     ),
   ),
   h('main', null, h('section', { id: 'setup' }), h('section', { id: 'race', hidden: true })),
@@ -236,6 +356,7 @@ $('#app').append(
   ),
 );
 renderSoundBtn();
+renderAnnouncerBtn();
 debugLog.enabled = S.debug;
 renderDebugBtn();
 
@@ -252,29 +373,32 @@ function showView(view: 'setup' | 'race') {
 /** Model-list requests in flight, so several cards on one provider share a single request. */
 const modelLoads = new Map<string, Promise<void>>();
 
-function loadModelsFor(providerId: string): Promise<void> {
-  const ep = endpointFor(providerId);
-  const key = `${providerId}|${ep.baseUrl}|${ep.apiKey}`;
+function loadModelsFor(i: number): Promise<void> {
+  const src = sourceOf(i);
+  const ep = endpointFor(i);
+  const key = `${src}|${ep.baseUrl}|${ep.apiKey}`;
   let load = modelLoads.get(key);
   if (!load) {
-    load = fetchModels(providerId, ep).finally(() => modelLoads.delete(key));
+    load = fetchModels(src, ep).finally(() => modelLoads.delete(key));
     modelLoads.set(key, load);
   }
   return load;
 }
 
-async function fetchModels(providerId: string, ep: Endpoint) {
-  S.modelStatus[providerId] = { state: 'loading', msg: 'Loading models…' };
+async function fetchModels(src: string, ep: Endpoint) {
+  S.modelStatus[src] = { state: 'loading', msg: 'Loading models…' };
   renderSetup();
   try {
-    const ids = await listModels(ep);
-    S.models[providerId] = ids;
-    S.modelStatus[providerId] = ids.length
-      ? { state: 'ok', msg: `${ids.length} models loaded` }
+    const { ids, pricing } = await listModels(ep);
+    S.models[src] = ids;
+    S.pricing[src] = pricing;
+    const priced = Object.keys(pricing).length;
+    S.modelStatus[src] = ids.length
+      ? { state: 'ok', msg: `${ids.length} models loaded${priced ? ` · prices for ${priced}` : ''}` }
       : { state: 'error', msg: 'No models returned. Type the model ID instead.' };
   } catch (e) {
-    logError(`Loading models for ${providerById(providerId).name}`, e);
-    S.modelStatus[providerId] = {
+    logError(`Loading models for ${ep.provider.name}`, e);
+    S.modelStatus[src] = {
       state: 'error',
       msg: `Could not load models (${(e as Error).message}). You can still type the model ID.`,
       detail: describeError(e),
@@ -287,14 +411,15 @@ function horseCard(i: number) {
   const hc = S.horses[i];
   const p = providerById(hc.providerId);
   const lane = LANES[i];
-  const status = S.modelStatus[p.id];
-  const models = S.models[p.id] ?? [];
+  const src = sourceOf(i);
+  const status = S.modelStatus[src];
+  const models = S.models[src] ?? [];
 
   // Models load only when "Load models" is clicked. The simulated provider has no button
   // (its models are built in, no network call), so it fills in right away.
   if (!status && p.simulated) {
-    S.modelStatus[p.id] = { state: 'loading', msg: 'Loading models…' }; // claim it before other cards render
-    queueMicrotask(() => void loadModelsFor(p.id));
+    S.modelStatus[src] = { state: 'loading', msg: 'Loading models…' }; // claim it before other cards render
+    queueMicrotask(() => void loadModelsFor(i));
   }
 
   const providerSel = h(
@@ -308,7 +433,7 @@ function horseCard(i: number) {
         renderSetup();
       },
     },
-    PROVIDERS.map((pp) => h('option', { value: pp.id, selected: pp.id === p.id }, pp.name)),
+    PROVIDER_MENU.map((pp) => h('option', { value: pp.id, selected: pp.id === p.id }, pp.name)),
   );
 
   let urlField: HTMLElement | null = null;
@@ -316,13 +441,13 @@ function horseCard(i: number) {
     const urlInput = h('input', {
       type: 'url',
       placeholder: 'https://your-server.example.com/v1',
-      value: S.customBaseUrl,
+      value: hc.baseUrl ?? '',
       spellcheck: 'false',
       'data-fid': `url-${i}`,
       // Update state as you type, and never re-render on blur: that would replace the field
       // or button the user is moving to (and swallow the click).
       oninput: () => {
-        S.customBaseUrl = urlInput.value.trim();
+        hc.baseUrl = urlInput.value.trim();
         saveSettings();
       },
     });
@@ -333,13 +458,13 @@ function horseCard(i: number) {
   if (!p.noKey) {
     const keyInput = h('input', {
       type: 'password',
-      placeholder: `${p.name} API key`,
-      value: S.keys[p.id] ?? '',
+      placeholder: p.editableUrl ? 'Leave empty if not needed' : `${p.name} API key`,
+      value: S.keys[src] ?? '',
       autocomplete: 'off',
       spellcheck: 'false',
       'data-fid': `key-${i}`,
       oninput: () => {
-        S.keys[p.id] = keyInput.value.trim();
+        S.keys[src] = keyInput.value.trim();
       },
     });
     keyField = h(
@@ -348,7 +473,7 @@ function horseCard(i: number) {
       h(
         'span',
         null,
-        'API key',
+        p.editableUrl ? 'API key (optional)' : 'API key',
         p.keyUrl ? h('a', { href: p.keyUrl, target: '_blank', rel: 'noopener noreferrer' }, 'get a key ↗') : null,
       ),
       h(
@@ -361,9 +486,9 @@ function horseCard(i: number) {
             class: 'btn small',
             type: 'button',
             onclick: () => {
-              S.keys[p.id] = keyInput.value.trim();
+              S.keys[src] = keyInput.value.trim();
               S.setupError = '';
-              void loadModelsFor(p.id);
+              void loadModelsFor(i);
             },
             'data-fid': `load-${i}`,
           },
@@ -412,15 +537,16 @@ function assignRandomModels() {
   const taken = new Set<string>();
   const missing: string[] = [];
   for (const [i, hc] of activeHorses().entries()) {
-    const all = S.models[hc.providerId] ?? [];
+    const src = sourceOf(i);
+    const all = S.models[src] ?? [];
     if (!all.length) {
-      missing.push(`Horse ${i + 1} (${providerById(hc.providerId).name})`);
+      missing.push(`Horse ${i + 1} (${endpointFor(i).provider.name})`);
       continue;
     }
-    const fresh = all.filter((m) => !taken.has(`${hc.providerId}|${m}`));
+    const fresh = all.filter((m) => !taken.has(`${src}|${m}`));
     const pool = fresh.length ? fresh : all;
     hc.model = pool[Math.floor(Math.random() * pool.length)];
-    taken.add(`${hc.providerId}|${hc.model}`);
+    taken.add(`${src}|${hc.model}`);
   }
   S.setupError = missing.length ? `Load models first for: ${missing.join(', ')}.` : '';
   saveSettings();
@@ -430,8 +556,9 @@ function assignRandomModels() {
 function validateSetup(): string {
   for (const [i, hc] of activeHorses().entries()) {
     const p = providerById(hc.providerId);
-    if (p.editableUrl && !/^https?:\/\/\S+$/.test(S.customBaseUrl)) return `Horse ${i + 1}: enter the custom base URL.`;
-    if (!p.noKey && !S.keys[p.id]) return `Horse ${i + 1}: enter your ${p.name} API key.`;
+    if (p.editableUrl && !/^https?:\/\/\S+$/.test(hc.baseUrl ?? '')) return `Horse ${i + 1}: enter the custom base URL.`;
+    // A custom server may not need a key (e.g. a local vLLM or Ollama).
+    if (!p.noKey && !p.editableUrl && !S.keys[sourceOf(i)]) return `Horse ${i + 1}: enter your ${p.name} API key.`;
     if (!hc.model) return `Horse ${i + 1}: choose a model.`;
   }
   return '';
@@ -495,6 +622,7 @@ function buildSetup() {
   setQInfo();
   const distanceInput = h('input', {
     type: 'number',
+    id: 'distance',
     'data-fid': 'distance',
     min: String(MIN_DISTANCE),
     max: String(MAX_DISTANCE),
@@ -549,10 +677,11 @@ function buildSetup() {
   const limitBox = h('input', {
     type: 'checkbox',
     checked: S.timeLimitOn,
+    'aria-label': 'Use a time limit',
     onchange: () => {
       S.timeLimitOn = limitBox.checked;
       limitInput.disabled = !S.timeLimitOn;
-      document.querySelector('.limit-help')?.classList.toggle('off', !S.timeLimitOn);
+      document.querySelectorAll('.ctl-time .unit, .limit-help').forEach((el) => el.classList.toggle('off', !S.timeLimitOn));
       saveSettings();
     },
   });
@@ -577,7 +706,56 @@ function buildSetup() {
     },
   });
 
+  const formatToggle = h(
+    'div',
+    { class: 'segmented format', role: 'group', 'aria-label': 'Races' },
+    [
+      [1, 'Single race', 'One race'],
+      [3, 'Best of 3', 'A series of 3 races with new questions each time; points decide the champion'],
+      [5, 'Best of 5', 'A series of 5 races with new questions each time; points decide the champion'],
+    ].map(([n, label, title]) =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class: S.series === n ? 'on' : '',
+          'aria-pressed': String(S.series === n),
+          title: String(title),
+          onclick: () => {
+            S.series = Number(n);
+            saveSettings();
+            renderSetup();
+          },
+        },
+        String(label),
+      ),
+    ),
+  );
+
+  const startBtn = h(
+    'button',
+    {
+      class: 'btn big start-btn',
+      type: 'button',
+      'data-fid': 'start',
+      onclick: () => {
+        S.setupError = validateSetup();
+        if (S.setupError) return renderSetup();
+        S.setupNotice = '';
+        S.seriesState = S.series > 1 ? { of: S.series, legs: [] } : null;
+        seriesPaused = false;
+        newQuestions();
+        void startRace();
+      },
+    },
+    S.series > 1 ? `🏁 Start the series!` : '🏁 Start the race!',
+  );
+
+  const timeHelp =
+    'Answers slower than this count as wrong (shown as “timeout”). ~10s rewards speed (fast “flash” models answer in 2–5s); 15–30s is balanced; 60s+ suits reasoning / thinking models and Expert questions.';
+
   $('#setup').replaceChildren(
+    h('p', { class: 'setup-notice', role: 'status', hidden: !S.setupNotice }, S.setupNotice),
     h(
       'div',
       { class: 'panel' },
@@ -598,6 +776,16 @@ function buildSetup() {
             },
             '🎲 Assign models',
           ),
+          h(
+            'button',
+            {
+              class: 'btn small',
+              type: 'button',
+              title: 'Copy a link that opens this setup: providers, models, distance and options. API keys are never included.',
+              onclick: (e: Event) => void copySetupLink(e.currentTarget as HTMLButtonElement),
+            },
+            '🔗 Copy setup link',
+          ),
           countToggle,
         ),
       ),
@@ -612,31 +800,18 @@ function buildSetup() {
       { class: 'panel settings-row' },
       h(
         'div',
-        { class: 'settings-fields' },
+        { class: 'controls' },
         h(
-          'label',
-          { class: 'field distance' },
-          h('span', null, 'Winning distance (correct answers)'),
-          distanceInput,
-        ),
-        h('div', { class: 'field' }, h('span', null, 'Question difficulty'), levelBoxes),
-        h(
-          'button',
-          {
-            class: 'btn big start-btn',
-            type: 'button',
-            onclick: () => {
-              S.setupError = validateSetup();
-              if (S.setupError) return renderSetup();
-              newQuestions();
-              void startRace();
-            },
-          },
-          '🏁 Start the race!',
+          'div',
+          { class: 'ctl ctl-distance' },
+          h('label', { class: 'ctl-label', for: 'distance', title: 'The first horse to this many correct answers wins' }, 'Winning distance'),
+          h('div', { class: 'ctl-line' }, distanceInput, h('span', { class: 'unit' }, 'correct')),
         ),
         h(
           'div',
-          { class: 'options' },
+          { class: 'ctl ctl-difficulty' },
+          h('span', { class: 'ctl-label' }, 'Question difficulty'),
+          levelBoxes,
           h(
             'label',
             {
@@ -646,25 +821,25 @@ function buildSetup() {
             risingBox,
             '📈 Rising difficulty (easy → hard)',
           ),
+        ),
+        h(
+          'div',
+          { class: 'ctl ctl-time', title: timeHelp },
+          h('span', { class: 'ctl-label' }, 'Time limit'),
           h(
             'div',
-            { class: 'option', title: 'Answers slower than this count as wrong (shown as “too slow”)' },
-            h('label', { class: 'option' }, limitBox, '⏱ Time limit'),
+            { class: 'ctl-line' },
+            limitBox,
             limitInput,
-            h('span', null, 'sec per question'),
+            h('span', { class: `unit${S.timeLimitOn ? '' : ' off'}` }, 'sec / question'),
           ),
-          h(
-            'p',
-            { class: `limit-help${S.timeLimitOn ? '' : ' off'}` },
-            '⏱ Time limit guide: ',
-            h('strong', null, '~10s'),
-            ' rewards speed (fast “flash” models answer in 2–5s) · ',
-            h('strong', null, '15–30s'),
-            ' balanced · ',
-            h('strong', null, '60s+'),
-            ' for reasoning / thinking models and Expert questions. Slower answers count as “too slow”.',
-          ),
+          h('p', { class: `limit-help${S.timeLimitOn ? '' : ' off'}` }, '10s fast · 15–30s balanced · 60s+ reasoning'),
         ),
+        h('div', { class: 'ctl ctl-start' }, formatToggle, startBtn),
+      ),
+      h(
+        'div',
+        { class: 'preview' },
         h(
           'ul',
           { class: 'level-legend', 'aria-label': 'Sample question per level' },
@@ -677,7 +852,22 @@ function buildSetup() {
             ),
           ),
         ),
-        qInfo,
+        h(
+          'div',
+          { class: 'preview-foot' },
+          qInfo,
+          h(
+            'a',
+            {
+              class: 'all-questions',
+              href: questionsUrl,
+              target: '_blank',
+              rel: 'noopener',
+              title: 'Every question in this version of the game, with its accepted answers (Expert questions are generated each race)',
+            },
+            '📖 See all questions ↗',
+          ),
+        ),
       ),
     ),
     h('p', { class: 'setup-error', role: 'alert', hidden: !S.setupError }, S.setupError),
@@ -717,11 +907,238 @@ interface RaceUI {
   newBtn: HTMLButtonElement;
   setupBtn: HTMLButtonElement;
   clockFrame: number;
+  announcer: Announcer;
 }
 
 let UI: RaceUI | null = null;
 
+// ---------------------------------------------------------------------------
+// Series history: each finished race's view stays available from a strip of race buttons.
+// ---------------------------------------------------------------------------
+
+interface RacePage {
+  page: HTMLElement;
+  /** Race number in the series. */
+  num: number;
+  /** Short result for the strip, e.g. "🏆 sprinter" or "stopped". */
+  result: string;
+  /** Counted toward the series (a stopped race isn't). */
+  counted: boolean;
+  race: Race;
+  /** Full model ID of the winner, for the tooltip. */
+  winner?: string;
+}
+
+/** Earlier races of the current series, oldest first. */
+const pastPages: RacePage[] = [];
+let livePage: RacePage | null = null;
+const raceStrip = h('nav', { class: 'race-strip', 'aria-label': 'Races in this series', hidden: true });
+const tallyEl = h('section', { class: 'panel results-panel tally', hidden: true });
+type StripView = RacePage | 'tally';
+
+function mountRacePage(page: HTMLElement, num: number) {
+  const s = S.seriesState;
+  if (!s || !s.legs.length) pastPages.length = 0; // single race, or a new series
+  else if (livePage?.counted) {
+    livePage.page.classList.add('archived');
+    pastPages.push(livePage);
+  }
+  livePage = { page, num, result: 'live', counted: false, race: S.race! };
+  $('#race').replaceChildren(raceStrip, tallyEl, ...pastPages.map((p) => p.page), page);
+  showRacePage(livePage);
+}
+
+function showRacePage(target: StripView) {
+  for (const p of [...pastPages, livePage]) if (p) p.page.hidden = p !== target;
+  tallyEl.hidden = target !== 'tally';
+  if (target === 'tally') renderTally();
+  const series = S.seriesState;
+  raceStrip.hidden = !series;
+  if (!series) return;
+  const legs = series.legs.length;
+  const show = (view: StripView) => () => {
+    showRacePage(view);
+    window.scrollTo({ top: 0 });
+  };
+  // One button per race in the series; races not run yet are shown but disabled.
+  const total = Math.max(series.of, livePage?.num ?? 0);
+  const raceBtns = Array.from({ length: total }, (_, i) => {
+    const num = i + 1;
+    const p = [...pastPages, livePage].find((x) => x?.num === num) ?? null;
+    if (!p) {
+      return h('button', { type: 'button', class: 'strip-race', disabled: true, title: 'Not run yet' }, h('strong', null, `Race ${num}`));
+    }
+    return h(
+      'button',
+      {
+        type: 'button',
+        class: `strip-race${p === target ? ' on' : ''}${p === livePage ? ' latest' : ''}`,
+        'aria-pressed': String(p === target),
+        title: `${p === livePage ? 'The latest race' : `Look at race ${num} again: lanes, results and question board`}${p.winner ? `\nWinner: ${p.winner}` : ''}`,
+        onclick: show(p),
+      },
+      h('strong', null, `Race ${num}`),
+      ` ${p.result}`,
+    );
+  });
+  const tallyBtn = h(
+    'button',
+    {
+      type: 'button',
+      class: `strip-race tally-btn${target === 'tally' ? ' on' : ''}`,
+      'aria-pressed': String(target === 'tally'),
+      disabled: !legs,
+      title: legs ? 'The whole series so far: points, places and totals across all races' : 'Available after the first race',
+      onclick: show('tally'),
+    },
+    h('strong', null, '🏆 Series tally'),
+  );
+  raceStrip.replaceChildren(h('span', { class: 'strip-label' }, `Best of ${series.of}`), ...raceBtns, tallyBtn);
+}
+
+/** Whole-series summary: standings plus totals over every counted race. */
+function renderTally() {
+  const s = S.seriesState;
+  const counted = [...pastPages, livePage].filter((p): p is RacePage => !!p?.counted);
+  if (!s || !counted.length) return tallyEl.replaceChildren();
+  const racers = counted[counted.length - 1].race.racers;
+  const rows = seriesStandings(s, racers.length);
+  const over = seriesDone(s) || seriesClinched(s, racers.length);
+  const name = (r: RacerState) => shortModel(r.entry.model);
+  // One combined record per horse across all counted races, so the usual stats apply.
+  const combined = (lane: number): RacerState => {
+    const all = counted.map((p) => p.race.racers[lane]);
+    return {
+      ...all[all.length - 1],
+      results: all.flatMap((r) => r.results),
+      correct: all.reduce((n, r) => n + r.correct, 0),
+      errors: all.reduce((n, r) => n + r.errors, 0),
+    };
+  };
+  const leader = racers[rows[0].lane];
+  const left = s.of - s.legs.length;
+  tallyEl.replaceChildren(
+    h('h2', { class: 'headline' }, over ? `🏆 ${name(leader)} wins the series!` : `🏆 Series tally after ${s.legs.length} of ${s.of} races`),
+    h(
+      'p',
+      { class: 'muted' },
+      over
+        ? `${s.legs.length} race${s.legs.length > 1 ? 's' : ''}${left > 0 ? ` (clinched with ${left} to spare)` : ''}. `
+        : `${name(leader)} leads. `,
+      `Points per race: ${SERIES_POINTS.slice(0, racers.length).map((pts, i) => `${['1st', '2nd', '3rd', '4th'][i]} ${pts}`).join(' · ')}. Ties go to most wins, then most correct answers.`,
+    ),
+    h(
+      'div',
+      { class: 'table-wrap' },
+      h(
+        'table',
+        { class: 'standings' },
+        h(
+          'thead',
+          null,
+          h(
+            'tr',
+            null,
+            ['Place', 'Horse', 'Points', 'Wins', ...s.legs.map((_, k) => `Race ${k + 1}`), 'Correct', 'Accuracy', 'Latency p50', 'Tok/s p50', 'Cost'].map((t) => h('th', null, t)),
+          ),
+        ),
+        h(
+          'tbody',
+          null,
+          rows.map((row, i) => {
+            const r = combined(row.lane);
+            const st = statsOf(r);
+            return h(
+              'tr',
+              { vars: { '--c': LANES[row.lane].color } },
+              h('td', null, String(i + 1)),
+              h('td', { class: 'who' }, h('span', { class: 'lane-num' }, String(row.lane + 1)), h('div', null, h('div', { class: 'model', title: r.entry.model }, name(r)), h('div', { class: 'provider' }, r.entry.endpoint.provider.name))),
+              h('td', { class: 'num points' }, String(row.points)),
+              h('td', { class: 'num' }, String(row.wins)),
+              s.legs.map((_, k) => h('td', { class: 'num' }, row.places[k] ? PLACE_MARK[row.places[k] - 1] : '–')),
+              h('td', { class: 'num' }, String(row.correct)),
+              h('td', { class: 'num' }, fmtPct(st.accuracy)),
+              h('td', { class: 'num' }, fmtSec(st.medianLatencyMs)),
+              h('td', { class: 'num' }, fmtTps(st.tokPerSecP50, st.tokPerSecEstimated)),
+              h('td', { class: 'num' }, fmtUsd(st.costUsd, st.tokensEstimated)),
+            );
+          }),
+        ),
+      ),
+    ),
+    h('p', { class: 'muted' }, 'Click a race above to see its lanes, results and question board.'),
+  );
+}
+
+/** Record how the latest race ended, for its button in the strip. */
+function markLiveRace(result: string, counted: boolean, winner?: string) {
+  if (!livePage) return;
+  livePage.result = result;
+  livePage.counted = counted;
+  livePage.winner = winner;
+  showRacePage(livePage);
+}
+
+// ---------------------------------------------------------------------------
+// Presentation mode: full screen, bigger lanes and announcer, no question board.
+// ---------------------------------------------------------------------------
+
+const presentBtns = new Set<HTMLButtonElement>();
+
+function labelPresentBtn(b: HTMLButtonElement) {
+  const on = document.body.classList.contains('present');
+  b.textContent = on ? '✕ Exit presentation' : '📺 Present';
+  b.setAttribute('aria-pressed', String(on));
+}
+
+function renderPresentBtns() {
+  for (const b of presentBtns) {
+    if (b.isConnected) labelPresentBtn(b);
+    else presentBtns.delete(b); // from a race view that has been replaced
+  }
+}
+
+function setPresenting(on: boolean) {
+  document.body.classList.toggle('present', on);
+  renderPresentBtns();
+  if (on && !document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.().catch(() => {
+      /* full screen not allowed here; the bigger layout still applies */
+    });
+  } else if (!on && document.fullscreenElement) {
+    void document.exitFullscreen?.();
+  }
+  window.scrollTo({ top: 0 });
+}
+
+// Leaving full screen (Esc, or the browser's own exit) ends presentation mode too.
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && document.body.classList.contains('present')) setPresenting(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.body.classList.contains('present')) setPresenting(false);
+});
+
+function presentButton(): HTMLButtonElement {
+  const b = h('button', {
+    class: 'btn ghost present-btn',
+    type: 'button',
+    title: 'Full screen with bigger lanes, for a projector or screen share (Esc to exit)',
+    onclick: () => setPresenting(!document.body.classList.contains('present')),
+  });
+  labelPresentBtn(b);
+  presentBtns.add(b);
+  return b;
+}
+
 function buildRaceView(racers: RacerState[], distance: number) {
+  const series = S.seriesState;
+  const announcerEl = h(
+    'div',
+    { class: 'announcer', 'aria-live': 'polite' },
+    h('span', { class: 'mic', 'aria-hidden': 'true' }, '📣'),
+    h('span', { class: 'call' }, 'The horses are at the gate…'),
+  );
   const timer = h('div', { class: 'hud-value' }, '00:00.0');
   const frontier = h('div', { class: 'hud-value' }, `0 / ${S.questions.length}`);
   const stopBtn = h('button', { class: 'btn danger', type: 'button', disabled: true, onclick: () => S.race?.stop() }, '⏹ Stop race');
@@ -745,6 +1162,8 @@ function buildRaceView(racers: RacerState[], distance: number) {
       type: 'button',
       onclick: () => {
         S.race?.stop();
+        cancelAutoNext();
+        setPresenting(false);
         renderSetup();
         showView('setup');
       },
@@ -759,8 +1178,11 @@ function buildRaceView(racers: RacerState[], distance: number) {
     const horse = h('div', { class: 'horse', vars: { '--p': '0' } }, horseSvg(i));
     const score = h('span', { class: 'score' }, `0 / ${distance}`);
     const ok = h('span', { class: 'ok-count', title: 'Correct' }, '✓ 0');
-    const bad = h('span', { class: 'bad-count', title: 'Wrong (incorrect, too slow or error)' }, '✗ 0');
-    const meta = h('span', { class: 'lane-meta', title: 'Accuracy · median response time' });
+    const bad = h('span', { class: 'bad-count', title: 'Wrong (incorrect, timeout or error)' }, '✗ 0');
+    const meta = h('span', {
+      class: 'lane-meta',
+      title: 'Accuracy · median end-to-end time per answer (latency p50)',
+    });
     const state = h('span', { class: 'lane-state' }, 'At the gate');
     lanes.push({ horse, score, ok, bad, meta, state });
     const ticks = Array.from({ length: distance - 1 }, (_, k) =>
@@ -813,15 +1235,22 @@ function buildRaceView(racers: RacerState[], distance: number) {
 
   const results = h('div', { class: 'results', hidden: true });
 
-  $('#race').replaceChildren(
+  const page = h(
+    'div',
+    { class: 'race-page' },
     h(
       'div',
       { class: 'hud panel' },
       h('div', { class: 'hud-item' }, h('div', { class: 'hud-label' }, 'Race time'), timer),
       h('div', { class: 'hud-item' }, h('div', { class: 'hud-label' }, 'Leader on question'), frontier),
       h('div', { class: 'hud-item' }, h('div', { class: 'hud-label' }, 'Finish line'), h('div', { class: 'hud-value' }, `${distance} correct`)),
-      h('div', { class: 'hud-controls' }, stopBtn, againBtn, newBtn, setupBtn),
+      series
+        ? h('div', { class: 'hud-item' }, h('div', { class: 'hud-label' }, `Best of ${series.of}`), h('div', { class: 'hud-value' }, `Race ${Math.min(series.legs.length + 1, series.of)}`))
+        : null,
+      // In a series, the next race starts from the results (so every race counts once).
+      h('div', { class: 'hud-controls' }, stopBtn, series ? null : againBtn, series ? null : newBtn, setupBtn, presentButton()),
     ),
+    announcerEl,
     lanesWrap,
     results,
     h(
@@ -830,9 +1259,11 @@ function buildRaceView(racers: RacerState[], distance: number) {
       h('h2', null, 'Question board'),
       h('div', { class: 'grid-wrap' }, table),
     ),
-  );
+    );
+  mountRacePage(page, series ? series.legs.length + 1 : 0);
 
   UI = {
+    announcer: new Announcer(announcerEl),
     lanes,
     lanesWrap,
     timer,
@@ -894,13 +1325,51 @@ function setPending(td: HTMLTableCellElement) {
   td.replaceChildren(h('span', { class: 'dots' }, h('i'), h('i'), h('i')));
 }
 
+/** "211 tok" for a board cell, with an in/out/reasoning breakdown as its tooltip. */
+function tokenBits(res: AnswerResult): { text: string; title: string } | null {
+  const t = res.tokens;
+  if (!t || t.out == null) return null;
+  const parts = [`in ${fmtTok(t.in, t.estimated)}`];
+  if (t.cached != null) parts.push(`cached ${fmtTok(t.cached)}`);
+  parts.push(`out ${fmtTok(t.out, t.estimated)}`);
+  if (t.reasoning) parts.push(`reasoning ${fmtTok(t.reasoning, t.estimated)}`);
+  return {
+    text: `${fmtTok(t.out, t.estimated)} tok`,
+    title: `Tokens: ${parts.join(' · ')}${t.estimated ? ' (estimated from text length)' : ''}`,
+  };
+}
+
+/** Expandable "Response" with labelled Reasoning and Reply boxes ("(none)" when empty). */
+function responseDetails(res: AnswerResult, cutOff = false): HTMLElement {
+  const box = (label: string, text: string, cls = '') => [
+    h('div', { class: 'detail-label' }, cutOff ? `${label} (so far)` : label),
+    text ? h('pre', { class: cls }, text) : h('pre', { class: 'empty' }, '(none)'),
+  ];
+  return h(
+    'details',
+    null,
+    h('summary', null, cutOff ? 'Response (cut off)' : 'Response'),
+    box('Reasoning', res.reasoning, 'reasoning'),
+    box('Reply', res.raw),
+  );
+}
+
 function fillCell(td: HTMLTableCellElement, res: AnswerResult) {
   if (res.timedOut) {
     td.className = 'cell slow';
-    td.replaceChildren(
-      h('div', { class: 'ans' }, h('span', { class: 'mark' }, '⏱'), h('span', { class: 'txt' }, 'Too slow')),
-      h('div', { class: 'lat' }, `no answer within ${fmtSec(res.latencyMs)}`),
-    );
+    const timeoutParts: (Node | null)[] = [
+      h('div', { class: 'ans' }, h('span', { class: 'mark' }, '⏱'), h('span', { class: 'txt' }, `Timeout (${fmtLimit(res.latencyMs)})`)),
+      // Tells "provider never responded" apart from "model was still thinking".
+      h(
+        'div',
+        { class: 'lat' },
+        res.ttftMs != null
+          ? `started after ${fmtSec(res.ttftMs)}${tokenBits(res) ? ` · ${tokenBits(res)!.text}` : ''} · counts as wrong`
+          : 'no response received · counts as wrong',
+      ),
+      res.reasoning || res.raw ? responseDetails(res, true) : null,
+    ];
+    td.replaceChildren(...timeoutParts.filter((n): n is Node => n !== null));
     return;
   }
   td.className = `cell ${res.error ? 'err' : res.correct ? 'ok' : 'bad'}`;
@@ -913,19 +1382,11 @@ function fillCell(td: HTMLTableCellElement, res: AnswerResult) {
     td.title = res.errorDetail ?? res.error;
     parts.push(h('div', { class: 'lat' }, 'Hover for details · see console'));
   }
-  if (!res.error) parts.push(h('div', { class: 'lat' }, fmtSec(res.latencyMs)));
-  if (res.reasoning || (res.raw && res.raw !== res.answer)) {
-    parts.push(
-      h(
-        'details',
-        null,
-        h('summary', null, res.reasoning ? 'Reasoning' : 'Full reply'),
-        res.reasoning ? h('pre', { class: 'reasoning' }, res.reasoning) : null,
-        res.reasoning && res.raw ? h('div', { class: 'detail-label' }, 'Reply') : null,
-        res.raw ? h('pre', null, res.raw) : null,
-      ),
-    );
+  if (!res.error) {
+    const tok = tokenBits(res);
+    parts.push(h('div', { class: 'lat', title: tok?.title }, tok ? `${fmtSec(res.latencyMs)} · ${tok.text}` : fmtSec(res.latencyMs)));
   }
+  if (res.reasoning || res.raw) parts.push(responseDetails(res));
   td.replaceChildren(...parts);
 }
 
@@ -937,8 +1398,10 @@ function updateLane(r: RacerState) {
   ui.ok.textContent = `✓ ${st.correct}`;
   ui.bad.textContent = `✗ ${st.incorrect + st.errors + st.timeouts}`;
   // One decimal is plenty at a glance; the results table has the precise numbers.
-  const med = st.medianLatencyMs == null ? '–' : `${(st.medianLatencyMs / 1000).toFixed(1)}s`;
-  ui.meta.textContent = st.answered ? `${fmtPct(st.accuracy)} · med ${med}` : '';
+  const s1 = (ms: number | null) => (ms == null ? '–' : `${(ms / 1000).toFixed(1)}s`);
+  ui.meta.textContent = st.answered
+    ? `${fmtPct(st.accuracy)} · latency (p50) ${s1(st.medianLatencyMs)}`
+    : '';
   ui.horse.style.setProperty('--p', String(Math.min(1, r.correct / d)));
 }
 
@@ -984,9 +1447,18 @@ async function countdown() {
 let raceSeq = 0;
 
 async function startRace() {
+  cancelAutoNext();
   S.race?.stop();
+  UI?.announcer.stop();
   const seq = ++raceSeq;
-  const entries = activeHorses().map((hc, i) => ({ endpoint: endpointFor(hc.providerId), model: hc.model, color: LANES[i].color }));
+  // Created once the race exists; events only fire after race.start().
+  let commentator: Commentator | null = null;
+  const entries = activeHorses().map((hc, i) => ({
+    endpoint: endpointFor(i),
+    model: hc.model,
+    color: LANES[i].color,
+    pricing: S.pricing[sourceOf(i)]?.[hc.model],
+  }));
   const race = new Race(entries, S.questions, S.distance, {
     onAsk(r, qi) {
       setPending(ensureRow(qi)[r.lane]);
@@ -999,6 +1471,7 @@ async function startRace() {
     onAnswer(r, res) {
       fillCell(ensureRow(res.questionIndex)[r.lane], res);
       updateLane(r);
+      commentator?.answer(r, res, S.questions[res.questionIndex], res.questionIndex + 1);
       const lane = UI!.lanes[r.lane];
       if (res.correct) {
         sound.correct();
@@ -1018,11 +1491,21 @@ async function startRace() {
     onFinish(r) {
       UI!.lanes[r.lane].horse.classList.add('winner');
       setLaneState(r.lane, '🏆 Finished', 'finished');
+      commentator?.finish(r);
     },
     onRacerDone(r) {
       if (r.status === 'done') setLaneState(r.lane, '🏁 Out of questions', 'ended');
     },
     onEnd(summary) {
+      if (summary.reason !== 'finish') commentator?.end(summary.reason, summary.ranking[0]);
+      // A stopped race doesn't count toward a series.
+      if (S.seriesState && summary.reason !== 'stopped' && !seriesOver()) {
+        S.seriesState.legs.push({
+          order: summary.ranking.map((r) => r.lane),
+          correct: race.racers.map((r) => r.correct),
+        });
+        markLiveRace(`🏆 ${shortModel(summary.ranking[0].entry.model)}`, true, summary.ranking[0].entry.model);
+      } else if (S.seriesState) markLiveRace('stopped', false);
       showResults(summary);
     },
   }, S.timeLimitOn ? S.timeLimitSec * 1000 : null);
@@ -1049,22 +1532,217 @@ async function startRace() {
     levels: S.questionsLabel,
     timeLimitSec: race.timeLimitMs == null ? null : race.timeLimitMs / 1000,
   });
+  const names = displayNames(
+    race.racers.map((r) => ({ lane: r.lane, model: r.entry.model, provider: r.entry.endpoint.provider.name })),
+  );
+  const announcer = UI!.announcer;
+  commentator = new Commentator(
+    race.racers,
+    race.distance,
+    race.questions.length,
+    (r) => ({ lane: r.lane, name: names.get(r.lane) ?? r.entry.model, color: LANES[r.lane].color }),
+    (parts, priority) => announcer.say(parts, priority),
+    (parts) => announcer.final(parts),
+  );
   race.start();
+  commentator.start();
   runClock();
 }
 
-function exportResults(summary: RaceSummary, format: 'json' | 'csv') {
-  const race = S.race;
-  if (!race) return;
+/** What an export needs, captured when a race ends (so a past race in a series exports itself). */
+interface ExportContext {
+  race: Race;
+  startedAt: Date;
+  difficulty: string;
+  series: SeriesState | null;
+}
+
+function exportResults(summary: RaceSummary, format: 'json' | 'csv', ctx: ExportContext) {
+  const { race, startedAt } = ctx;
   const data = buildExport(race.racers, race.questions, race.distance, summary, {
-    startedAt: S.raceStartedAt,
-    difficulty: S.questionsLabel,
+    startedAt,
+    difficulty: ctx.difficulty,
     timeLimitMs: race.timeLimitMs,
   });
-  const name = exportBaseName(S.raceStartedAt);
-  if (format === 'json') download(`${name}.json`, JSON.stringify(data, null, 2), 'application/json');
+  const name = exportBaseName(startedAt);
+  const s = ctx.series;
+  const series = s && {
+    bestOf: s.of,
+    racesCounted: s.legs.length,
+    over: seriesDone(s) || seriesClinched(s, race.racers.length),
+    pointsByPlace: SERIES_POINTS.slice(0, race.racers.length),
+    standings: seriesStandings(s, race.racers.length).map((row, i) => ({
+      place: i + 1,
+      lane: row.lane + 1,
+      provider: race.racers[row.lane].entry.endpoint.provider.name,
+      model: race.racers[row.lane].entry.model,
+      points: row.points,
+      wins: row.wins,
+      correct: row.correct,
+      placeByRace: row.places,
+    })),
+  };
+  if (format === 'json') download(`${name}.json`, JSON.stringify(series ? { ...data, series } : data, null, 2), 'application/json');
   // The BOM makes Excel read the file as UTF-8 (accents, symbols).
   else download(`${name}.csv`, '\ufeff' + toCsv(data), 'text/csv;charset=utf-8');
+}
+
+/** The series has a champion: every race is run, or the leader can't be caught. */
+function seriesOver(): boolean {
+  const s = S.seriesState;
+  return !!s && (seriesDone(s) || seriesClinched(s, S.race?.racers.length ?? S.horseCount));
+}
+
+const PLACE_MARK = ['🥇', '🥈', '🥉', '4th'];
+
+/** Series standings (when racing a series) and the buttons for what to do next. */
+function seriesAndActions(summary: RaceSummary, name: (r: RacerState) => string): HTMLElement {
+  const box = h('div', { class: 'series-box' });
+  const render = () => box.replaceChildren(...[seriesPanel(summary, name), nextActions(summary, render)].filter((x): x is HTMLElement => !!x));
+  render();
+  return box;
+}
+
+function seriesPanel(summary: RaceSummary, name: (r: RacerState) => string): HTMLElement | null {
+  const s = S.seriesState;
+  const race = S.race;
+  if (!s || !race) return null;
+  const rows = seriesStandings(s, race.racers.length);
+  const over = seriesOver();
+  const left = s.of - s.legs.length;
+  const champ = race.racers[rows[0].lane];
+  const title = over
+    ? `🏆 ${name(champ)} wins the series!`
+    : `Series standings after race ${s.legs.length} of ${s.of}`;
+  const note = [
+    summary.reason === 'stopped' ? 'This race was stopped, so it doesn’t count. ' : '',
+    over && left > 0 ? `Clinched with ${left} race${left > 1 ? 's' : ''} to spare. ` : '',
+    `Points per race: ${SERIES_POINTS.slice(0, race.racers.length).map((pts, i) => `${['1st', '2nd', '3rd', '4th'][i]} ${pts}`).join(' · ')}. Ties go to most wins, then most correct answers.`,
+  ].join('');
+  const raced = Array.from({ length: s.of }, (_, k) => k);
+  return h(
+    'div',
+    { class: `series-panel${over ? ' over' : ''}` },
+    h('h3', null, title),
+    h(
+      'div',
+      { class: 'table-wrap' },
+      h(
+        'table',
+        { class: 'standings series-table' },
+        h('thead', null, h('tr', null, ['Place', 'Horse', 'Points', 'Wins', ...raced.map((k) => `Race ${k + 1}`), 'Correct'].map((t) => h('th', null, t)))),
+        h(
+          'tbody',
+          null,
+          rows.map((row, i) => {
+            const r = race.racers[row.lane];
+            return h(
+              'tr',
+              { vars: { '--c': LANES[row.lane].color } },
+              h('td', null, String(i + 1)),
+              h('td', { class: 'who' }, h('span', { class: 'lane-num' }, String(row.lane + 1)), h('div', null, h('div', { class: 'model', title: r.entry.model }, name(r)), h('div', { class: 'provider' }, r.entry.endpoint.provider.name))),
+              h('td', { class: 'num points' }, String(row.points)),
+              h('td', { class: 'num' }, String(row.wins)),
+              raced.map((k) => h('td', { class: 'num' }, row.places[k] ? PLACE_MARK[row.places[k] - 1] : '–')),
+              h('td', { class: 'num' }, String(row.correct)),
+            );
+          }),
+        ),
+      ),
+    ),
+    h('p', { class: 'muted' }, note),
+  );
+}
+
+/** Seconds between races when a series runs on its own. */
+const AUTO_NEXT_SEC = 8;
+let autoNextTimer = 0;
+/** The user paused the current series: no more automatic starts until a new series. */
+let seriesPaused = false;
+
+function cancelAutoNext() {
+  clearInterval(autoNextTimer);
+  autoNextTimer = 0;
+}
+
+function nextActions(summary: RaceSummary, rerender: () => void): HTMLElement {
+  const btn = (label: string, onclick: () => void, cls = 'btn') => h('button', { class: cls, type: 'button', onclick }, label);
+  const go = (series: SeriesState | null) => {
+    cancelAutoNext();
+    if (!series?.legs.length) seriesPaused = false; // a new series (or a single race) starts unpaused
+    S.seriesState = series;
+    newQuestions();
+    void startRace();
+  };
+  const s = S.seriesState;
+  if (!s) {
+    return h(
+      'div',
+      { class: 'results-actions' },
+      btn('🔁 Race again: same questions', () => void startRace()),
+      btn('🎲 New random race', () => go(null)),
+    );
+  }
+  if (seriesOver()) {
+    return h(
+      'div',
+      { class: 'results-actions' },
+      btn(`🏆 New series (best of ${s.of})`, () => go({ of: s.of, legs: [] })),
+      btn('🎲 Single race', () => go(null)),
+    );
+  }
+  const k = s.legs.length + 1;
+  const endBtn = btn(
+    '⏹ End series now',
+    () => {
+      cancelAutoNext();
+      if (!s.legs.length) S.seriesState = null;
+      else s.of = s.legs.length; // the standings so far decide it
+      rerender();
+    },
+    'btn ghost',
+  );
+
+  // The series runs on its own: the next race starts after a short countdown, unless paused.
+  // A race the user stopped never continues by itself.
+  if (summary.reason !== 'stopped' && !seriesPaused) {
+    let left = AUTO_NEXT_SEC;
+    const note = h('p', { class: 'auto-next', role: 'status' });
+    const tick = () => (note.textContent = `Race ${k} of ${s.of} starts in ${left}s…`);
+    tick();
+    cancelAutoNext();
+    autoNextTimer = window.setInterval(() => {
+      left--;
+      if (!note.isConnected) return cancelAutoNext(); // the view was replaced
+      if (left <= 0) go(s);
+      else tick();
+    }, 1000);
+    return h(
+      'div',
+      { class: 'results-actions auto' },
+      note,
+      btn('▶ Start now', () => go(s)),
+      btn(
+        '⏸ Pause series',
+        () => {
+          cancelAutoNext();
+          seriesPaused = true;
+          rerender();
+        },
+        'btn ghost',
+      ),
+      endBtn,
+    );
+  }
+  return h(
+    'div',
+    { class: 'results-actions' },
+    btn(summary.reason === 'stopped' ? `🔁 Run race ${k} again` : `▶ Next race (${k} of ${s.of})`, () => {
+      seriesPaused = false;
+      go(s);
+    }),
+    endBtn,
+  );
 }
 
 function showResults(summary: RaceSummary) {
@@ -1106,11 +1784,16 @@ function showResults(summary: RaceSummary) {
         provider: r.entry.endpoint.provider.name,
         correct: st.correct,
         wrong: st.incorrect,
-        tooSlow: st.timeouts,
+        timeouts: st.timeouts,
         errors: st.errors,
         accuracy: fmtPct(st.accuracy),
-        p50: fmtSec(st.medianLatencyMs),
-        p90: fmtSec(st.p90LatencyMs),
+        ttftP50: fmtSec(st.ttftP50Ms),
+        latencyP50: fmtSec(st.medianLatencyMs),
+        tokPerSec: fmtTps(st.tokPerSecP50, st.tokPerSecEstimated),
+        tokensIn: fmtTok(st.tokensIn, st.tokensEstimated),
+        cached: st.tokensCached == null ? '–' : fmtTok(st.tokensCached),
+        tokensOut: fmtTok(st.tokensOut, st.tokensEstimated),
+        cost: fmtUsd(st.costUsd, st.tokensEstimated),
         status: r.status,
       };
     }),
@@ -1144,9 +1827,6 @@ function showResults(summary: RaceSummary) {
     ),
   );
 
-  const statusLabel = (r: RacerState) =>
-    r.status === 'finished' ? `Finished in ${fmtSec(r.finishMs)}` : r.status === 'dnf' ? `Withdrawn: ${r.dnfReason}` : r.status === 'done' ? 'Out of questions' : 'Still running at the end';
-
   const limited = race.timeLimitMs != null;
   const table = h(
     'table',
@@ -1157,7 +1837,7 @@ function showResults(summary: RaceSummary) {
       h(
         'tr',
         null,
-        ['Place', 'Horse', 'Correct', 'Incorrect', limited ? 'Too slow' : null, 'Errors', 'Accuracy', 'Median (p50)', 'p90', 'Answered', 'Status']
+        ['Place', 'Horse', 'Correct', 'Incorrect', limited ? `Timeout (${fmtLimit(race.timeLimitMs!)})` : null, 'Errors', 'Accuracy', 'TTFT p50', 'Latency p50', 'Tok/s p50', 'Tokens in', 'Cached', 'Tokens out', 'Cost']
           .filter((t): t is string => !!t)
           .map((t) => h('th', null, t)),
       ),
@@ -1182,40 +1862,62 @@ function showResults(summary: RaceSummary) {
           limited ? h('td', { class: 'num' }, String(st.timeouts)) : null,
           h('td', { class: 'num' }, String(st.errors)),
           h('td', { class: 'num' }, fmtPct(st.accuracy)),
-          h('td', { class: 'num' }, fmtSec(st.medianLatencyMs)),
-          h('td', { class: 'num' }, fmtSec(st.p90LatencyMs)),
-          h('td', { class: 'num' }, `${st.answered} / ${S.questions.length}`),
-          h('td', { class: `status-cell${r.dnfDetail ? ' has-detail' : ''}`, title: r.dnfDetail }, statusLabel(r)),
+          h('td', { class: 'num', title: 'Median time to first token' }, fmtSec(st.ttftP50Ms)),
+          h('td', { class: 'num', title: 'Median end-to-end time per answer' }, fmtSec(st.medianLatencyMs)),
+          h(
+            'td',
+            { class: 'num', title: `Median output speed: output tokens (reasoning included) per second after the first token${st.tokPerSecEstimated ? ' (partly from estimated token counts)' : ''}` },
+            fmtTps(st.tokPerSecP50, st.tokPerSecEstimated),
+          ),
+          h(
+            'td',
+            { class: 'num', title: st.tokensEstimated ? 'Some counts estimated from text length (~)' : 'Total prompt tokens' },
+            st.answered ? fmtTok(st.tokensIn, st.tokensEstimated) : '–',
+          ),
+          h(
+            'td',
+            { class: 'num', title: 'Input tokens served from the provider’s prompt cache (– when not reported)' },
+            st.tokensCached == null ? '–' : fmtTok(st.tokensCached),
+          ),
+          h(
+            'td',
+            {
+              class: 'num',
+              title: `Total output tokens${st.tokensReasoning ? `, of which reasoning ${fmtTok(st.tokensReasoning, st.tokensEstimated)}` : ''}${st.tokensEstimated ? ' (some estimated)' : ''}`,
+            },
+            st.answered ? fmtTok(st.tokensOut, st.tokensEstimated) : '–',
+          ),
+          h(
+            'td',
+            {
+              class: 'num',
+              title: r.entry.pricing
+                ? `From ${r.entry.endpoint.provider.name}’s published prices: $${(r.entry.pricing.inPerTok * 1e6).toFixed(2)} / $${(r.entry.pricing.outPerTok * 1e6).toFixed(2)} per 1M input / output tokens${st.tokensEstimated ? ' (token counts partly estimated)' : ''}`
+                : 'No published price for this model (only some providers list prices)',
+            },
+            fmtUsd(st.costUsd, st.tokensEstimated),
+          ),
         );
       }),
     ),
   );
+
+  const exportCtx: ExportContext = {
+    race,
+    startedAt: S.raceStartedAt,
+    difficulty: S.questionsLabel,
+    series: S.seriesState && { of: S.seriesState.of, legs: [...S.seriesState.legs] },
+  };
 
   ui.results.replaceChildren(
     h(
       'div',
       { class: 'panel results-panel' },
       h('h2', { class: 'headline' }, headline),
-      h('p', { class: 'muted' }, `Total race time ${fmtClock(summary.durationMs)} · ${S.questions.length} questions (${S.questionsLabel}) · finish at ${race.distance} correct${limited ? ` · ${fmtSec(race.timeLimitMs)} limit per question` : ''}`),
+      h('p', { class: 'muted' }, `Total race time ${fmtClock(summary.durationMs)} · ${S.questions.length} questions (${S.questionsLabel}) · finish at ${race.distance} correct${limited ? ` · timeout ${fmtLimit(race.timeLimitMs!)} per question` : ''}`),
       podium,
       h('div', { class: 'table-wrap' }, table),
-      h(
-        'div',
-        { class: 'results-actions' },
-        h('button', { class: 'btn', type: 'button', onclick: () => void startRace() }, '🔁 Race again: same questions'),
-        h(
-          'button',
-          {
-            class: 'btn',
-            type: 'button',
-            onclick: () => {
-              newQuestions();
-              void startRace();
-            },
-          },
-          '🎲 New random race',
-        ),
-      ),
+      seriesAndActions(summary, name),
       h(
         'div',
         { class: 'results-actions export' },
@@ -1225,7 +1927,7 @@ function showResults(summary: RaceSummary) {
             class: 'btn ghost small',
             type: 'button',
             title: 'Race settings, standings, and every answer with replies and reasoning',
-            onclick: () => exportResults(summary, 'json'),
+            onclick: () => exportResults(summary, 'json', exportCtx),
           },
           '⬇ Full results (JSON)',
         ),
@@ -1235,17 +1937,25 @@ function showResults(summary: RaceSummary) {
             class: 'btn ghost small',
             type: 'button',
             title: 'One row per question per model, for spreadsheets',
-            onclick: () => exportResults(summary, 'csv'),
+            onclick: () => exportResults(summary, 'csv', exportCtx),
           },
           '⬇ Answers (CSV)',
         ),
       ),
-      h('p', { class: 'muted' }, 'The full question-by-question comparison is on the board below. Exports never include API keys.'),
+      h('p', { class: 'muted board-note' }, 'The full question-by-question comparison is on the board below. Exports never include API keys.'),
     ),
   );
   ui.results.hidden = false;
   ui.results.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+applySharedSetup();
+// A link pasted into a tab that already has the app open only changes the hash.
+window.addEventListener('hashchange', () => {
+  if (!location.hash.startsWith(SHARE_PREFIX)) return;
+  applySharedSetup();
+  renderSetup();
+  if (!S.race || S.race.over) showView('setup');
+});
 renderSetup();
 showView('setup');

@@ -7,6 +7,8 @@ export const PROVIDERS: Provider[] = [
     name: 'Nebius Token Factory',
     baseUrl: 'https://api.tokenfactory.nebius.com/v1',
     keyUrl: 'https://tokenfactory.nebius.com/',
+    // The verbose listing includes per-model prices.
+    modelsQuery: '?verbose=true',
   },
   { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1', keyUrl: 'https://platform.openai.com/api-keys' },
   {
@@ -70,6 +72,12 @@ export const PROVIDERS: Provider[] = [
   },
   { id: 'custom', name: 'Custom (OpenAI-compatible)', baseUrl: '', editableUrl: true },
   { id: 'sim', name: 'Simulated (no API calls)', baseUrl: '', noKey: true, simulated: true },
+];
+
+/** Dropdown order: real providers A–Z, then the special Custom and Simulated entries. */
+export const PROVIDER_MENU: Provider[] = [
+  ...PROVIDERS.filter((p) => !p.editableUrl && !p.simulated).sort((a, b) => a.name.localeCompare(b.name)),
+  ...PROVIDERS.filter((p) => p.editableUrl || p.simulated),
 ];
 
 export function providerById(id: string): Provider {

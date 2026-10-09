@@ -101,8 +101,12 @@ export function normalize(s: string): string {
     .replace(/[̀-ͯ]/g, '')
     .replace(/&/g, ' and ')
     .replace(/(\d),(?=\d{3}\b)/g, '$1') // 1,000 -> 1000
+    // 50.201.940 -> 50201940; needs two or more dot groups, so 1.234 stays a decimal
+    .replace(/(?<![\d.])\d{1,3}(?:\.\d{3}){2,}(?!\d|\.\d)/g, (m) => m.replace(/\./g, ''))
     .replace(/[^\p{L}\p{N}.\s]/gu, ' ')
-    .replace(/(?<!\d)\.|\.(?!\d)/g, ' '); // keep decimal points only
+    .replace(/(?<!\d)\.|\.(?!\d)/g, ' ') // keep decimal points only
+    .replace(/\s+/g, ' ')
+    .replace(/(?<![\d.])\d{1,3}(?: \d{3})+(?![\d.])/g, (m) => m.replace(/ /g, '')); // 50 201 940 -> 50201940
   let tokens = t.split(/\s+/).filter(Boolean);
   tokens = wordsToDigits(tokens).map((w) => (/^\d+(\.\d+)?$/.test(w) ? String(Number(w)) : w));
   if (tokens.length > 1 && ['the', 'a', 'an'].includes(tokens[0])) tokens = tokens.slice(1);
@@ -118,7 +122,9 @@ export function isCorrect(answer: string, accepted: string[]): boolean {
   for (const alt of accepted) {
     const n = normalize(alt);
     if (!n) continue;
-    if (a === n || a.replace(/ /g, '') === n.replace(/ /g, '')) return true;
+    if (a === n) return true;
+    // Ignore spaces in words ("Hyper Text" = "hypertext"), but not between numbers (502 019 40 is not 50201940).
+    if (/\p{L}/u.test(n) && a.replace(/ /g, '') === n.replace(/ /g, '')) return true;
     // Allow a short answer that contains the accepted answer as whole words ("Paris, France").
     if (short && ` ${a} `.includes(` ${n} `)) return true;
   }

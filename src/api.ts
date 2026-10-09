@@ -1,11 +1,7 @@
 import type { Endpoint, Question } from './types';
+import { SYSTEM_PROMPT } from './prompt';
 
-export const SYSTEM_PROMPT = [
-  'You are a contestant in a fast-paced trivia race.',
-  'Answer the question correctly and concisely.',
-  'End your reply with a final line in exactly this format:',
-  'ANSWER: <short answer only>',
-].join('\n');
+export { SYSTEM_PROMPT };
 
 export const REQUEST_TIMEOUT_MS = 180_000;
 const MAX_RETRIES = 2;
@@ -26,6 +22,8 @@ export interface ErrorDebug {
 
 export class ApiError extends Error {
   debug: ErrorDebug = {};
+  /** Whatever streamed in before the request was cancelled (e.g. by the time limit). */
+  partial?: { content: string; reasoning: string; trace: Trace; tokens: TokenUsage };
 
   constructor(
     message: string,
@@ -40,10 +38,65 @@ export class ApiError extends Error {
   }
 }
 
+/** Token counts for one answer. `estimated` when the provider didn't report usage. */
+export interface TokenUsage {
+  in?: number;
+  /** Part of `in` served from the provider's prompt cache, when reported. */
+  cached?: number;
+  out?: number;
+  /** Part of `out` spent on reasoning, when the provider reports it. */
+  reasoning?: number;
+  estimated: boolean;
+}
+
+/** Rough token estimate (~4 characters per token) when a provider reports no usage. */
+const estimateTokens = (text: string) => Math.ceil(text.length / 4);
+
+/** Reported usage if the provider sent it, otherwise an estimate from the text. */
+export function tokenUsage(usage: unknown, prompt: string, content: string, reasoning: string): TokenUsage {
+  const u = (usage ?? {}) as Record<string, unknown> & {
+    completion_tokens_details?: { reasoning_tokens?: unknown };
+    prompt_tokens_details?: { cached_tokens?: unknown };
+  };
+  const num = (x: unknown) => (typeof x === 'number' && Number.isFinite(x) ? x : undefined);
+  const out = num(u.completion_tokens);
+  if (out != null) {
+    return {
+      in: num(u.prompt_tokens),
+      // Standard OpenAI field, or the DeepSeek-style one some models/providers send instead.
+      cached: num(u.prompt_tokens_details?.cached_tokens) ?? num(u.prompt_cache_hit_tokens),
+      out,
+      reasoning: num(u.completion_tokens_details?.reasoning_tokens),
+      estimated: false,
+    };
+  }
+  if (!content && !reasoning) return { estimated: true };
+  return {
+    in: estimateTokens(prompt),
+    out: estimateTokens(content) + estimateTokens(reasoning),
+    reasoning: reasoning ? estimateTokens(reasoning) : undefined,
+    estimated: true,
+  };
+}
+
+/** Cost of one answer in USD; undefined when there's no price or no token counts. */
+export function answerCost(tokens: TokenUsage | undefined, price: Pricing | undefined): number | undefined {
+  if (!tokens || !price || tokens.out == null) return undefined;
+  const input = tokens.in ?? 0;
+  const cached = Math.min(tokens.cached ?? 0, input);
+  return (input - cached) * price.inPerTok + cached * (price.cacheReadPerTok ?? price.inPerTok) + tokens.out * price.outPerTok;
+}
+
+/** Base URLs that rejected `stream_options`; we stop sending it to them. */
+const noStreamOptions = new Set<string>();
+
 export interface AskResult {
   content: string;
   reasoning: string;
   latencyMs: number;
+  tokens: TokenUsage;
+  /** Time to first token (reasoning or answer). Undefined when the reply wasn't streamed. */
+  ttftMs?: number;
   trace: Trace;
 }
 
@@ -57,6 +110,8 @@ export interface Trace {
   status?: number;
   /** Time until response headers arrived. */
   firstByteMs?: number;
+  /** Time until the first streamed token (reasoning or answer). */
+  firstTokenMs?: number;
   /** Streamed chunks received (0 when the provider returned plain JSON). */
   chunks: number;
   streamed: boolean;
@@ -217,19 +272,60 @@ function logModelListing(provider: string, url: string, raw: unknown, rows: Mode
   console.groupEnd();
 }
 
-/** List chat-capable model IDs for a provider. The full listing is logged to the console. */
-export async function listModels(ep: Endpoint): Promise<string[]> {
+/** Price per token in USD, from a provider's model list. */
+export interface Pricing {
+  inPerTok: number;
+  outPerTok: number;
+  /** Price for cached input tokens, when the provider lists one. */
+  cacheReadPerTok?: number;
+}
+
+/**
+ * Read a model's price from its listing, when the provider publishes one:
+ * OpenRouter / GMI style `pricing.prompt` / `pricing.completion` (USD per token, as strings),
+ * or Together style `pricing.input` / `pricing.output` (USD per 1M tokens).
+ */
+export function parsePricing(model: unknown): Pricing | undefined {
+  const p = (model as { pricing?: Record<string, unknown> } | null)?.pricing;
+  if (!p || typeof p !== 'object') return undefined;
+  const n = (x: unknown) => {
+    const v = typeof x === 'string' || typeof x === 'number' ? Number(x) : NaN;
+    return Number.isFinite(v) && v >= 0 ? v : undefined; // OpenRouter uses -1 for "varies"
+  };
+  if (p.prompt != null && p.completion != null) {
+    const inP = n(p.prompt);
+    const outP = n(p.completion);
+    if (inP == null || outP == null) return undefined;
+    return { inPerTok: inP, outPerTok: outP, cacheReadPerTok: n(p.input_cache_read) };
+  }
+  if (p.input != null && p.output != null) {
+    const inP = n(p.input);
+    const outP = n(p.output);
+    if (inP == null || outP == null) return undefined;
+    return { inPerTok: inP / 1e6, outPerTok: outP / 1e6 };
+  }
+  return undefined;
+}
+
+export interface ModelList {
+  ids: string[];
+  /** Prices by model ID, for models whose listing includes one. */
+  pricing: Record<string, Pricing>;
+}
+
+/** List chat-capable models (and any published prices) for a provider. The listing is logged to the console. */
+export async function listModels(ep: Endpoint): Promise<ModelList> {
   if (ep.provider.simulated) {
     const ids = Object.keys(SIM_PROFILES);
     const rows = ids.map((id) => ({ id, type: 'simulated', owned_by: 'sim', shown: true, reason: '' }));
     logModelListing(ep.provider.name, '(no request: simulated)', SIM_PROFILES, rows, 0);
-    return ids;
+    return { ids, pricing: {} };
   }
   let url = '';
   let j;
   const t0 = performance.now();
   try {
-    url = endpointUrl(ep, '/models');
+    url = endpointUrl(ep, `/models${ep.provider.modelsQuery ?? ''}`);
     console.info(`${LOG_PREFIX} ${ep.provider.name}: loading models from ${url}`);
     const res = await fetch(url, { headers: headers(ep, false), signal: AbortSignal.timeout(20_000) });
     if (!res.ok) throw await httpError(res);
@@ -244,6 +340,7 @@ export async function listModels(ep: Endpoint): Promise<string[]> {
   }
   const arr: unknown[] = Array.isArray(j) ? j : Array.isArray(j?.data) ? j.data : Array.isArray(j?.models) ? j.models : [];
   const seen = new Set<string>();
+  const pricing: Record<string, Pricing> = {};
   const rows: ModelRow[] = arr.map((m) => {
     const o = (typeof m === 'object' && m) || {};
     const id = typeof m === 'string' ? m : str((o as { id?: unknown }).id) || str((o as { name?: unknown }).name);
@@ -252,10 +349,12 @@ export async function listModels(ep: Endpoint): Promise<string[]> {
     let reason = hideReason(id, type);
     if (!reason && seen.has(id)) reason = 'duplicate';
     seen.add(id);
+    const price = parsePricing(m);
+    if (price && !reason) pricing[id] = price;
     return { id, type, owned_by: str((o as { owned_by?: unknown }).owned_by), shown: !reason, reason };
   });
   logModelListing(ep.provider.name, url, j, rows, performance.now() - t0);
-  return rows.filter((r) => r.shown).map((r) => r.id).sort((a, b) => a.localeCompare(b));
+  return { ids: rows.filter((r) => r.shown).map((r) => r.id).sort((a, b) => a.localeCompare(b)), pricing };
 }
 
 /** Split an OpenAI content field, which may be a string or Mistral-style typed parts. */
@@ -277,14 +376,19 @@ function contentParts(c: unknown): { text: string; thinking: string } {
 async function askOnce(ep: Endpoint, model: string, q: Question, signal: AbortSignal, onText: OnText): Promise<AskResult> {
   if (ep.provider.simulated) return simulate(model, q, signal, onText);
   const t0 = performance.now();
+  // Ask for token usage in the stream (OpenAI's stream_options), unless this endpoint rejected it before.
+  const endpointKey = ep.baseUrl.trim();
+  const withUsage = !noStreamOptions.has(endpointKey);
   const body = {
     model,
     stream: true,
+    ...(withUsage ? { stream_options: { include_usage: true } } : {}),
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: q.question },
     ],
   };
+  const promptText = SYSTEM_PROMPT + q.question;
   const reqSignal = AbortSignal.any([signal, AbortSignal.timeout(REQUEST_TIMEOUT_MS)]);
   let url = '';
   const reqHeaders = headers(ep, true);
@@ -318,7 +422,23 @@ async function askOnce(ep: Endpoint, model: string, q: Question, signal: AbortSi
     trace.firstByteMs = performance.now() - t0;
     trace.requestId =
       res.headers.get('x-request-id') ?? res.headers.get('x-gmi-request-id') ?? res.headers.get('request-id') ?? undefined;
-    if (!res.ok) throw await httpError(res);
+    if (!res.ok) {
+      const err = await httpError(res);
+      // Some providers reject stream_options (not always saying so). Retry once without it, and keep
+      // that rule for the endpoint only if the retry succeeds, i.e. stream_options was the problem.
+      if (res.status === 400 && withUsage) {
+        noStreamOptions.add(endpointKey);
+        try {
+          const out = await askOnce(ep, model, q, signal, onText);
+          console.info(`${LOG_PREFIX} ${ep.provider.name} rejected stream_options; sending without it from now on (token counts may be estimated).`);
+          return out;
+        } catch (retryErr) {
+          noStreamOptions.delete(endpointKey);
+          throw retryErr;
+        }
+      }
+      throw err;
+    }
 
     if (!res.body || (res.headers.get('content-type') ?? '').includes('application/json')) {
       // Provider ignored stream: true.
@@ -350,6 +470,7 @@ async function askOnce(ep: Endpoint, model: string, q: Question, signal: AbortSi
         const delta = j?.choices?.[0]?.delta ?? j?.choices?.[0]?.message;
         if (!delta) return;
         take(delta);
+        if (trace.firstTokenMs == null && (content || reasoning)) trace.firstTokenMs = performance.now() - t0;
         onText(content || reasoning, content ? 'answering' : 'thinking');
       };
       for (;;) {
@@ -365,9 +486,18 @@ async function askOnce(ep: Endpoint, model: string, q: Question, signal: AbortSi
       handle(buf.trim());
     }
   } catch (e) {
-    throw withContext(toApiError(e, signal), { provider: ep.provider.name, model, method: 'POST', url, question: q.question });
+    const err = withContext(toApiError(e, signal), { provider: ep.provider.name, model, method: 'POST', url, question: q.question });
+    err.partial = { content, reasoning, trace, tokens: tokenUsage(undefined, promptText, content, reasoning) };
+    throw err;
   }
-  return { content, reasoning, latencyMs: performance.now() - t0, trace };
+  return {
+    content,
+    reasoning,
+    latencyMs: performance.now() - t0,
+    ttftMs: trace.firstTokenMs,
+    tokens: tokenUsage(trace.usage, promptText, content, reasoning),
+    trace,
+  };
 }
 
 /** Error object returned inside a 200 response or stream chunk. */
@@ -434,9 +564,31 @@ async function simulate(model: string, q: Question, signal: AbortSignal, onText:
   const total = p.min + Math.random() * (p.max - p.min);
   const reasoning = `The question asks: "${q.question}" Let me recall the relevant facts and double-check before answering.`;
   const steps = 10;
-  for (let i = 1; i <= steps; i++) {
-    await sleep((total * 0.85) / steps, signal);
-    onText(reasoning.slice(0, Math.round((reasoning.length * i) / steps)), 'thinking');
+  let ttftMs: number | undefined;
+  let soFar = '';
+  const simTrace = (): Trace => ({
+    method: 'SIMULATED',
+    url: '(no network request)',
+    requestHeaders: {},
+    requestBody: { model, messages: [{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content: q.question }] },
+    status: 200,
+    firstTokenMs: ttftMs,
+    chunks: soFar ? Math.round((soFar.length / reasoning.length) * steps) : 0,
+    streamed: true,
+    attempts: 1,
+  });
+  try {
+    for (let i = 1; i <= steps; i++) {
+      await sleep((total * 0.85) / steps, signal);
+      ttftMs ??= performance.now() - t0;
+      soFar = reasoning.slice(0, Math.round((reasoning.length * i) / steps));
+      onText(soFar, 'thinking');
+    }
+  } catch (e) {
+    if (e instanceof ApiError) {
+      e.partial = { content: '', reasoning: soFar, trace: simTrace(), tokens: tokenUsage(undefined, SYSTEM_PROMPT + q.question, '', soFar) };
+    }
+    throw e;
   }
   if (p.errorRate && Math.random() < p.errorRate) {
     const err = new ApiError('HTTP 503: simulated overload', 503, true);
@@ -447,16 +599,7 @@ async function simulate(model: string, q: Question, signal: AbortSignal, onText:
   await sleep(total * 0.15, signal);
   const content = `I'm fairly confident about this one.\nANSWER: ${ans}`;
   onText(content, 'answering');
-  const trace: Trace = {
-    method: 'SIMULATED',
-    url: '(no network request)',
-    requestHeaders: {},
-    requestBody: { model, messages: [{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content: q.question }] },
-    status: 200,
-    chunks: 10,
-    streamed: true,
-    finishReason: 'stop',
-    attempts: 1,
-  };
-  return { content, reasoning, latencyMs: performance.now() - t0, trace };
+  const trace: Trace = { ...simTrace(), chunks: steps, finishReason: 'stop' };
+  const tokens = tokenUsage(undefined, SYSTEM_PROMPT + q.question, content, reasoning);
+  return { content, reasoning, latencyMs: performance.now() - t0, ttftMs, tokens, trace };
 }
