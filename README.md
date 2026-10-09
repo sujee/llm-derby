@@ -10,7 +10,9 @@ See [`spec-v1.md`](spec-v1.md) for the full spec.
 
 [![Play LLM Derby](https://img.shields.io/badge/%F0%9F%8F%87_Play_now-sujee.github.io%2Fllm--derby-d6283b?style=for-the-badge)](https://sujee.github.io/llm-derby/)
 
-**[sujee.github.io/llm-derby](https://sujee.github.io/llm-derby/)**: no install needed. Bring an API key from any supported provider, or pick **Simulated (no API calls)** to try it without one.
+**[sujee.github.io/llm-derby](https://sujee.github.io/llm-derby/)**: no install needed. Bring an API key from any supported provider, or try it right away in simulator mode.
+
+🧪 **Simulator mode: no API keys needed.** Pick **Simulated (no API calls)** as the provider for each horse, and the race runs with simulated models of different speed and accuracy, entirely in your browser.
 
 📖 Curious what the models get asked? [See all 266 questions and answers](src/questions.json).
 
@@ -24,7 +26,7 @@ npm run build      # static site in dist/
 npm run preview    # serve the production build (with its strict CSP)
 ```
 
-No API key? Pick **Simulated (no API calls)** as the provider to try the game offline.
+No API key? Pick **Simulated (no API calls)** as the provider to try the game offline: no API keys needed.
 
 ## Deploy to GitHub Pages
 
@@ -38,7 +40,7 @@ The build uses relative paths, so it works under `https://<user>.github.io/<repo
 
 Nebius Token Factory, OpenAI, Anthropic, Google Gemini, Together AI, Groq, Fireworks AI,
 OpenRouter, DeepInfra, Mistral AI, Cerebras, Hugging Face, GMI Cloud, Baseten, any custom
-OpenAI-compatible endpoint, plus a simulated provider. All presets accept direct browser
+OpenAI-compatible endpoint, plus a simulated provider (no API keys needed). All presets accept direct browser
 calls (CORS), so no proxy is needed. Each horse can use a different provider, and
 each Custom horse can point at its own server.
 
@@ -104,4 +106,4 @@ or Expert questions.
 
 ## License
 
-[MIT](LICENSE) © 2026 Sujee Maniyam
+[MIT](LICENSE) © 2026 [Sujee Maniyam](https://sujee.dev)
