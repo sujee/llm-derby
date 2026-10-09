@@ -1,0 +1,40 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Lower third</title>
+<style>
+  :root { --night: #1c0f33; --gold: #f6c343; --cream: #fff6e2;
+    --font: ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif; }
+  html, body { margin: 0; width: 100vw; height: 100vh; background: transparent; overflow: hidden; }
+  .lt {
+    position: absolute; left: 56px; bottom: 64px;
+    display: flex; align-items: center; gap: 20px;
+    padding: 18px 28px 18px 24px;
+    font-family: var(--font); color: var(--cream);
+    background: linear-gradient(180deg, rgba(44,22,80,.96), rgba(28,15,51,.96));
+    border: 3px solid rgba(246,195,67,.85); border-left: 12px solid var(--gold);
+    border-radius: 18px;
+    box-shadow: 0 12px 36px rgba(0,0,0,.45);
+  }
+  .label { font-weight: 900; font-size: 34px; white-space: nowrap; }
+  .levels { display: flex; align-items: center; gap: 10px; }
+  .d { font-weight: 900; font-size: 30px; color: #fff; padding: 6px 20px; border-radius: 999px; box-shadow: 0 3px 0 rgba(0,0,0,.35); }
+  .easy { background: #2f9e44; } .medium { background: #e67700; } .hard { background: #c92a2a; } .expert { background: #5f3dc4; }
+  .round { font-weight: 900; font-size: 48px; letter-spacing: .02em; color: var(--gold); text-shadow: 3px 3px 0 #b3261e; white-space: nowrap; }
+  .round small { font-size: 30px; color: var(--cream); text-shadow: none; margin-left: 6px; }
+  .arrow { color: var(--gold); font-weight: 900; font-size: 30px; }
+</style></head>
+<body>
+  <div class="lt">
+    <span class="label">Questions range from</span>
+    <span class="levels">
+      <span class="d easy">Easy</span><span class="arrow">›</span>
+      <span class="d medium">Medium</span><span class="arrow">›</span>
+      <span class="d hard">Hard</span><span class="arrow">›</span>
+      <span class="d expert">Expert</span>
+    </span>
+  </div>
+<script>
+  // ?round=2/3 swaps the panel content for a round label
+  const r = new URLSearchParams(location.search).get('round');
+  if (r) document.querySelector('.lt').innerHTML = `<span class="round">🏁 Round ${r.replace('/', ' / ')}</span>`;
+</script>
+</body></html>

@@ -71,6 +71,7 @@ Run `npm test` and `npm run build` after every change. Test UI changes in a brow
 | `src/debuglog.ts` | Human-readable request/response logging (🐞 Debug toggle) |
 | `src/export.ts` | JSON / CSV results export |
 | `version.json`, `src/version.ts`, `scripts/bump-version.mjs` | App version (whole number) and the script that raises it |
+| `video/` | Demo-video renderer (`render.py`, ffmpeg + headless Chrome) and its HTML cards; not part of the app |
 
 ## Conventions
 

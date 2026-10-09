@@ -16,3 +16,7 @@ calibration/
 
 # Local scratch: demo videos, Finder aliases
 tmp/
+
+# Demo video cards rendered by video/render.py
+video/cards/out/
+__pycache__/
