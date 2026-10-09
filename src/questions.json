@@ -1,0 +1,1807 @@
+[
+  {
+    "id": 1,
+    "category": "Geography",
+    "question": "What is the capital of Australia?",
+    "answer": "Canberra",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 2,
+    "category": "Geography",
+    "question": "What is the longest river in South America?",
+    "answer": "Amazon",
+    "aliases": [
+      "amazon river"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 3,
+    "category": "Geography",
+    "question": "What is the capital of Turkey?",
+    "answer": "Ankara",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 4,
+    "category": "Geography",
+    "question": "What is the smallest country in the world by area?",
+    "answer": "Vatican City",
+    "aliases": [
+      "vatican",
+      "holy see",
+      "vatican city state"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 5,
+    "category": "Geography",
+    "question": "What is the capital of Canada?",
+    "answer": "Ottawa",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 6,
+    "category": "Geography",
+    "question": "Mount Kilimanjaro is located in which country?",
+    "answer": "Tanzania",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 7,
+    "category": "Geography",
+    "question": "What is the capital of New Zealand?",
+    "answer": "Wellington",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 8,
+    "category": "Geography",
+    "question": "Which strait separates Europe and Africa at the western end of the Mediterranean Sea?",
+    "answer": "Strait of Gibraltar",
+    "aliases": [
+      "gibraltar",
+      "straits of gibraltar"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 9,
+    "category": "Geography",
+    "question": "What is the capital of Mongolia?",
+    "answer": "Ulaanbaatar",
+    "aliases": [
+      "ulan bator",
+      "ulaan baatar",
+      "ulaanbaatar city"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 10,
+    "category": "Geography",
+    "question": "Which African country was formerly known as Abyssinia?",
+    "answer": "Ethiopia",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 11,
+    "category": "Geography",
+    "question": "What is the deepest lake in the world?",
+    "answer": "Lake Baikal",
+    "aliases": [
+      "baikal"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 12,
+    "category": "Geography",
+    "question": "What is the capital of Kazakhstan?",
+    "answer": "Astana",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 13,
+    "category": "Geography",
+    "question": "Which country has the largest population in Africa?",
+    "answer": "Nigeria",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 14,
+    "category": "Geography",
+    "question": "In which country is the ancient city of Petra located?",
+    "answer": "Jordan",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 15,
+    "category": "Geography",
+    "question": "What is the name of the highest uninterrupted waterfall in the world?",
+    "answer": "Angel Falls",
+    "aliases": [
+      "salto angel",
+      "kerepakupai meru",
+      "kerepakupai vena"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 16,
+    "category": "Geography",
+    "question": "The Atacama Desert is mostly located in which country?",
+    "answer": "Chile",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 17,
+    "category": "Science",
+    "question": "What is the chemical symbol for tungsten?",
+    "answer": "W",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 18,
+    "category": "Science",
+    "question": "What is the atomic number of carbon?",
+    "answer": "6",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 19,
+    "category": "Science",
+    "question": "What is the most abundant gas in Earth's atmosphere?",
+    "answer": "Nitrogen",
+    "aliases": [
+      "n2"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 20,
+    "category": "Science",
+    "question": "What is the hardest naturally occurring mineral?",
+    "answer": "Diamond",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 21,
+    "category": "Science",
+    "question": "Which organelle is the site of photosynthesis in plant cells?",
+    "answer": "Chloroplast",
+    "aliases": [
+      "chloroplasts"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 22,
+    "category": "Science",
+    "question": "What is the SI unit of electrical resistance?",
+    "answer": "Ohm",
+    "aliases": [
+      "ohms",
+      "Ω"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 23,
+    "category": "Science",
+    "question": "What is the chemical formula for table salt?",
+    "answer": "NaCl",
+    "aliases": [
+      "sodium chloride"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 24,
+    "category": "Science",
+    "question": "Which element has the chemical symbol Fe?",
+    "answer": "Iron",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 25,
+    "category": "Science",
+    "question": "Which subatomic particle has a positive charge and is found in the nucleus of an atom?",
+    "answer": "Proton",
+    "aliases": [
+      "protons"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 26,
+    "category": "Science",
+    "question": "How many bones are in the typical adult human body?",
+    "answer": "206",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 27,
+    "category": "Science",
+    "question": "What is the largest organ of the human body?",
+    "answer": "Skin",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 28,
+    "category": "Science",
+    "question": "Which type of blood cells primarily fight infection?",
+    "answer": "White blood cells",
+    "aliases": [
+      "white blood cell",
+      "leukocytes",
+      "leukocyte",
+      "leucocytes",
+      "leucocyte",
+      "wbc",
+      "wbcs"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 29,
+    "category": "Science",
+    "question": "What is the speed of light in a vacuum, in kilometers per second, rounded to the nearest thousand?",
+    "answer": "300000",
+    "aliases": [
+      "300 000",
+      "300 thousand"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 30,
+    "category": "Science",
+    "question": "Which noble gas is the lightest?",
+    "answer": "Helium",
+    "aliases": [
+      "he"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 31,
+    "category": "Science",
+    "question": "What is the process called when a liquid turns into a gas at its surface, below its boiling point?",
+    "answer": "Evaporation",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 32,
+    "category": "Science",
+    "question": "Who developed the general theory of relativity?",
+    "answer": "Albert Einstein",
+    "aliases": [
+      "einstein"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 33,
+    "category": "Science",
+    "question": "Who discovered penicillin in 1928?",
+    "answer": "Alexander Fleming",
+    "aliases": [
+      "fleming",
+      "sir alexander fleming"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 34,
+    "category": "Science",
+    "question": "What is the pH of pure water at 25 °C?",
+    "answer": "7",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 35,
+    "category": "Science",
+    "question": "What is the chemical symbol for potassium?",
+    "answer": "K",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 36,
+    "category": "Space",
+    "question": "Which planet in our solar system has the most confirmed moons?",
+    "answer": "Saturn",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 37,
+    "category": "Space",
+    "question": "What is the largest planet in our solar system?",
+    "answer": "Jupiter",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 38,
+    "category": "Space",
+    "question": "What is the closest star to the Sun?",
+    "answer": "Proxima Centauri",
+    "aliases": [
+      "proxima",
+      "alpha centauri c"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 39,
+    "category": "Space",
+    "question": "Which planet is known as the Red Planet?",
+    "answer": "Mars",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 40,
+    "category": "Space",
+    "question": "Who was the first person to walk on the Moon?",
+    "answer": "Neil Armstrong",
+    "aliases": [
+      "armstrong"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 41,
+    "category": "Space",
+    "question": "What is the name of the galaxy that contains our solar system?",
+    "answer": "Milky Way",
+    "aliases": [
+      "milky way galaxy"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 42,
+    "category": "Space",
+    "question": "Which planet rotates on its side, with an axial tilt of about 98 degrees?",
+    "answer": "Uranus",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 43,
+    "category": "Space",
+    "question": "In what year was Sputnik 1 launched?",
+    "answer": "1957",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 44,
+    "category": "History",
+    "question": "In what year did the Berlin Wall fall?",
+    "answer": "1989",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 45,
+    "category": "History",
+    "question": "Who was the first President of the United States?",
+    "answer": "George Washington",
+    "aliases": [
+      "washington"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 46,
+    "category": "History",
+    "question": "In what year did the Titanic sink?",
+    "answer": "1912",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 47,
+    "category": "History",
+    "question": "Which West African empire was ruled by Mansa Musa?",
+    "answer": "Mali Empire",
+    "aliases": [
+      "mali"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 48,
+    "category": "History",
+    "question": "Who was the first emperor of a unified China?",
+    "answer": "Qin Shi Huang",
+    "aliases": [
+      "qin shihuang",
+      "shi huangdi",
+      "qin shi huangdi",
+      "shi huang di",
+      "ying zheng"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 49,
+    "category": "History",
+    "question": "In what year did World War I begin?",
+    "answer": "1914",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 50,
+    "category": "History",
+    "question": "In what year was the Magna Carta sealed?",
+    "answer": "1215",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 51,
+    "category": "History",
+    "question": "Which of the Seven Wonders of the Ancient World stood in Alexandria?",
+    "answer": "Lighthouse of Alexandria",
+    "aliases": [
+      "lighthouse",
+      "pharos",
+      "pharos of alexandria",
+      "great lighthouse of alexandria"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 52,
+    "category": "History",
+    "question": "Who was the British prime minister for most of World War II?",
+    "answer": "Winston Churchill",
+    "aliases": [
+      "churchill"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 53,
+    "category": "History",
+    "question": "What was the name of the ship that carried the Pilgrims to America in 1620?",
+    "answer": "Mayflower",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 54,
+    "category": "History",
+    "question": "Which civilization built Machu Picchu?",
+    "answer": "Inca",
+    "aliases": [
+      "incas",
+      "inca empire",
+      "inka",
+      "incan"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 55,
+    "category": "History",
+    "question": "Who was the first woman to win a Nobel Prize?",
+    "answer": "Marie Curie",
+    "aliases": [
+      "curie",
+      "marie sklodowska curie",
+      "maria sklodowska curie",
+      "madame curie"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 56,
+    "category": "History",
+    "question": "In what year did the French Revolution begin?",
+    "answer": "1789",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 57,
+    "category": "Math",
+    "question": "What is the square root of 144?",
+    "answer": "12",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 58,
+    "category": "Math",
+    "question": "What is 17 multiplied by 23?",
+    "answer": "391",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 59,
+    "category": "Math",
+    "question": "What is the next prime number after 89?",
+    "answer": "97",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 60,
+    "category": "Math",
+    "question": "How many sides does a dodecagon have?",
+    "answer": "12",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 61,
+    "category": "Math",
+    "question": "What is 2 raised to the power of 10?",
+    "answer": "1024",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 62,
+    "category": "Math",
+    "question": "What is the sum of the interior angles of a hexagon, in degrees?",
+    "answer": "720",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 63,
+    "category": "Math",
+    "question": "What is 15% of 240?",
+    "answer": "36",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 64,
+    "category": "Math",
+    "question": "What is 6 factorial (6!)?",
+    "answer": "720",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 65,
+    "category": "Math",
+    "question": "How many prime numbers are there between 1 and 50?",
+    "answer": "15",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 66,
+    "category": "Math",
+    "question": "What is the greatest common divisor of 84 and 126?",
+    "answer": "42",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 67,
+    "category": "Math",
+    "question": "What is the 10th Fibonacci number, if the sequence starts 1, 1, 2, 3?",
+    "answer": "55",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 68,
+    "category": "Math",
+    "question": "How many edges does a cube have?",
+    "answer": "12",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 69,
+    "category": "Math",
+    "question": "What is 1001 divided by 7?",
+    "answer": "143",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 70,
+    "category": "Math",
+    "question": "What is the cube root of 2197?",
+    "answer": "13",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 71,
+    "category": "Literature",
+    "question": "Who wrote the novel \"Pride and Prejudice\"?",
+    "answer": "Jane Austen",
+    "aliases": [
+      "austen"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 72,
+    "category": "Literature",
+    "question": "Who wrote the novel \"One Hundred Years of Solitude\"?",
+    "answer": "Gabriel García Márquez",
+    "aliases": [
+      "garcia marquez",
+      "gabriel garcia marquez",
+      "marquez",
+      "gabo"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 73,
+    "category": "Literature",
+    "question": "In George Orwell's \"1984\", what is the name of the Party's figurehead leader?",
+    "answer": "Big Brother",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 74,
+    "category": "Literature",
+    "question": "What is the name of Sherlock Holmes's landlady?",
+    "answer": "Mrs. Hudson",
+    "aliases": [
+      "hudson",
+      "martha hudson",
+      "mrs hudson"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 75,
+    "category": "Literature",
+    "question": "Who wrote \"The Divine Comedy\"?",
+    "answer": "Dante Alighieri",
+    "aliases": [
+      "dante"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 76,
+    "category": "Literature",
+    "question": "What is the first name of the title character in \"The Great Gatsby\"?",
+    "answer": "Jay",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 77,
+    "category": "Literature",
+    "question": "Which Shakespeare play features the characters Prospero and Ariel?",
+    "answer": "The Tempest",
+    "aliases": [
+      "tempest"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 78,
+    "category": "Literature",
+    "question": "Who wrote the novel \"Crime and Punishment\"?",
+    "answer": "Fyodor Dostoevsky",
+    "aliases": [
+      "dostoevsky",
+      "dostoyevsky",
+      "dostoevski",
+      "dostoyevski",
+      "fyodor dostoyevsky",
+      "fedor dostoevsky"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 79,
+    "category": "Art & Music",
+    "question": "Who painted \"The Starry Night\"?",
+    "answer": "Vincent van Gogh",
+    "aliases": [
+      "van gogh"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 80,
+    "category": "Art & Music",
+    "question": "How many symphonies did Ludwig van Beethoven complete?",
+    "answer": "9",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 81,
+    "category": "Art & Music",
+    "question": "Which artist painted the ceiling of the Sistine Chapel?",
+    "answer": "Michelangelo",
+    "aliases": [
+      "michelangelo buonarroti"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 82,
+    "category": "Art & Music",
+    "question": "In which city is the Prado Museum?",
+    "answer": "Madrid",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 83,
+    "category": "Art & Music",
+    "question": "Which composer wrote \"The Four Seasons\"?",
+    "answer": "Antonio Vivaldi",
+    "aliases": [
+      "vivaldi"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 84,
+    "category": "Art & Music",
+    "question": "How many keys does a standard modern piano have?",
+    "answer": "88",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 85,
+    "category": "Sports",
+    "question": "How many players does each team have on the field in a standard soccer match?",
+    "answer": "11",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 86,
+    "category": "Sports",
+    "question": "In which city were the first modern Olympic Games held in 1896?",
+    "answer": "Athens",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 87,
+    "category": "Sports",
+    "question": "What is the maximum possible score in a single game of ten-pin bowling?",
+    "answer": "300",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 88,
+    "category": "Sports",
+    "question": "Which country has won the most FIFA men's World Cup titles?",
+    "answer": "Brazil",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 89,
+    "category": "Sports",
+    "question": "In tennis, what is the term for a score of zero?",
+    "answer": "Love",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 90,
+    "category": "Sports",
+    "question": "How long is a marathon in kilometers, to one decimal place?",
+    "answer": "42.2",
+    "aliases": [
+      "42.195"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 91,
+    "category": "Nature",
+    "question": "What is the largest mammal on Earth?",
+    "answer": "Blue whale",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 92,
+    "category": "Nature",
+    "question": "How many hearts does an octopus have?",
+    "answer": "3",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 93,
+    "category": "Nature",
+    "question": "What is the fastest land animal?",
+    "answer": "Cheetah",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 94,
+    "category": "Nature",
+    "question": "What is a group of crows called?",
+    "answer": "A murder",
+    "aliases": [
+      "murder of crows"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 95,
+    "category": "Nature",
+    "question": "What is the only mammal capable of true sustained flight?",
+    "answer": "Bat",
+    "aliases": [
+      "bats"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 96,
+    "category": "Nature",
+    "question": "Which gas do plants absorb from the air for photosynthesis?",
+    "answer": "Carbon dioxide",
+    "aliases": [
+      "co2"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 97,
+    "category": "Language & Tech",
+    "question": "Which language has the most native speakers in the world?",
+    "answer": "Mandarin Chinese",
+    "aliases": [
+      "mandarin",
+      "chinese"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 98,
+    "category": "Language & Tech",
+    "question": "How many letters are in the modern English alphabet?",
+    "answer": "26",
+    "aliases": [],
+    "difficulty": "easy"
+  },
+  {
+    "id": 99,
+    "category": "Language & Tech",
+    "question": "What does the acronym HTTP stand for?",
+    "answer": "Hypertext Transfer Protocol",
+    "aliases": [
+      "hyper text transfer protocol"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 100,
+    "category": "Language & Tech",
+    "question": "Who co-founded Apple with Steve Jobs and Ronald Wayne?",
+    "answer": "Steve Wozniak",
+    "aliases": [
+      "wozniak",
+      "woz",
+      "stephen wozniak"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": 101,
+    "category": "Geography",
+    "question": "What is the capital of Bhutan?",
+    "answer": "Thimphu",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 102,
+    "category": "Science",
+    "question": "What is the chemical symbol for antimony?",
+    "answer": "Sb",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 103,
+    "category": "Space",
+    "question": "Which planet in our solar system has the shortest day?",
+    "answer": "Jupiter",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 104,
+    "category": "Art & Music",
+    "question": "Who composed the opera \"The Magic Flute\"?",
+    "answer": "Wolfgang Amadeus Mozart",
+    "aliases": [
+      "mozart"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 105,
+    "category": "Literature",
+    "question": "Who wrote the novel \"Things Fall Apart\"?",
+    "answer": "Chinua Achebe",
+    "aliases": [
+      "achebe"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 106,
+    "category": "Geography",
+    "question": "What is the capital of Burkina Faso?",
+    "answer": "Ouagadougou",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 107,
+    "category": "Geography",
+    "question": "Which river flows through Baghdad?",
+    "answer": "Tigris",
+    "aliases": [
+      "tigris river"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 108,
+    "category": "History",
+    "question": "In what year did the Battle of Hastings take place?",
+    "answer": "1066",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 109,
+    "category": "Space",
+    "question": "What is the largest moon of Saturn?",
+    "answer": "Titan",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 110,
+    "category": "Science",
+    "question": "What is the SI unit of magnetic flux?",
+    "answer": "Weber",
+    "aliases": [
+      "webers",
+      "wb"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 111,
+    "category": "Science",
+    "question": "Which physicist formulated the uncertainty principle?",
+    "answer": "Werner Heisenberg",
+    "aliases": [
+      "heisenberg"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 112,
+    "category": "Art & Music",
+    "question": "Who painted \"The Garden of Earthly Delights\"?",
+    "answer": "Hieronymus Bosch",
+    "aliases": [
+      "bosch"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 113,
+    "category": "Science",
+    "question": "What is the longest bone in the human body?",
+    "answer": "Femur",
+    "aliases": [
+      "thigh bone",
+      "thighbone"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 114,
+    "category": "Math",
+    "question": "What is 23 squared?",
+    "answer": "529",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 115,
+    "category": "Math",
+    "question": "What is the smallest perfect number?",
+    "answer": "6",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 116,
+    "category": "Math",
+    "question": "How many degrees is each interior angle of a regular pentagon?",
+    "answer": "108",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 117,
+    "category": "Geography",
+    "question": "Which country has the most time zones, including its overseas territories?",
+    "answer": "France",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 118,
+    "category": "Language & Tech",
+    "question": "What is the official currency of Switzerland?",
+    "answer": "Swiss franc",
+    "aliases": [
+      "franc",
+      "francs",
+      "swiss francs",
+      "chf"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 119,
+    "category": "History",
+    "question": "Which country launched the first artificial satellite into orbit?",
+    "answer": "Soviet Union",
+    "aliases": [
+      "ussr",
+      "union of soviet socialist republics"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 120,
+    "category": "History",
+    "question": "In what year did the Chernobyl nuclear disaster occur?",
+    "answer": "1986",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 121,
+    "category": "Sports",
+    "question": "Which chess piece can only move diagonally?",
+    "answer": "Bishop",
+    "aliases": [
+      "bishops"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 122,
+    "category": "Language & Tech",
+    "question": "What is the term for a word that reads the same backward and forward?",
+    "answer": "Palindrome",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 123,
+    "category": "Math",
+    "question": "What is the decimal number 10 written in binary?",
+    "answer": "1010",
+    "aliases": [
+      "0b1010"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 124,
+    "category": "Science",
+    "question": "Which organ produces insulin?",
+    "answer": "Pancreas",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 125,
+    "category": "Literature",
+    "question": "Which author created the detective Hercule Poirot?",
+    "answer": "Agatha Christie",
+    "aliases": [
+      "christie"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 126,
+    "category": "Geography",
+    "question": "What is the capital of Myanmar?",
+    "answer": "Naypyidaw",
+    "aliases": [
+      "nay pyi taw",
+      "naypyitaw",
+      "naypyidaw city"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 127,
+    "category": "Geography",
+    "question": "What is the largest island in the Mediterranean Sea?",
+    "answer": "Sicily",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 128,
+    "category": "Science",
+    "question": "What is the atomic number of gold?",
+    "answer": "79",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 129,
+    "category": "Math",
+    "question": "What is the sum of all integers from 1 to 100?",
+    "answer": "5050",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 130,
+    "category": "Math",
+    "question": "How many seconds are in one day?",
+    "answer": "86400",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 131,
+    "category": "History",
+    "question": "In what year did Constantinople fall to the Ottoman Empire?",
+    "answer": "1453",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 132,
+    "category": "Geography",
+    "question": "What is the name of the deepest known point in Earth's oceans?",
+    "answer": "Challenger Deep",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 133,
+    "category": "Literature",
+    "question": "Who wrote the novel \"The Master and Margarita\"?",
+    "answer": "Mikhail Bulgakov",
+    "aliases": [
+      "bulgakov"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 134,
+    "category": "Geography",
+    "question": "What is the capital of Australia's Northern Territory?",
+    "answer": "Darwin",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 135,
+    "category": "Math",
+    "question": "Which mathematician proved Fermat's Last Theorem in 1994?",
+    "answer": "Andrew Wiles",
+    "aliases": [
+      "wiles"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 136,
+    "category": "Math",
+    "question": "How many faces does a regular dodecahedron have?",
+    "answer": "12",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 137,
+    "category": "Science",
+    "question": "What is the chemical symbol for mercury?",
+    "answer": "Hg",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 138,
+    "category": "Geography",
+    "question": "Which country was formerly known as Ceylon?",
+    "answer": "Sri Lanka",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 139,
+    "category": "Space",
+    "question": "What is the term for the point in an orbit around Earth that is farthest from Earth?",
+    "answer": "Apogee",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 140,
+    "category": "History",
+    "question": "Who is the longest-reigning British monarch?",
+    "answer": "Elizabeth II",
+    "aliases": [
+      "queen elizabeth ii",
+      "elizabeth the second",
+      "queen elizabeth the second"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 141,
+    "category": "Space",
+    "question": "What is the largest moon in the solar system?",
+    "answer": "Ganymede",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 142,
+    "category": "History",
+    "question": "In which ancient city were the Hanging Gardens said to be located?",
+    "answer": "Babylon",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 143,
+    "category": "Language & Tech",
+    "question": "How many bits are in a nibble?",
+    "answer": "4",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 144,
+    "category": "Art & Music",
+    "question": "Which composer wrote the Brandenburg Concertos?",
+    "answer": "Johann Sebastian Bach",
+    "aliases": [
+      "bach",
+      "j s bach",
+      "js bach"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 145,
+    "category": "Science",
+    "question": "What is the name of the oxygen-carrying protein in red blood cells?",
+    "answer": "Hemoglobin",
+    "aliases": [
+      "haemoglobin"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 146,
+    "category": "Science",
+    "question": "Which scientist discovered the electron in 1897?",
+    "answer": "J. J. Thomson",
+    "aliases": [
+      "thomson",
+      "jj thomson",
+      "joseph john thomson",
+      "sir j j thomson"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 147,
+    "category": "Geography",
+    "question": "What is the de facto capital of Switzerland?",
+    "answer": "Bern",
+    "aliases": [
+      "berne"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": 148,
+    "category": "Space",
+    "question": "On which planet does the Sun rise in the west because the planet spins backward relative to most others?",
+    "answer": "Venus",
+    "aliases": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": 149,
+    "category": "Reasoning",
+    "question": "How many times does the letter \"r\" appear in the word \"strawberry\"?",
+    "answer": "3",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 150,
+    "category": "Reasoning",
+    "question": "Which number is larger: 9.11 or 9.9?",
+    "answer": "9.9",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 151,
+    "category": "Reasoning",
+    "question": "How many times does the letter \"s\" appear in the word \"Mississippi\"?",
+    "answer": "4",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 152,
+    "category": "Reasoning",
+    "question": "If you write out every integer from 1 to 100, how many times do you write the digit 9?",
+    "answer": "20",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 153,
+    "category": "Reasoning",
+    "question": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How many cents does the ball cost?",
+    "answer": "5",
+    "aliases": [
+      "5 cents",
+      "0.05"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 154,
+    "category": "Reasoning",
+    "question": "How many months of the year have 28 days?",
+    "answer": "12",
+    "aliases": [
+      "all",
+      "all of them",
+      "all 12"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 155,
+    "category": "Math",
+    "question": "How many trailing zeros does 100! (100 factorial) have?",
+    "answer": "24",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 156,
+    "category": "Math",
+    "question": "What is the remainder when 2^100 is divided by 7?",
+    "answer": "2",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 157,
+    "category": "Math",
+    "question": "What is 37 multiplied by 43?",
+    "answer": "1591",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 158,
+    "category": "Math",
+    "question": "How many prime numbers are there between 100 and 150?",
+    "answer": "10",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 159,
+    "category": "Math",
+    "question": "What is the sum of the digits of 2^15?",
+    "answer": "26",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 160,
+    "category": "Math",
+    "question": "How many diagonals does a regular decagon have?",
+    "answer": "35",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 161,
+    "category": "Math",
+    "question": "What is the least common multiple of 12, 18 and 30?",
+    "answer": "180",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 162,
+    "category": "Math",
+    "question": "How many distinct arrangements are there of the letters in the word \"LEVEL\"?",
+    "answer": "30",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 163,
+    "category": "Reasoning",
+    "question": "What day of the week was 1 January 2000?",
+    "answer": "Saturday",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 164,
+    "category": "Math",
+    "question": "What is the 12th prime number?",
+    "answer": "37",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 165,
+    "category": "Math",
+    "question": "What is the Roman numeral MCMXCIV as an ordinary number?",
+    "answer": "1994",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 166,
+    "category": "Math",
+    "question": "What is the decimal number 255 in hexadecimal?",
+    "answer": "FF",
+    "aliases": [
+      "0xff"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 167,
+    "category": "Geography",
+    "question": "What is the capital of Palau?",
+    "answer": "Ngerulmud",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 168,
+    "category": "Reasoning",
+    "question": "Which letter of the alphabet does not appear in the name of any U.S. state?",
+    "answer": "Q",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 169,
+    "category": "Science",
+    "question": "Which element has atomic number 74?",
+    "answer": "Tungsten",
+    "aliases": [
+      "wolfram",
+      "w"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 170,
+    "category": "Science",
+    "question": "Which chemical element's name comes from the Greek word for \"lazy\" or \"inactive\"?",
+    "answer": "Argon",
+    "aliases": [
+      "ar"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 171,
+    "category": "Math",
+    "question": "What is the smallest prime number greater than 1000?",
+    "answer": "1009",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 172,
+    "category": "Space",
+    "question": "Who was the second person to walk on the Moon?",
+    "answer": "Buzz Aldrin",
+    "aliases": [
+      "aldrin",
+      "edwin aldrin",
+      "edwin buzz aldrin"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 173,
+    "category": "Art & Music",
+    "question": "Which composer wrote the opera \"Wozzeck\"?",
+    "answer": "Alban Berg",
+    "aliases": [
+      "berg"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 174,
+    "category": "Geography",
+    "question": "Which country has the longest coastline in the world?",
+    "answer": "Canada",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 175,
+    "category": "Space",
+    "question": "Which planet in our solar system has the highest average surface temperature?",
+    "answer": "Venus",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 176,
+    "category": "Geography",
+    "question": "What is the longest river that flows entirely within one country?",
+    "answer": "Yangtze",
+    "aliases": [
+      "yangtze river",
+      "chang jiang",
+      "yangzi"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 177,
+    "category": "Math",
+    "question": "What is the smallest number expressible as the sum of two positive cubes in two different ways?",
+    "answer": "1729",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 178,
+    "category": "Math",
+    "question": "How many edges does a regular icosahedron have?",
+    "answer": "30",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 179,
+    "category": "History",
+    "question": "Which ancient Greek scholar estimated Earth's circumference around 240 BC?",
+    "answer": "Eratosthenes",
+    "aliases": [
+      "eratosthenes of cyrene"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 180,
+    "category": "Literature",
+    "question": "Which Shakespeare play opens with the line \"Now is the winter of our discontent\"?",
+    "answer": "Richard III",
+    "aliases": [
+      "richard the third",
+      "king richard iii",
+      "the tragedy of king richard the third"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 181,
+    "category": "Geography",
+    "question": "What is the largest desert in the world, including polar deserts?",
+    "answer": "Antarctic Desert",
+    "aliases": [
+      "antarctica",
+      "antarctic",
+      "antarctic polar desert"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 182,
+    "category": "Geography",
+    "question": "What is the capital of the U.S. state of Kentucky?",
+    "answer": "Frankfort",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 183,
+    "category": "Geography",
+    "question": "What is the capital of the U.S. state of Illinois?",
+    "answer": "Springfield",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 184,
+    "category": "Science",
+    "question": "What is the most abundant chemical element in Earth's crust by mass?",
+    "answer": "Oxygen",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 185,
+    "category": "Math",
+    "question": "How many minutes are in one week?",
+    "answer": "10080",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 186,
+    "category": "Math",
+    "question": "What is 2 raised to the power of 20?",
+    "answer": "1048576",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 187,
+    "category": "Math",
+    "question": "What is the square root of 1764?",
+    "answer": "42",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 188,
+    "category": "Science",
+    "question": "Which non-metallic element is a liquid at room temperature?",
+    "answer": "Bromine",
+    "aliases": [
+      "br"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 189,
+    "category": "Geography",
+    "question": "What is the capital of the Canadian province of British Columbia?",
+    "answer": "Victoria",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 190,
+    "category": "Geography",
+    "question": "Which country has the most pyramids?",
+    "answer": "Sudan",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 191,
+    "category": "Nature",
+    "question": "How many bones are in a shark's skeleton?",
+    "answer": "0",
+    "aliases": [
+      "none",
+      "no bones"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": 192,
+    "category": "Nature",
+    "question": "What color is a polar bear's skin?",
+    "answer": "Black",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 193,
+    "category": "Math",
+    "question": "What is the smallest positive integer divisible by every integer from 1 to 10?",
+    "answer": "2520",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 194,
+    "category": "Reasoning",
+    "question": "How many vowels are in the word \"onomatopoeia\"?",
+    "answer": "8",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 195,
+    "category": "Math",
+    "question": "What is 17 cubed?",
+    "answer": "4913",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 196,
+    "category": "Geography",
+    "question": "Which country has the most islands in the world?",
+    "answer": "Sweden",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 197,
+    "category": "History",
+    "question": "What has been the official name of the tower that houses Big Ben since 2012?",
+    "answer": "Elizabeth Tower",
+    "aliases": [],
+    "difficulty": "hard"
+  },
+  {
+    "id": 198,
+    "category": "Reasoning",
+    "question": "If today is Wednesday, what day of the week will it be 100 days from now?",
+    "answer": "Friday",
+    "aliases": [],
+    "difficulty": "hard"
+  }
+]
