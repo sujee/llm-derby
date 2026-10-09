@@ -1384,6 +1384,9 @@ select {
   padding: 8px 10px;
   border-bottom: 1px solid var(--cream-2);
   vertical-align: top;
+  /* Long unbroken text (an 80-letter Expert string, a long model answer) wraps instead of
+     stretching its column. */
+  overflow-wrap: anywhere;
 }
 
 .grid .qnum {
@@ -1901,9 +1904,28 @@ details pre.empty {
   display: none;
 }
 
+/* The tally sits right after the last race, styled to stand out from the race buttons. */
 .strip-race.tally-btn {
-  margin-left: auto;
-  border-color: #7d1225;
+  margin-left: 6px;
+  background: linear-gradient(180deg, #e0303f, #a3172c);
+  border-color: var(--gold);
+  color: #fff;
+  box-shadow: 0 0 0 2px #7d1225, 0 0 14px rgba(255, 210, 110, 0.55);
+}
+
+.strip-race.tally-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #ef4352, #b81d33);
+}
+
+.strip-race.tally-btn.on {
+  background: var(--gold);
+  color: #7d1225;
+  border-color: #fff;
+  box-shadow: 0 0 0 3px var(--gold), 0 0 18px rgba(255, 210, 110, 0.8);
+}
+
+.strip-race.tally-btn:disabled {
+  box-shadow: none;
 }
 
 .tally[hidden] {
