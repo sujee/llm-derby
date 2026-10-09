@@ -16,6 +16,13 @@ See [`spec-v1.md`](spec-v1.md) for the full spec.
 
 📖 Curious what the models get asked? [See all 266 questions and answers](src/questions.json).
 
+## 🎬 Watch a race
+
+| Qwen vs astra vs Sonnet (best of 3) | Token Factory: 4 open models |
+| --- | --- |
+| [![Watch: Qwen3.8-27B vs gpt-6-astra vs claude-sonnet-5-5](https://img.youtube.com/vi/Hk8Dn0qfMT4/hqdefault.jpg)](https://youtu.be/Hk8Dn0qfMT4) | [![Watch: DeepSeek-V4.1-Flash vs Qwen3.8-27B vs GLM-5.3 vs MiniMax-M3](https://img.youtube.com/vi/aYCQYg6m2gY/hqdefault.jpg)](https://youtu.be/aYCQYg6m2gY) |
+| [Watch on YouTube](https://youtu.be/Hk8Dn0qfMT4) | [Watch on YouTube](https://youtu.be/aYCQYg6m2gY) |
+
 ## Run locally
 
 ```bash

@@ -80,6 +80,25 @@
   .short-top .vs .m { font-size: calc(30 * var(--u)); }
   .short-bottom .url { font-size: calc(52 * var(--u)); }
   .short-bottom .pill { font-size: calc(28 * var(--u)); }
+  /* Vertical thumbnail (Shorts): one turf lane per model */
+  .vthumb { display: grid; justify-items: center; gap: calc(44 * var(--u)); width: calc(960 * var(--u)); }
+  .vthumb .marquee h1 { font-size: calc(132 * var(--u)); }
+  .vthumb .hook { margin: 0; font-weight: 900; font-size: calc(96 * var(--u)); line-height: 1.05; color: var(--gold); text-shadow: calc(5 * var(--u)) calc(5 * var(--u)) 0 #b3261e; }
+  .vthumb .lanes { display: grid; gap: calc(14 * var(--u)); width: 100%; }
+  .vthumb .lane {
+    position: relative; display: flex; align-items: center; justify-content: space-between;
+    height: calc(160 * var(--u)); padding: 0 calc(70 * var(--u)) 0 calc(24 * var(--u));
+    border: calc(5 * var(--u)) solid #fff; border-radius: calc(18 * var(--u));
+    background: repeating-linear-gradient(90deg, var(--turf-1) 0 calc(60 * var(--u)), var(--turf-2) calc(60 * var(--u)) calc(120 * var(--u)));
+    box-shadow: 0 calc(10 * var(--u)) calc(30 * var(--u)) rgba(0,0,0,.35);
+  }
+  .vthumb .lane::after { content: ''; position: absolute; right: calc(24 * var(--u)); top: 0; bottom: 0; width: calc(18 * var(--u));
+    background: repeating-conic-gradient(#fff 0 25%, #111 0 50%) 0 0 / calc(18 * var(--u)) calc(18 * var(--u)); }
+  .vthumb .lane .m { font-weight: 900; font-size: calc(46 * var(--u)); padding: calc(10 * var(--u)) calc(28 * var(--u)); border-radius: 999px;
+    background: var(--c); color: #fff; box-shadow: 0 calc(5 * var(--u)) 0 rgba(0,0,0,.35); white-space: nowrap; }
+  .vthumb .lane .m.light { color: var(--night); }
+  .vthumb .lane svg { width: calc(190 * var(--u)); height: auto; overflow: visible; }
+  .vthumb .sub { font-size: calc(40 * var(--u)); }
   .small { margin: 0; font-weight: 700; font-size: calc(26 * var(--u)); color: rgba(255,246,226,.7); }
 
   /* horse sprite colors, same as the app */
@@ -160,6 +179,13 @@
         <div class="url">sujee.github.io/llm-derby</div>
         <span class="pill">🧪 Simulator mode (no API keys needed)</span>
       </div><div>`,
+    thumbv: `
+      <div class="vthumb">
+        <div class="marquee"><h1>LLM Derby</h1></div>
+        <p class="hook">Which LLM wins?</p>
+        <div class="lanes">${models.map((name, i) => `<div class="lane"><span class="m${i === 2 ? ' light' : ''}" style="--c:${LANES[i].color}">${name}</span>${horse(i)}</div>`).join('')}</div>
+        ${p.get('fmt') ? `<p class="sub">${p.get('fmt')}</p>` : ''}
+      </div>`,
     bg: '<style>.awning{display:none}</style>',
     end: `
       <div class="marquee"><h1>LLM Derby</h1></div>
