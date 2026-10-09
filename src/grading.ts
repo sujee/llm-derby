@@ -97,6 +97,9 @@ export function normalize(s: string): string {
   let t = s
     .toLowerCase()
     .replace(/ł/g, 'l')
+    // A subscript at the end of a number is a base marker: 2626₇ -> 2626, 1a3f₁₆ -> 1a3f.
+    // (Elsewhere subscripts are digits, as in chemical formulas: H₂O -> h2o, CO₂ -> co2.)
+    .replace(/([0-9a-z]*[0-9][0-9a-z]*\)?)[\u2080-\u2089]+(?![\p{L}\p{N}\u2080-\u2089])/gu, '$1')
     .normalize('NFKD')
     .replace(/[̀-ͯ]/g, '')
     .replace(/&/g, ' and ')

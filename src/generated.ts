@@ -111,7 +111,7 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     const answer = n.toString(base);
     return {
       category: 'Number bases',
-      question: `Write the decimal number ${n} in base ${base}.${base > 10 ? ' (Use the letters a, b, … for digits above 9.)' : ''}`,
+      question: `Write the decimal number ${n} in base ${base}.${base > 10 ? ' Use the letters a, b, … for digits above 9.' : ''} Give just the digits, without a base subscript.`,
       answer,
       aliases: base === 16 ? [`0x${answer}`] : [],
     };

@@ -84,7 +84,7 @@ One panel. On desktop: **Winning distance** and **Time limit** on the first row,
 
 - Models are asked to end their reply with `ANSWER: <short answer>`.
 - Only the final answer is graded. Reasoning is separated out: `reasoning_content` / `reasoning` fields, `<think>` blocks, and Mistral-style thinking parts.
-- The answer is extracted from the `ANSWER:` line (or `\boxed{}`, or the last line), then normalized: case, punctuation, accents, leading articles, number words → digits, thousands separators (`50,201,940`, `50.201.940` and `50 201 940` all read as 50201940; `1.234` stays a decimal, and badly grouped digits like `502,019,40` don't match).
+- The answer is extracted from the `ANSWER:` line (or `\boxed{}`, or the last line), then normalized: case, punctuation, accents, leading articles, number words → digits, thousands separators (`50,201,940`, `50.201.940` and `50 201 940` all read as 50201940; `1.234` stays a decimal, and badly grouped digits like `502,019,40` don't match); a subscript base marker at the end of a number is ignored, so `2626₇` and `1a3f₁₆` read as 2626 and 1a3f, while chemical formulas keep their digits: `H₂O` reads as h2o).
 - It is correct if it matches any accepted answer, or if a short answer contains an accepted answer as whole words (e.g. "Canberra, Australia").
 
 ### Latency, time limit and errors

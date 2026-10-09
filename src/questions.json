@@ -1133,7 +1133,7 @@
   {
     "id": 123,
     "category": "Math",
-    "question": "What is the decimal number 10 written in binary?",
+    "question": "What is the decimal number 10 written in binary? Give just the digits, without a base subscript.",
     "answer": "1010",
     "aliases": [
       "0b1010"
@@ -1513,7 +1513,7 @@
   {
     "id": 166,
     "category": "Math",
-    "question": "What is the decimal number 255 in hexadecimal?",
+    "question": "What is the decimal number 255 in hexadecimal? Give just the digits, without a base subscript.",
     "answer": "FF",
     "aliases": [
       "0xff"
@@ -1899,7 +1899,7 @@
   {
     "id": 210,
     "category": "Math",
-    "question": "What is the decimal number 1000 written in base 7?",
+    "question": "What is the decimal number 1000 written in base 7? Give just the digits, without a base subscript.",
     "answer": "2626",
     "aliases": [],
     "difficulty": "hard"

@@ -66,6 +66,15 @@ describe('isCorrect', () => {
     ['Marie Skłodowska-Curie', ['marie sklodowska curie'], true],
     ['300,000 km/s', ['300000'], true],
     ['Ω', ['Ohm', 'Ω'], true],
+    ['2626₇', ['2626'], true], // base marker as a subscript
+    ['(2626)₇', ['2626'], true],
+    ['1A3F₁₆', ['1a3f'], true],
+    ['2626₇ (base seven)', ['2626'], true],
+    ['2626_7', ['2626'], true],
+    ['26267', ['2626'], false],
+    ['H₂O', ['H2O'], true], // chemical formulas keep their subscript digits
+    ['CO₂', ['CO2'], true],
+    ['Fe₂O₃', ['Fe2O3'], true],
     ['50,201,940', ['50201940'], true],
     ['50.201.940', ['50201940'], true],
     ['50 201 940', ['50201940'], true],
