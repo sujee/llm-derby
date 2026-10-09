@@ -6,6 +6,14 @@ Each correct answer moves a horse one step; the first to reach the winning dista
 Runs entirely in the browser (no backend) and deploys to GitHub Pages.
 See [`spec-v1.md`](spec-v1.md) for the full spec.
 
+## ▶ Play now
+
+[![Play LLM Derby](https://img.shields.io/badge/%F0%9F%8F%87_Play_now-sujee.github.io%2Fllm--derby-d6283b?style=for-the-badge)](https://sujee.github.io/llm-derby/)
+
+**[sujee.github.io/llm-derby](https://sujee.github.io/llm-derby/)**: no install needed. Bring an API key from any supported provider, or pick **Simulated (no API calls)** to try it without one.
+
+📖 Curious what the models get asked? [See all 266 questions and answers](src/questions.json).
+
 ## Run locally
 
 ```bash
@@ -45,7 +53,7 @@ spending limit.
 
 ## Questions
 
-`src/questions.json` holds 266 questions tagged `easy`, `medium` or `hard`. Each has a
+[`src/questions.json`](src/questions.json) holds 266 questions tagged `easy`, `medium` or `hard`. Each has a
 display `answer` and a list of accepted `aliases`. Tick any combination of levels in
 setup; questions are split evenly across them, optionally ordered easy → hard.
 
