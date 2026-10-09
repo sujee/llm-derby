@@ -101,3 +101,7 @@ or Expert questions.
 | `src/debuglog.ts` | Human-readable debug logging (🐞 Debug toggle) |
 | `src/providers.ts` | Provider presets |
 | `src/horse.ts`, `src/sound.ts`, `src/confetti.ts` | Horse SVG, synthesized sounds, confetti |
+
+## License
+
+[MIT](LICENSE) © 2026 Sujee Maniyam

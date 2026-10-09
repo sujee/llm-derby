@@ -13,3 +13,6 @@ dist
 
 # Question calibration output (npm run calibrate)
 calibration/
+
+# Local scratch: demo videos, Finder aliases
+tmp/

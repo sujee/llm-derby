@@ -1,5 +1,6 @@
 import type { Endpoint, Question } from './types';
 import { SYSTEM_PROMPT } from './prompt';
+import { isCorrect } from './grading';
 
 export { SYSTEM_PROMPT };
 
@@ -556,7 +557,13 @@ export const SIM_PROFILES: Record<string, SimProfile> = {
   'sim/flaky': { min: 700, max: 2200, accuracy: 0.85, errorRate: 0.12 },
 };
 
-const WRONG = ['Atlantis', 'Narnia', 'Gondor', 'Wakanda', '9999', 'Unobtainium', 'Hogwarts', 'Bikini Bottom', 'Zanzibar Prime'];
+const WRONG = ['Atlantis', 'Narnia', 'Gondor', 'Wakanda', '9999', 'Unobtainium', 'Hogwarts', 'El Dorado', 'Zanzibar Prime'];
+
+/** A made-up wrong answer for the simulator, skipping any that would grade as correct for this question. */
+export function simWrongAnswer(q: Question, rand: () => number = Math.random): string {
+  const options = WRONG.filter((w) => !isCorrect(w, [q.answer, ...q.aliases]));
+  return options.length ? options[Math.floor(rand() * options.length)] : 'No idea';
+}
 
 async function simulate(model: string, q: Question, signal: AbortSignal, onText: OnText): Promise<AskResult> {
   const p = SIM_PROFILES[model] ?? SIM_PROFILES['sim/steady'];
@@ -595,7 +602,7 @@ async function simulate(model: string, q: Question, signal: AbortSignal, onText:
     err.debug = { provider: 'Simulated', model, status: 503, body: '{"error":{"message":"simulated overload"}}', question: q.question };
     throw err;
   }
-  const ans = Math.random() < p.accuracy ? q.answer : WRONG[Math.floor(Math.random() * WRONG.length)];
+  const ans = Math.random() < p.accuracy ? q.answer : simWrongAnswer(q);
   await sleep(total * 0.15, signal);
   const content = `I'm fairly confident about this one.\nANSWER: ${ans}`;
   onText(content, 'answering');
