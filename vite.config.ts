@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig, type Plugin } from 'vite';
 
 // Strict CSP for the production build. Model output is only ever rendered as text,
@@ -27,4 +28,8 @@ function cspPlugin(): Plugin {
 export default defineConfig({
   base: './',
   plugins: [cspPlugin()],
+  test: {
+    // Tests read src/style.css as text (?raw); without this Vitest stubs CSS to an empty string.
+    css: true,
+  },
 });
