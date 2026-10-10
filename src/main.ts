@@ -1563,6 +1563,22 @@ function setRunningControls(running: boolean) {
   UI.newBtn.disabled = running;
 }
 
+/**
+ * The expected answer line for a question. When the question accepts more than one
+ * answer (extra spellings and forms, `aliases`), the primary answer becomes an
+ * expandable summary that reveals every accepted answer.
+ */
+function answerInfo(q: Question): HTMLElement {
+  const line = h('span', { class: 'answer-line' }, 'Answer: ', h('strong', null, q.answer));
+  if (!q.aliases.length) return line;
+  return h(
+    'details',
+    { class: 'more-answers' },
+    h('summary', { title: 'Show every answer accepted as correct' }, line),
+    h('span', { class: 'aliases' }, [q.answer, ...q.aliases].join(' · ')),
+  );
+}
+
 function ensureRow(qi: number): HTMLTableCellElement[] {
   const ui = UI!;
   let cells = ui.rows.get(qi);
@@ -1584,8 +1600,8 @@ function ensureRow(qi: number): HTMLTableCellElement[] {
         h('span', { class: `diff ${q.difficulty}` }, q.difficulty),
         isBankQuestion(q) ? h('span', { class: 'qid', title: 'Question ID in the shipped bank (questions.json)' }, `id: ${q.id}`) : null,
         h('span', { class: 'cat' }, q.category),
-        ' Answer: ',
-        h('strong', null, q.answer),
+        ' ',
+        answerInfo(q),
       ),
     ),
     cells,

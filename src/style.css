@@ -1917,6 +1917,36 @@ select {
   color: var(--ink);
 }
 
+/* A question with more than one accepted answer: the answer line is an expandable
+   summary that reveals every accepted answer when opened. */
+.more-answers {
+  display: inline-block;
+  margin-left: 2px;
+  vertical-align: baseline;
+  font-size: 12px;
+}
+
+.more-answers > summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.more-answers > summary:hover {
+  color: var(--ink);
+}
+
+.more-answers[open] > summary {
+  color: var(--ink);
+}
+
+.more-answers[open] .aliases {
+  display: block;
+}
+
+.more-answers .aliases {
+  color: var(--ink);
+}
+
 .diff {
   display: inline-block;
   padding: 1px 7px;
