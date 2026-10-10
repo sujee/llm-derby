@@ -18,7 +18,8 @@ import { APP_VERSION_LABEL } from './version';
 import { SERIES_POINTS, seriesClinched, seriesDone, seriesStandings, type SeriesState } from './series';
 import { SHARE_PREFIX, decodeSetup, encodeSetup, type ShareLimits } from './sharelink';
 import { aliasPatch, analyzeRace, type Insights } from './insights';
-import { DIFFICULTIES, bestLanes, correctAt, difficultyBreakdown, leadChanges, linearScale, niceTicks, raceProgress, spreadLabels } from './charts';
+import { DIFFICULTIES, correctAt, difficultyBreakdown, leadChanges, linearScale, niceTicks, raceProgress, spreadLabels } from './charts';
+import { sortRows, type SortValue } from './sort';
 import type { AnswerResult, Difficulty, Endpoint, Question } from './types';
 
 const LANES = [
@@ -213,6 +214,39 @@ function svgEl<K extends keyof SVGElementTagNameMap>(
   for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
   for (const c of children) el.append(c);
   return el;
+}
+
+interface SortColumn<T> {
+  label: string;
+  key: (row: T) => SortValue;
+  /** Direction of the first click: the one that puts the best on top. */
+  dir: 1 | -1;
+}
+
+/**
+ * A standings table whose every column sorts on a click; a second click reverses it.
+ * `rows` arrive in their normal order, which is the first column's.
+ */
+function sortableStandings<T>(columns: SortColumn<T>[], rows: T[], renderRow: (row: T) => HTMLTableRowElement): HTMLTableElement {
+  const trs = new Map(rows.map((row) => [row, renderRow(row)]));
+  const body = h('tbody', null, [...trs.values()]);
+  let sorted = { col: 0, dir: 1 as 1 | -1 };
+  const ths = columns.map((c, ci) =>
+    h(
+      'th',
+      { 'aria-sort': ci ? 'none' : 'ascending' },
+      h('button', { type: 'button', class: 'sort', title: `Sort by ${c.label.toLowerCase()}`, onclick: () => sortBy(ci) }, c.label, h('span', { class: 'sort-arrow', 'aria-hidden': 'true' }, ci ? '' : '▲')),
+    ),
+  );
+  const sortBy = (col: number) => {
+    sorted = { col, dir: sorted.col === col ? (-sorted.dir as 1 | -1) : columns[col].dir };
+    body.append(...sortRows(rows, columns[col].key, sorted.dir).map((row) => trs.get(row)!));
+    ths.forEach((th, ci) => {
+      th.setAttribute('aria-sort', ci !== col ? 'none' : sorted.dir === 1 ? 'ascending' : 'descending');
+      th.querySelector('.sort-arrow')!.textContent = ci !== col ? '' : sorted.dir === 1 ? '▲' : '▼';
+    });
+  };
+  return h('table', { class: 'standings' }, h('thead', null, h('tr', null, ths)), body);
 }
 
 /** Copy text to the clipboard, falling back to a temporary textarea where the API is blocked. */
@@ -1154,6 +1188,23 @@ function renderTally() {
   };
   const leader = racers[rows[0].lane];
   const left = s.of - s.legs.length;
+  type TallyRow = { row: (typeof rows)[number]; r: RacerState; st: RacerStats; place: number };
+  const tallyRows: TallyRow[] = rows.map((row, i) => {
+    const r = combined(row.lane);
+    return { row, r, st: statsOf(r), place: i + 1 };
+  });
+  const tallyColumns: SortColumn<TallyRow>[] = [
+    { label: 'Place', key: (x) => x.place, dir: 1 },
+    { label: 'Horse', key: (x) => name(x.r).toLowerCase(), dir: 1 },
+    { label: 'Points', key: (x) => x.row.points, dir: -1 },
+    { label: 'Wins', key: (x) => x.row.wins, dir: -1 },
+    ...s.legs.map((_, k): SortColumn<TallyRow> => ({ label: `Race ${k + 1}`, key: (x) => x.row.places[k] || null, dir: 1 })),
+    { label: 'Correct', key: (x) => x.row.correct, dir: -1 },
+    { label: 'Accuracy', key: (x) => x.st.accuracy, dir: -1 },
+    { label: 'Latency p50', key: (x) => x.st.medianLatencyMs, dir: 1 },
+    { label: 'Tok/s p50', key: (x) => x.st.tokPerSecP50, dir: -1 },
+    { label: 'Cost', key: (x) => x.st.costUsd, dir: 1 },
+  ];
   tallyEl.replaceChildren(
     h('h2', { class: 'headline' }, over ? `🏆 ${name(leader)} wins the series!` : `🏆 Series tally after ${s.legs.length} of ${s.of} races`),
     h(
@@ -1167,39 +1218,20 @@ function renderTally() {
     h(
       'div',
       { class: 'table-wrap' },
-      h(
-        'table',
-        { class: 'standings' },
+      sortableStandings(tallyColumns, tallyRows, ({ row, r, st, place }) =>
         h(
-          'thead',
-          null,
-          h(
-            'tr',
-            null,
-            ['Place', 'Horse', 'Points', 'Wins', ...s.legs.map((_, k) => `Race ${k + 1}`), 'Correct', 'Accuracy', 'Latency p50', 'Tok/s p50', 'Cost'].map((t) => h('th', null, t)),
-          ),
-        ),
-        h(
-          'tbody',
-          null,
-          rows.map((row, i) => {
-            const r = combined(row.lane);
-            const st = statsOf(r);
-            return h(
-              'tr',
-              { vars: { '--c': LANES[row.lane].color } },
-              h('td', null, String(i + 1)),
-              h('td', { class: 'who' }, h('span', { class: 'lane-num' }, String(row.lane + 1)), h('div', null, h('div', { class: 'model', title: r.entry.model }, name(r)), h('div', { class: 'provider' }, r.entry.endpoint.provider.name))),
-              h('td', { class: 'num points' }, String(row.points)),
-              h('td', { class: 'num' }, String(row.wins)),
-              s.legs.map((_, k) => h('td', { class: 'num' }, row.places[k] ? PLACE_MARK[row.places[k] - 1] : '–')),
-              h('td', { class: 'num' }, String(row.correct)),
-              h('td', { class: 'num' }, fmtPct(st.accuracy)),
-              h('td', { class: 'num' }, fmtSec(st.medianLatencyMs)),
-              h('td', { class: 'num' }, fmtTps(st.tokPerSecP50, st.tokPerSecEstimated)),
-              h('td', { class: 'num' }, fmtUsd(st.costUsd, st.tokensEstimated)),
-            );
-          }),
+          'tr',
+          { vars: { '--c': LANES[row.lane].color } },
+          h('td', null, String(place)),
+          h('td', { class: 'who' }, h('span', { class: 'lane-num' }, String(row.lane + 1)), h('div', null, h('div', { class: 'model', title: r.entry.model }, name(r)), h('div', { class: 'provider' }, r.entry.endpoint.provider.name))),
+          h('td', { class: 'num points' }, String(row.points)),
+          h('td', { class: 'num' }, String(row.wins)),
+          s.legs.map((_, k) => h('td', { class: 'num' }, row.places[k] ? PLACE_MARK[row.places[k] - 1] : '–')),
+          h('td', { class: 'num' }, String(row.correct)),
+          h('td', { class: 'num' }, fmtPct(st.accuracy)),
+          h('td', { class: 'num' }, fmtSec(st.medianLatencyMs)),
+          h('td', { class: 'num' }, fmtTps(st.tokPerSecP50, st.tokPerSecEstimated)),
+          h('td', { class: 'num' }, fmtUsd(st.costUsd, st.tokensEstimated)),
         ),
       ),
     ),
@@ -1940,7 +1972,7 @@ function feedbackPanel(insights: Insights): HTMLElement | null {
 }
 
 // ---------------------------------------------------------------------------
-// Race analytics (results): how the race unfolded, head-to-head bars, per-level accuracy
+// Race analytics (results): what the standings table can't show: the race over time, accuracy per level
 // ---------------------------------------------------------------------------
 
 /** Lane colours for chart marks. Lane 3's yellow is too light on a white card, so it uses a deeper gold. */
@@ -2075,53 +2107,6 @@ function progressCard(summary: RaceSummary, distance: number, name: (r: RacerSta
   );
 }
 
-interface Metric {
-  title: string;
-  hint: string;
-  better: 'high' | 'low';
-  value: (st: RacerStats) => number | null;
-  fmt: (v: number, st: RacerStats) => string;
-  /** Fixed end of the bar scale (accuracy is out of 100%); otherwise the largest value. */
-  max?: number;
-}
-
-const METRICS: Metric[] = [
-  { title: 'Accuracy', hint: 'Share of questions answered correctly', better: 'high', value: (st) => st.accuracy, fmt: (v) => fmtPct(v), max: 1 },
-  { title: 'Answer time', hint: 'Median per answer · shorter is better', better: 'low', value: (st) => st.medianLatencyMs, fmt: (v) => fmtSec(v) },
-  { title: 'Output speed', hint: 'Median tokens per second · higher is better', better: 'high', value: (st) => st.tokPerSecP50, fmt: (v, st) => fmtTps(v, st.tokPerSecEstimated) },
-  { title: 'Cost', hint: 'Whole race · lower is better', better: 'low', value: (st) => (st.costUsd ? st.costUsd : null), fmt: (v, st) => fmtUsd(v, st.tokensEstimated) },
-];
-
-/** One measure, every horse, best first: a bar each with its value at the end. */
-function metricCard(m: Metric, rows: { r: RacerState; st: RacerStats }[], name: (r: RacerState) => string): HTMLElement | null {
-  const vals = rows.map(({ r, st }) => ({ r, st, lane: r.lane, value: m.value(st) }));
-  const have = vals.filter((v) => v.value != null);
-  if (have.length < 2) return null;
-  const best = bestLanes(vals, m.better);
-  const max = m.max ?? Math.max(...have.map((v) => v.value!));
-  const dir = m.better === 'high' ? -1 : 1;
-  const sorted = [...vals].sort((a, b) => (a.value == null ? 1 : b.value == null ? -1 : dir * (a.value - b.value)));
-  return chartCard(
-    m.title,
-    m.hint,
-    h(
-      'div',
-      { class: 'bars' },
-      sorted.map((v) => {
-        // A tie across the whole field is not worth a star.
-        const top = v.value != null && best.includes(v.lane) && best.length < have.length;
-        return h(
-          'div',
-          { class: `bar-row${top ? ' best' : ''}` },
-          h('div', { class: 'bar-name', title: v.r.entry.model }, chartKey(v.lane), h('span', null, name(v.r))),
-          h('div', { class: 'bar-value' }, top ? h('span', { class: 'bar-star', title: 'Best' }, '★ ') : null, v.value == null ? '–' : m.fmt(v.value, v.st)),
-          h('div', { class: 'bar-track' }, v.value == null ? null : h('div', { class: 'bar-fill', vars: { '--c': CHART_COLORS[v.lane], '--w': `${Math.max(1.5, max > 0 ? (v.value / max) * 100 : 0)}%` } })),
-        );
-      }),
-    ),
-  );
-}
-
 /** Per-level accuracy as a small grid: the deeper the green, the more answers were right. */
 function difficultyCard(racers: RacerState[], questions: Question[], name: (r: RacerState) => string): HTMLElement | null {
   const breakdown = difficultyBreakdown(racers, questions);
@@ -2162,19 +2147,10 @@ function analyticsSection(summary: RaceSummary, race: Race): HTMLElement | null 
   const name = (r: RacerState) => shortModel(r.entry.model);
   const racers = summary.ranking;
   if (racers.filter((r) => r.answered > 0).length < 2) return null;
-  const rows = racers.map((r) => ({ r, st: statsOf(r) }));
   const progress = progressCard(summary, race.distance, name);
-  const metrics = METRICS.map((m) => metricCard(m, rows, name)).filter((c): c is HTMLElement => !!c);
   const levels = difficultyCard(racers, race.questions, name);
-  if (!progress && !metrics.length && !levels) return null;
-  return h(
-    'div',
-    { class: 'panel analytics' },
-    h('h2', null, '📊 Race analytics'),
-    progress,
-    metrics.length ? h('div', { class: 'chart-grid' }, metrics) : null,
-    levels,
-  );
+  if (!progress && !levels) return null;
+  return h('div', { class: 'panel analytics' }, h('h2', null, '📊 Race analytics'), progress, levels);
 }
 
 function showResults(summary: RaceSummary) {
@@ -2260,77 +2236,77 @@ function showResults(summary: RaceSummary) {
   );
 
   const limited = race.timeLimitMs != null;
-  const table = h(
-    'table',
-    { class: 'standings' },
+  // Every column sorts on a click: first click puts the best on top (`dir`), the next reverses it.
+  type StandingRow = { r: RacerState; st: RacerStats; place: number };
+  const standing: StandingRow[] = summary.ranking.map((r, i) => ({ r, st: statsOf(r), place: i + 1 }));
+  const columns: SortColumn<StandingRow>[] = [
+    { label: 'Place', key: (x) => x.place, dir: 1 },
+    { label: 'Horse', key: (x) => name(x.r).toLowerCase(), dir: 1 },
+    { label: 'Correct', key: (x) => x.st.correct, dir: -1 },
+    { label: 'Incorrect', key: (x) => x.st.incorrect, dir: 1 },
+    ...(limited ? [{ label: `Timeout (${fmtLimit(race.timeLimitMs!)})`, key: (x: StandingRow) => x.st.timeouts, dir: 1 as const }] : []),
+    { label: 'Errors', key: (x) => x.st.errors, dir: 1 },
+    { label: 'Accuracy', key: (x) => x.st.accuracy, dir: -1 },
+    { label: 'TTFT p50', key: (x) => x.st.ttftP50Ms, dir: 1 },
+    { label: 'Latency p50', key: (x) => x.st.medianLatencyMs, dir: 1 },
+    { label: 'Tok/s p50', key: (x) => x.st.tokPerSecP50, dir: -1 },
+    { label: 'Tokens in', key: (x) => (x.st.answered ? x.st.tokensIn : null), dir: -1 },
+    { label: 'Cached', key: (x) => x.st.tokensCached, dir: -1 },
+    { label: 'Tokens out', key: (x) => (x.st.answered ? x.st.tokensOut : null), dir: -1 },
+    { label: 'Cost', key: (x) => x.st.costUsd, dir: 1 },
+  ];
+  const table = sortableStandings(columns, standing, ({ r, st, place: i }) =>
     h(
-      'thead',
-      null,
-      h(
-        'tr',
-        null,
-        ['Place', 'Horse', 'Correct', 'Incorrect', limited ? `Timeout (${fmtLimit(race.timeLimitMs!)})` : null, 'Errors', 'Accuracy', 'TTFT p50', 'Latency p50', 'Tok/s p50', 'Tokens in', 'Cached', 'Tokens out', 'Cost']
-          .filter((t): t is string => !!t)
-          .map((t) => h('th', null, t)),
-      ),
+    'tr',
+    { vars: { '--c': LANES[r.lane].color } },
+    h('td', null, String(i)),
+    h(
+      'td',
+      { class: 'who' },
+      h('span', { class: 'lane-num' }, String(r.lane + 1)),
+      h('div', null, h('div', { class: 'model', title: r.entry.model }, name(r)), h('div', { class: 'provider' }, r.entry.endpoint.provider.name)),
+    ),
+    h('td', { class: 'num' }, String(st.correct)),
+    h('td', { class: 'num' }, String(st.incorrect)),
+    limited ? h('td', { class: 'num' }, String(st.timeouts)) : null,
+    h('td', { class: 'num' }, String(st.errors)),
+    // The count sits under the percentage: 100% of one answer is not 100% of twenty.
+    h('td', { class: 'num' }, fmtPct(st.accuracy), st.answered ? h('div', { class: 'of' }, `${st.correct} of ${st.answered}`) : null),
+    h('td', { class: 'num', title: 'Median time to first token' }, fmtSec(st.ttftP50Ms)),
+    h('td', { class: 'num', title: 'Median end-to-end time per answer' }, fmtSec(st.medianLatencyMs)),
+    h(
+      'td',
+      { class: 'num', title: `Median output speed: output tokens (reasoning included) per second after the first token${st.tokPerSecEstimated ? ' (partly from estimated token counts)' : ''}` },
+      fmtTps(st.tokPerSecP50, st.tokPerSecEstimated),
     ),
     h(
-      'tbody',
-      null,
-      summary.ranking.map((r, i) => {
-        const st = statsOf(r);
-        return h(
-          'tr',
-          { vars: { '--c': LANES[r.lane].color } },
-          h('td', null, String(i + 1)),
-          h(
-            'td',
-            { class: 'who' },
-            h('span', { class: 'lane-num' }, String(r.lane + 1)),
-            h('div', null, h('div', { class: 'model', title: r.entry.model }, name(r)), h('div', { class: 'provider' }, r.entry.endpoint.provider.name)),
-          ),
-          h('td', { class: 'num' }, String(st.correct)),
-          h('td', { class: 'num' }, String(st.incorrect)),
-          limited ? h('td', { class: 'num' }, String(st.timeouts)) : null,
-          h('td', { class: 'num' }, String(st.errors)),
-          h('td', { class: 'num' }, fmtPct(st.accuracy)),
-          h('td', { class: 'num', title: 'Median time to first token' }, fmtSec(st.ttftP50Ms)),
-          h('td', { class: 'num', title: 'Median end-to-end time per answer' }, fmtSec(st.medianLatencyMs)),
-          h(
-            'td',
-            { class: 'num', title: `Median output speed: output tokens (reasoning included) per second after the first token${st.tokPerSecEstimated ? ' (partly from estimated token counts)' : ''}` },
-            fmtTps(st.tokPerSecP50, st.tokPerSecEstimated),
-          ),
-          h(
-            'td',
-            { class: 'num', title: st.tokensEstimated ? 'Some counts estimated from text length (~)' : 'Total prompt tokens' },
-            st.answered ? fmtTok(st.tokensIn, st.tokensEstimated) : '–',
-          ),
-          h(
-            'td',
-            { class: 'num', title: 'Input tokens served from the provider’s prompt cache (– when not reported)' },
-            st.tokensCached == null ? '–' : fmtTok(st.tokensCached),
-          ),
-          h(
-            'td',
-            {
-              class: 'num',
-              title: `Total output tokens${st.tokensReasoning ? `, of which reasoning ${fmtTok(st.tokensReasoning, st.tokensEstimated)}` : ''}${st.tokensEstimated ? ' (some estimated)' : ''}`,
-            },
-            st.answered ? fmtTok(st.tokensOut, st.tokensEstimated) : '–',
-          ),
-          h(
-            'td',
-            {
-              class: 'num',
-              title: r.entry.pricing
-                ? `From ${r.entry.endpoint.provider.name}’s published prices: $${(r.entry.pricing.inPerTok * 1e6).toFixed(2)} / $${(r.entry.pricing.outPerTok * 1e6).toFixed(2)} per 1M input / output tokens${st.tokensEstimated ? ' (token counts partly estimated)' : ''}`
-                : 'No published price for this model (only some providers list prices)',
-            },
-            fmtUsd(st.costUsd, st.tokensEstimated),
-          ),
-        );
-      }),
+      'td',
+      { class: 'num', title: st.tokensEstimated ? 'Some counts estimated from text length (~)' : 'Total prompt tokens' },
+      st.answered ? fmtTok(st.tokensIn, st.tokensEstimated) : '–',
+    ),
+    h(
+      'td',
+      { class: 'num', title: 'Input tokens served from the provider’s prompt cache (– when not reported)' },
+      st.tokensCached == null ? '–' : fmtTok(st.tokensCached),
+    ),
+    h(
+      'td',
+      {
+        class: 'num',
+        title: `Total output tokens${st.tokensReasoning ? `, of which reasoning ${fmtTok(st.tokensReasoning, st.tokensEstimated)}` : ''}${st.tokensEstimated ? ' (some estimated)' : ''}`,
+      },
+      st.answered ? fmtTok(st.tokensOut, st.tokensEstimated) : '–',
+    ),
+    h(
+      'td',
+      {
+        class: 'num',
+        title: r.entry.pricing
+          ? `From ${r.entry.endpoint.provider.name}’s published prices: $${(r.entry.pricing.inPerTok * 1e6).toFixed(2)} / $${(r.entry.pricing.outPerTok * 1e6).toFixed(2)} per 1M input / output tokens${st.tokensEstimated ? ' (token counts partly estimated)' : ''}`
+          : 'No published price for this model (only some providers list prices)',
+      },
+      fmtUsd(st.costUsd, st.tokensEstimated),
+    ),
     ),
   );
 

@@ -118,14 +118,6 @@ export function spreadLabels(wanted: number[], gap: number, lo: number, hi: numb
   return out;
 }
 
-/** Lanes holding the best value (ties share it); null values never win. Empty when nobody has one. */
-export function bestLanes(values: { lane: number; value: number | null }[], better: 'high' | 'low'): number[] {
-  const have = values.filter((v): v is { lane: number; value: number } => v.value != null && Number.isFinite(v.value));
-  if (!have.length) return [];
-  const best = better === 'high' ? Math.max(...have.map((v) => v.value)) : Math.min(...have.map((v) => v.value));
-  return have.filter((v) => v.value === best).map((v) => v.lane);
-}
-
 export interface LevelAccuracy {
   difficulty: Difficulty;
   correct: number;

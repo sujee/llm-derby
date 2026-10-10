@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bestLanes, correctAt, difficultyBreakdown, leadChanges, linearScale, niceTicks, raceProgress, spreadLabels } from './charts';
+import { correctAt, difficultyBreakdown, leadChanges, linearScale, niceTicks, raceProgress, spreadLabels } from './charts';
 import type { RacerState } from './race';
 import type { AnswerResult, Difficulty, Question } from './types';
 
@@ -132,22 +132,6 @@ describe('spreadLabels', () => {
     const out = spreadLabels([100, 100, 100], 15, 0, 100);
     expect(Math.max(...out)).toBe(100);
     expect([...out].sort((a, b) => a - b)).toEqual([70, 85, 100]);
-  });
-});
-
-describe('bestLanes', () => {
-  const vals = [
-    { lane: 0, value: 0.5 },
-    { lane: 1, value: 0.9 },
-    { lane: 2, value: null },
-    { lane: 3, value: 0.9 },
-  ];
-  it('picks the highest or the lowest, sharing ties', () => {
-    expect(bestLanes(vals, 'high')).toEqual([1, 3]);
-    expect(bestLanes(vals, 'low')).toEqual([0]);
-  });
-  it('is empty when nobody has a value', () => {
-    expect(bestLanes([{ lane: 0, value: null }], 'high')).toEqual([]);
   });
 });
 

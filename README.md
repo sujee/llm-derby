@@ -162,6 +162,7 @@ or Expert questions.
 | `src/export.ts` | JSON / CSV results export |
 | `src/insights.ts` | Question-bank feedback from a finished race (models agreeing on a wrong answer) |
 | `src/charts.ts` | Pure data and geometry for the results analytics (race progress, lead changes, ticks, per-level accuracy) |
+| `src/sort.ts` | Sorting for the standings table (missing values last, stable) |
 | `src/debuglog.ts` | Human-readable debug logging (🐞 Debug toggle) |
 | `src/providers.ts` | Provider presets |
 | `src/horse.ts`, `src/sound.ts`, `src/confetti.ts` | Horse SVG, synthesized sounds, confetti |

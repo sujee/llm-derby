@@ -1392,6 +1392,40 @@ select {
   border-bottom: 3px solid var(--gold);
 }
 
+/* Column headers are sort buttons that look like the plain headers they replace. */
+.standings th .sort {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+}
+
+.standings th .sort:hover,
+.standings th[aria-sort='ascending'] .sort,
+.standings th[aria-sort='descending'] .sort {
+  color: var(--ink);
+}
+
+.standings th .sort:focus-visible {
+  outline: 2px solid var(--gold-deep);
+  outline-offset: 2px;
+}
+
+/* Out of the flow, so the arrow never changes a column's width. */
+.sort-arrow {
+  position: absolute;
+  left: calc(100% + 2px);
+  bottom: 0;
+  font-size: 0.85em;
+}
+
 .standings td {
   padding: 8px 6px;
   border-bottom: 1px solid var(--cream-2);
@@ -1401,6 +1435,14 @@ select {
 .standings .num {
   font-variant-numeric: tabular-nums;
   font-weight: 800;
+}
+
+/* The count behind a percentage. */
+.standings .of {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 .standings .who {
@@ -1509,13 +1551,6 @@ select {
 
 .analytics h2 {
   margin: 0;
-}
-
-/* As many equal cards per row as fit, so a row is never half empty. */
-.chart-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 12px;
 }
 
 .chart-card {
@@ -1676,20 +1711,6 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
-/* Head-to-head bars: name and value on one line, the bar beneath. */
-.bars {
-  display: grid;
-  gap: 10px;
-}
-
-.bar-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px 10px;
-  align-items: baseline;
-  font-size: 13px;
-}
-
 .bar-name {
   display: flex;
   align-items: center;
@@ -1702,35 +1723,6 @@ select {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.bar-value {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-}
-
-.bar-row.best .bar-value {
-  font-weight: 900;
-  color: var(--ink);
-}
-
-.bar-star {
-  color: var(--gold-deep);
-}
-
-.bar-track {
-  grid-column: 1 / -1;
-  height: 10px;
-  border-radius: 5px;
-  background: #f6efdd;
-}
-
-.bar-fill {
-  width: var(--w);
-  height: 100%;
-  border-radius: 5px;
-  background: var(--c);
 }
 
 /* Accuracy by level: one hue, deeper where more answers were right. */
