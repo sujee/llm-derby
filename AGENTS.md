@@ -72,6 +72,7 @@ Run `npm test` and `npm run build` after every change. Test UI changes in a brow
 | `src/prompt.ts` | The system prompt every model gets |
 | `src/debuglog.ts` | Human-readable request/response logging (🐞 Debug toggle) |
 | `src/export.ts` | JSON / CSV results export |
+| `src/insights.ts` | Question-bank feedback from a finished race (models agreeing on a wrong answer) |
 | `version.json`, `src/version.ts`, `scripts/bump-version.mjs` | App version (whole number) and the script that raises it |
 | `video/` | Demo-video renderer (`render.py`, ffmpeg + headless Chrome) and its HTML cards; not part of the app |
 

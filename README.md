@@ -160,6 +160,7 @@ or Expert questions.
 | `src/questions.ts` | Question selection by difficulty |
 | `src/generated.ts` | Expert question generators |
 | `src/export.ts` | JSON / CSV results export |
+| `src/insights.ts` | Question-bank feedback from a finished race (models agreeing on a wrong answer) |
 | `src/debuglog.ts` | Human-readable debug logging (🐞 Debug toggle) |
 | `src/providers.ts` | Provider presets |
 | `src/horse.ts`, `src/sound.ts`, `src/confetti.ts` | Horse SVG, synthesized sounds, confetti |
