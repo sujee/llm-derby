@@ -1,5 +1,6 @@
 import { answerCost } from './api';
 import { statsOf, tokensPerSec, type RaceSummary, type RacerState } from './race';
+import { SERIES_POINTS, seriesClinched, seriesDone, seriesStandings, type SeriesState } from './series';
 import type { Question } from './types';
 import { APP_VERSION } from './version';
 
@@ -77,6 +78,44 @@ export interface ExportMeta {
   startedAt: Date;
   difficulty: string;
   timeLimitMs: number | null;
+}
+
+/** Series standings in the shape the JSON export and the PNG card both use. */
+export interface SeriesExport {
+  bestOf: number;
+  racesCounted: number;
+  over: boolean;
+  pointsByPlace: number[];
+  standings: {
+    place: number;
+    lane: number;
+    provider: string;
+    model: string;
+    points: number;
+    wins: number;
+    correct: number;
+    placeByRace: number[];
+  }[];
+}
+
+/** Build the series block for an export; `racers` supply the lane order and names. */
+export function buildSeriesExport(s: SeriesState, racers: RacerState[]): SeriesExport {
+  return {
+    bestOf: s.of,
+    racesCounted: s.legs.length,
+    over: seriesDone(s) || seriesClinched(s, racers.length),
+    pointsByPlace: SERIES_POINTS.slice(0, racers.length),
+    standings: seriesStandings(s, racers.length).map((row, i) => ({
+      place: i + 1,
+      lane: row.lane + 1,
+      provider: racers[row.lane].entry.endpoint.provider.name,
+      model: racers[row.lane].entry.model,
+      points: row.points,
+      wins: row.wins,
+      correct: row.correct,
+      placeByRace: row.places,
+    })),
+  };
 }
 
 const round = (x: number | null | undefined) => (x == null ? null : Math.round(x));
@@ -208,9 +247,9 @@ export function exportBaseName(d: Date): string {
   return `llm-derby-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`;
 }
 
-/** Save text as a file via a temporary download link. */
-export function download(filename: string, text: string, type: string) {
-  const url = URL.createObjectURL(new Blob([text], { type }));
+/** Save a blob as a file via a temporary download link. */
+export function downloadBlob(filename: string, blob: Blob) {
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
@@ -218,4 +257,9 @@ export function download(filename: string, text: string, type: string) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Save text as a file via a temporary download link. */
+export function download(filename: string, text: string, type: string) {
+  downloadBlob(filename, new Blob([text], { type }));
 }

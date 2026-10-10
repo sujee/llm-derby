@@ -10,7 +10,8 @@ import { sound } from './sound';
 import { confetti } from './confetti';
 import { DEFAULT_LEVELS, LEVELS, available, byLevel, isBankQuestion, ordered, pickQuestions, questionCount, splitCounts } from './questions';
 import { GENERATORS, generateExpert } from './generated';
-import { buildExport, download, exportBaseName, toCsv } from './export';
+import { buildExport, buildSeriesExport, download, downloadBlob, exportBaseName, toCsv, type RaceExport, type SeriesExport } from './export';
+import { drawResultsCard } from './png';
 import { debugLog, logRaceEnd, logRaceStart } from './debuglog';
 import { Announcer } from './announcer';
 import { Commentator, displayNames } from './commentary';
@@ -1814,7 +1815,7 @@ interface ExportContext {
   series: SeriesState | null;
 }
 
-function exportResults(summary: RaceSummary, format: 'json' | 'csv', ctx: ExportContext) {
+function exportResults(summary: RaceSummary, format: 'json' | 'csv' | 'png', ctx: ExportContext) {
   const { race, startedAt } = ctx;
   const data = buildExport(race.racers, race.questions, race.distance, summary, {
     startedAt,
@@ -1822,26 +1823,19 @@ function exportResults(summary: RaceSummary, format: 'json' | 'csv', ctx: Export
     timeLimitMs: race.timeLimitMs,
   });
   const name = exportBaseName(startedAt);
-  const s = ctx.series;
-  const series = s && {
-    bestOf: s.of,
-    racesCounted: s.legs.length,
-    over: seriesDone(s) || seriesClinched(s, race.racers.length),
-    pointsByPlace: SERIES_POINTS.slice(0, race.racers.length),
-    standings: seriesStandings(s, race.racers.length).map((row, i) => ({
-      place: i + 1,
-      lane: row.lane + 1,
-      provider: race.racers[row.lane].entry.endpoint.provider.name,
-      model: race.racers[row.lane].entry.model,
-      points: row.points,
-      wins: row.wins,
-      correct: row.correct,
-      placeByRace: row.places,
-    })),
-  };
+  const series = ctx.series && buildSeriesExport(ctx.series, race.racers);
   if (format === 'json') download(`${name}.json`, JSON.stringify(series ? { ...data, series } : data, null, 2), 'application/json');
   // The BOM makes Excel read the file as UTF-8 (accents, symbols).
-  else download(`${name}.csv`, '\ufeff' + toCsv(data), 'text/csv;charset=utf-8');
+  else if (format === 'csv') download(`${name}.csv`, '\ufeff' + toCsv(data), 'text/csv;charset=utf-8');
+  else exportPng(`${name}.png`, data, series);
+}
+
+/** Render the standings card and save it as a PNG. */
+async function exportPng(filename: string, data: RaceExport, series: SeriesExport | null) {
+  const canvas = document.createElement('canvas');
+  drawResultsCard(canvas, data, series);
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+  if (blob) downloadBlob(filename, blob);
 }
 
 /** The series has a champion: every race is run, or the leader can't be caught. */
@@ -2432,6 +2426,16 @@ function showResults(summary: RaceSummary) {
           onclick: () => exportResults(summary, 'csv', exportCtx),
         },
         '⬇ Answers (CSV)',
+      ),
+      h(
+        'button',
+        {
+          class: 'btn ghost small',
+          type: 'button',
+          title: 'A shareable image of the standings',
+          onclick: () => exportResults(summary, 'png', exportCtx),
+        },
+        '⬇ Results image (PNG)',
       ),
     ),
     h('p', { class: 'muted board-note' }, 'The full question-by-question comparison is on the board below. Exports never include API keys.'),

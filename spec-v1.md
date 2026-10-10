@@ -156,7 +156,8 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 - **Export results:**
   - **⬇ Full results (JSON):** race settings, standings with all statistics (including TTFT p50 and latency p50), and every question reached with each model's answer, verdict, TTFT, latency, error, full reply and reasoning.
   - **⬇ Answers (CSV):** one row per question per model (result is correct, wrong, timeout, error or not answered; includes `ttft_ms`, `latency_ms` and `tok_per_sec`), for spreadsheets.
-  - File names use the race start time, e.g. `llm-derby-2026-10-08-2326.json`.
+  - **⬇ Results image (PNG):** a shareable standings card drawn on a canvas: race settings, the podium and the standings table (with the series standings when racing a series). No third-party library, so the strict CSP is unchanged.
+  - File names use the race start time, e.g. `llm-derby-2026-10-08-2326.json` (`.png` for the image).
   - Exports never include API keys. CSV cells that look like spreadsheet formulas are neutralized, and the CSV opens correctly in Excel (UTF-8).
 
 ## 6. Controls
@@ -169,7 +170,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 - **📺 Present:** full screen with a bigger announcer and lanes, for a projector or screen share. The header, footer and question board are hidden; results and the podium still appear at the end. Esc or "✕ Exit presentation" leaves it.
 - Assign models, 3/4 horses
 - **🔗 Copy setup link:** copies a link (`…/#setup=…`) that opens the same setup: providers, models, custom base URLs, distance, difficulty levels, rising difficulty and time limit. It never includes API keys. Opening the link fills in the setup screen and shows a notice (asking the visitor to check custom base URLs before entering a key); every value from a link is validated and clamped, and an unreadable link is ignored.
-- Export results (JSON, CSV)
+- Export results (JSON, CSV, PNG image)
 
 ## 7. Settings, Privacy and Security
 
