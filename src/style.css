@@ -123,6 +123,7 @@ a {
 }
 
 .marquee {
+  position: relative;
   padding: 6px 20px 7px;
   border: 5px dotted #ffe08a;
   border-radius: 16px;
@@ -159,6 +160,24 @@ a {
   color: rgba(255, 246, 226, 0.6);
   font-size: 13px;
   padding: 8px 16px 24px;
+}
+
+/* Dev-only badge, over the logo's top-left corner while the Vite dev server is running
+   (never in the production build; the header is hidden in presentation mode). */
+.dev-badge {
+  position: absolute;
+  top: -9px;
+  left: -10px;
+  z-index: 2;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--night);
+  color: var(--gold);
+  font: 800 10px/1 var(--font);
+  letter-spacing: 0.12em;
+  border: 2px solid var(--gold);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
 }
 
 /* ---------- Controls ---------- */
@@ -427,6 +446,24 @@ select {
 .status.note {
   color: var(--muted);
   font-weight: 600;
+}
+
+/* Price of the selected model, shown under the model field */
+.model-price {
+  margin: -4px 0 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.model-price b {
+  color: #2b1a10;
+  font-weight: 800;
+}
+
+.model-price.none {
+  font-style: italic;
+  opacity: 0.85;
 }
 
 /* ---------- Race settings panel ---------- */

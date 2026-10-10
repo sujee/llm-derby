@@ -31,9 +31,13 @@ npm run dev        # http://localhost:5173
 npm test           # grading + question bank tests
 npm run build      # static site in dist/
 npm run preview    # serve the production build (with its strict CSP)
+npm run pricing:update  # refresh the bundled model-price snapshot (models.dev)
+./scripts/update-pricing.sh  # same thing, as a shell script
 ```
 
 No API key? Pick **Simulated (no API calls)** as the provider to try the game offline: no API keys needed.
+
+A small red **DEV** badge appears on the logo while the Vite dev server is running (`npm run dev`); it never appears in the production build.
 
 ## Deploy to GitHub Pages
 
@@ -100,16 +104,16 @@ timing, finish reason (to catch cut-offs) and token usage. It uses the same prom
 streaming and grading as the game, so what you see is what a race would see.
 
 ```bash
-./debug.sh --id 42 --models Qwen/Qwen3-30B-A3B-Instruct-2507,deepseek-ai/DeepSeek-V4.1-Flash
+./scripts/debug-question.sh --id 42 --models Qwen/Qwen3-30B-A3B-Instruct-2507,deepseek-ai/DeepSeek-V4.1-Flash
 
-./debug.sh --question 'What is the sum of the digits of 9 to the power 84?' --answer 360 --provider nebius  --models nvidia/Nemotron-3_5-Lightning
+./scripts/debug-question.sh --question 'What is the sum of the digits of 9 to the power 84?' --answer 360 --provider nebius  --models nvidia/Nemotron-3_5-Lightning
 
-# or inline:  ./debug.sh --question "Capital of France?" --answer Paris --models …
-# or a file:  ./debug.sh --file one-question.json --models …
+# or inline:  ./scripts/debug-question.sh --question "Capital of France?" --answer Paris --models …
+# or a file:  ./scripts/debug-question.sh --file one-question.json --models …
 # options: --aliases a,b --repeats N --provider ID --base-url URL --key-env NAME
 ```
 
-`./debug.sh` loads API keys from `.env` (see `.env.example`) and forwards its
+`scripts/debug-question.sh` loads API keys from `.env` (see `.env.example`) and forwards its
 arguments to `scripts/debug-question.mts`, which also runs directly via
 `npm run debug -- …` if the keys are already in the environment.
 
@@ -118,7 +122,7 @@ Handy offline check with no keys: add `--provider sim`.
 ### Troubleshooting
 
 - **`NEBIUS_API_KEY is not set` (or another `…_API_KEY`).** The key isn't in the
-  environment. `./debug.sh` loads `.env` automatically — make sure the file exists
+  environment. `scripts/debug-question.sh` loads `.env` automatically — make sure the file exists
   (`cp .env.example .env`) and the variable for your provider is filled in. Running
   `npm run debug` directly needs `set -a; . ./.env; set +a` first. If your key lives
   under a different name, pass `--key-env NAME`.
@@ -160,12 +164,15 @@ or Expert questions.
 | `src/questions.ts` | Question selection by difficulty |
 | `src/generated.ts` | Expert question generators |
 | `src/export.ts` | JSON / CSV results export |
+| `src/pricing.ts` | Model prices: provider listing + models.dev catalog; the setup "Refresh prices" button fetches on demand (72 h cache); `PRICING.fetchLive = false` disables it |
+| `src/pricing.snapshot.json` | Committed price snapshot, refreshed with `npm run pricing:update` |
 | `src/insights.ts` | Question-bank feedback from a finished race (models agreeing on a wrong answer) |
 | `src/charts.ts` | Pure data and geometry for the results analytics (race progress, lead changes, ticks, per-level accuracy) |
 | `src/sort.ts` | Sorting for the standings table (missing values last, stable) |
 | `src/debuglog.ts` | Human-readable debug logging (🐞 Debug toggle) |
 | `src/providers.ts` | Provider presets |
 | `src/horse.ts`, `src/sound.ts`, `src/confetti.ts` | Horse SVG, synthesized sounds, confetti |
+| `scripts/` | Utility scripts (Node `.mts`/`.mjs` + shell wrappers): `update-pricing.sh`, `debug-question.sh`, `calibrate.mts`, `bump-version.mjs` |
 
 ## License
 

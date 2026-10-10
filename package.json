@@ -1,7 +1,7 @@
 {
   "name": "llm-derby",
   "private": true,
-  "version": "13.0.0",
+  "version": "14.0.0",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -11,6 +11,7 @@
     "test": "vitest run",
     "calibrate": "node scripts/calibrate.mts",
     "debug": "node scripts/debug-question.mts",
+    "pricing:update": "node scripts/update-pricing.mts",
     "version:bump": "node scripts/bump-version.mjs"
   },
   "devDependencies": {

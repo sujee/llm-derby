@@ -15,7 +15,8 @@ npm test          # unit tests (vitest)
 npm run build     # type-check + production build into dist/
 npm run preview   # serve the production build (strict CSP), http://localhost:4173
 npm run calibrate -- --models a,b   # check the question bank against real models (needs keys from .env)
-npm run debug -- --id N --models a,b  # one question, a few models: full reply, reasoning, grade (needs keys from .env)
+npm run debug -- --id N --models a,b  # one question, a few models: full reply, reasoning, grade (needs keys from .env; wrapper: ./scripts/debug-question.sh)
+npm run pricing:update              # refresh src/pricing.snapshot.json from models.dev (wrapper: ./scripts/update-pricing.sh)
 npm run version:bump                # raise the version by one (v1 → v2); do this before every push to main
 ```
 
@@ -73,9 +74,13 @@ Run `npm test` and `npm run build` after every change. Test UI changes in a brow
 | `src/commentary.ts`, `src/announcer.ts` | Race announcer: what to say, and how to show it |
 | `scripts/calibrate.mts` | Question calibration against real models (Node, not part of the app) |
 | `scripts/debug-question.mts` | Debug one question on a few models: full reply, reasoning, grade, timing (`npm run debug`) |
+| `scripts/update-pricing.mts` | Refresh `src/pricing.snapshot.json` from models.dev (`npm run pricing:update`) |
+| `scripts/*.sh` | Shell wrappers: `update-pricing.sh`, `debug-question.sh` (load `.env`, then run the Node script) |
 | `src/prompt.ts` | The system prompt every model gets |
 | `src/debuglog.ts` | Human-readable request/response logging (🐞 Debug toggle) |
 | `src/export.ts` | JSON / CSV results export |
+| `src/pricing.ts` | Model prices: provider listing + models.dev catalog; the setup "Refresh prices" button fetches on demand (72 h cache); `PRICING.fetchLive = false` disables it |
+| `src/pricing.snapshot.json` | Committed price snapshot, refreshed with `npm run pricing:update` |
 | `src/insights.ts` | Question-bank feedback from a finished race (models agreeing on a wrong answer) |
 | `src/charts.ts` | Pure data and geometry for the results analytics (race progress, lead changes, ticks, per-level accuracy) |
 | `src/sort.ts` | Sorting for the standings table (missing values last, stable) |

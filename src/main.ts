@@ -1,6 +1,8 @@
 import './style.css';
 import { PROVIDER_MENU, providerById } from './providers';
 import { describeError, listModels, logError, type Pricing } from './api';
+import { MODELS_DEV_PROVIDERS, PRICING, catalogNow, lookupPrice, refreshCatalog, type PriceCatalog } from './pricing';
+import pricingSnapshot from './pricing.snapshot.json';
 import { Race, statsOf, type RaceSummary, type RacerState, type RacerStats } from './race';
 import { $, fmtClock, fmtLimit, fmtPct, fmtSec, fmtTok, fmtTps, fmtUsd, h, SVG_NS, wait } from './dom';
 import { horseSvg } from './horse';
@@ -121,6 +123,8 @@ const S = {
   models: {} as Record<string, string[]>,
   /** Published prices by source, then model ID (only for providers that list them). */
   pricing: {} as Record<string, Record<string, Pricing>>,
+  /** models.dev price catalog, used to fill in prices a provider's own listing omits. */
+  priceCatalog: null as PriceCatalog | null,
   modelStatus: {} as Record<string, { state: 'loading' | 'ok' | 'error'; msg: string; detail?: string }>,
   setupError: '',
   /** Information shown above the setup (e.g. after opening a shared link). */
@@ -161,6 +165,10 @@ function saveSettings() {
 }
 
 sound.enabled = S.sound;
+
+// Prices come from the snapshot shipped with the app; the "Refresh prices" button fetches
+// models.dev on demand and caches it for 72 hours (no automatic request).
+S.priceCatalog = catalogNow(pricingSnapshot as unknown as PriceCatalog);
 
 const activeHorses = () => S.horses.slice(0, S.horseCount);
 
@@ -449,6 +457,13 @@ function toggleDebug() {
   );
 }
 
+// Dev-only badge over the logo's top-left corner while running the Vite dev server.
+// `import.meta.env.DEV` is true only in dev and is replaced with `false` in the production build,
+// so this never ships.
+const devBadge = import.meta.env.DEV
+  ? h('span', { class: 'dev-badge', title: `Vite dev server · ${import.meta.env.MODE} mode` }, 'DEV')
+  : null;
+
 $('#app').append(
   h(
     'header',
@@ -457,7 +472,7 @@ $('#app').append(
     h(
       'div',
       { class: 'header-row' },
-      h('div', { class: 'marquee' }, h('h1', null, 'LLM Derby')),
+      h('div', { class: 'marquee' }, h('h1', null, 'LLM Derby'), devBadge),
       h(
         'div',
         { class: 'header-info' },
@@ -514,6 +529,25 @@ function loadModelsFor(i: number): Promise<void> {
   return load;
 }
 
+/**
+ * Fill prices the provider's own listing doesn't publish from the models.dev catalog.
+ * A provider's own price always wins (it is what its billing uses); catalog prices refresh.
+ */
+function applyCatalogPrices() {
+  const catalog = S.priceCatalog;
+  if (!catalog) return;
+  for (const src of Object.keys(S.models)) {
+    const providerId = src.startsWith('custom-') ? 'custom' : src;
+    if (!MODELS_DEV_PROVIDERS[providerId]) continue;
+    const pricing = (S.pricing[src] ??= {});
+    for (const id of S.models[src]) {
+      if (pricing[id] && pricing[id].source !== 'models.dev') continue; // keep the provider's own price
+      const price = lookupPrice(catalog, providerId, id);
+      if (price) pricing[id] = price;
+    }
+  }
+}
+
 async function fetchModels(src: string, ep: Endpoint) {
   S.modelStatus[src] = { state: 'loading', msg: 'Loading models…' };
   renderSetup();
@@ -521,6 +555,8 @@ async function fetchModels(src: string, ep: Endpoint) {
     const { ids, pricing } = await listModels(ep);
     S.models[src] = ids;
     S.pricing[src] = pricing;
+    // Fill in prices the provider's own listing doesn't publish from the models.dev catalog.
+    applyCatalogPrices();
     const priced = Object.keys(pricing).length;
     S.modelStatus[src] = ids.length
       ? { state: 'ok', msg: `${ids.length} models loaded${priced ? ` · prices for ${priced}` : ''}` }
@@ -640,6 +676,34 @@ function horseCard(i: number) {
   }
 
   const listId = `models-${i}`;
+  const priceLine = h('p', { class: 'model-price', hidden: true });
+
+  /** Price for the model currently in the box, from the provider's listing or models.dev. */
+  const updatePrice = () => {
+    const model = hc.model.trim();
+    const loaded = !!S.pricing[src];
+    const price = model ? (S.pricing[src]?.[model] ?? lookupPrice(S.priceCatalog, p.id, model)) : undefined;
+    // Before a listing is loaded we can only price catalog-known IDs, so don't say "none" yet.
+    const canSayNone = loaded && !p.simulated && !p.editableUrl;
+    if (!model || (!price && !canSayNone)) {
+      priceLine.hidden = true;
+      return;
+    }
+    priceLine.hidden = false;
+    if (!price) {
+      priceLine.className = 'model-price none';
+      priceLine.title = 'Only some providers publish prices, and the catalog only covers known model IDs.';
+      priceLine.replaceChildren('No published price for this model');
+      return;
+    }
+    priceLine.className = 'model-price';
+    priceLine.title = price.source === 'models.dev' ? 'Price from the models.dev catalog' : `Price from ${p.name}’s published model list`;
+    const perM = (n: number) => `$${n >= 1 ? n.toFixed(2) : n >= 0.01 ? n.toFixed(3) : n.toPrecision(2)}`;
+    const bits: (Node | string)[] = ['💵 ', h('b', null, perM(price.inPerTok * 1e6)), ' in · ', h('b', null, perM(price.outPerTok * 1e6)), ' out / 1M'];
+    if (price.cacheReadPerTok != null) bits.push(' · cached ', h('b', null, perM(price.cacheReadPerTok * 1e6)));
+    priceLine.replaceChildren(...bits);
+  };
+
   const modelInput = h('input', {
     type: 'text',
     'data-fid': `model-${i}`,
@@ -650,8 +714,10 @@ function horseCard(i: number) {
     oninput: () => {
       hc.model = modelInput.value.trim();
       saveSettings();
+      updatePrice();
     },
   });
+  updatePrice();
 
   return h(
     'article',
@@ -661,6 +727,7 @@ function horseCard(i: number) {
     urlField,
     keyField,
     h('label', { class: 'field' }, h('span', null, 'Model'), modelInput),
+    priceLine,
     h(
       'datalist',
       { id: listId },
@@ -708,6 +775,32 @@ function assignRandomModels() {
   S.setupError = missing.length ? `Load models first for: ${missing.join(', ')}.` : '';
   saveSettings();
   renderSetup();
+}
+
+/**
+ * The "Refresh prices" button: fetch the models.dev catalog now and cache it for 72 hours.
+ * Prices otherwise come from the snapshot shipped with the app; there is no automatic request.
+ */
+async function refreshPrices(btn: HTMLButtonElement) {
+  btn.disabled = true;
+  btn.textContent = '⏳ Refreshing…';
+  const fresh = await refreshCatalog();
+  if (fresh) {
+    S.priceCatalog = fresh;
+    applyCatalogPrices();
+    S.setupNotice = 'Model prices updated from models.dev.';
+  } else {
+    S.setupNotice = 'Could not refresh model prices; the current prices are still shown.';
+  }
+  renderSetup();
+  if (fresh) {
+    window.setTimeout(() => {
+      if (S.setupNotice.startsWith('Model prices updated')) {
+        S.setupNotice = '';
+        renderSetup();
+      }
+    }, 3500);
+  }
 }
 
 function validateSetup(): string {
@@ -933,6 +1026,18 @@ function buildSetup() {
             },
             '🎲 Assign models',
           ),
+          PRICING.fetchLive
+            ? h(
+                'button',
+                {
+                  class: 'btn small',
+                  type: 'button',
+                  title: 'Download the latest model prices from models.dev and cache them in this browser for 72 hours',
+                  onclick: (e: Event) => void refreshPrices(e.currentTarget as HTMLButtonElement),
+                },
+                '🔄 Refresh prices',
+              )
+            : null,
           h(
             'button',
             {
@@ -2302,7 +2407,7 @@ function showResults(summary: RaceSummary) {
       {
         class: 'num',
         title: r.entry.pricing
-          ? `From ${r.entry.endpoint.provider.name}’s published prices: $${(r.entry.pricing.inPerTok * 1e6).toFixed(2)} / $${(r.entry.pricing.outPerTok * 1e6).toFixed(2)} per 1M input / output tokens${st.tokensEstimated ? ' (token counts partly estimated)' : ''}`
+          ? `${r.entry.pricing.source === 'models.dev' ? 'From the models.dev catalog' : `From ${r.entry.endpoint.provider.name}’s published prices`}: $${(r.entry.pricing.inPerTok * 1e6).toFixed(2)} / $${(r.entry.pricing.outPerTok * 1e6).toFixed(2)} per 1M input / output tokens${st.tokensEstimated ? ' (token counts partly estimated)' : ''}`
           : 'No published price for this model (only some providers list prices)',
       },
       fmtUsd(st.costUsd, st.tokensEstimated),

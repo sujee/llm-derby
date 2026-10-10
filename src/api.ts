@@ -83,7 +83,10 @@ export function tokenUsage(usage: unknown, prompt: string, content: string, reas
 /** Cost of one answer in USD; undefined when there's no price or no token counts. */
 export function answerCost(tokens: TokenUsage | undefined, price: Pricing | undefined): number | undefined {
   if (!tokens || !price || tokens.out == null) return undefined;
-  const input = tokens.in ?? 0;
+  // Cached tokens are a subset of the input, so the input count is never smaller than the cached
+  // one. Some gateways report cached tokens without reporting prompt_tokens; without this the
+  // input part of the bill would silently drop to zero.
+  const input = Math.max(tokens.in ?? 0, tokens.cached ?? 0);
   const cached = Math.min(tokens.cached ?? 0, input);
   return (input - cached) * price.inPerTok + cached * (price.cacheReadPerTok ?? price.inPerTok) + tokens.out * price.outPerTok;
 }
@@ -240,6 +243,9 @@ interface ModelRow {
   id: string;
   type: string;
   owned_by: string;
+  /** Parsed price in USD per 1M tokens ('' when the listing has none), for eyeballing units. */
+  inPerM: string;
+  outPerM: string;
   shown: boolean;
   reason: string;
 }
@@ -279,12 +285,20 @@ export interface Pricing {
   outPerTok: number;
   /** Price for cached input tokens, when the provider lists one. */
   cacheReadPerTok?: number;
+  /** Where the price came from, for the cost tooltip. */
+  source?: 'provider' | 'models.dev';
 }
 
 /**
- * Read a model's price from its listing, when the provider publishes one:
- * OpenRouter / GMI style `pricing.prompt` / `pricing.completion` (USD per token, as strings),
- * or Together style `pricing.input` / `pricing.output` (USD per 1M tokens).
+ * Read a model's price from its listing, when the provider publishes one. Two shapes are
+ * verified against the providers' live listings (2026-10-10):
+ *   - Per-token USD, as strings: `pricing.prompt` / `pricing.completion`, with an optional
+ *     per-token `pricing.input_cache_read`. Used by OpenRouter and by Nebius Token Factory's
+ *     `?verbose=true` listing (its documented example is "0.00000003" = $0.03 / 1M input).
+ *     GMI Cloud follows this shape when it includes pricing at all.
+ *   - Per-million USD, as numbers: `pricing.input` / `pricing.output`, with an optional
+ *     `pricing.cached_input` (or the camelCase `cachedInput`). Used by Together AI.
+ * Anything else (including no price) is ignored, so the Cost column just shows "–".
  */
 export function parsePricing(model: unknown): Pricing | undefined {
   const p = (model as { pricing?: Record<string, unknown> } | null)?.pricing;
@@ -293,17 +307,24 @@ export function parsePricing(model: unknown): Pricing | undefined {
     const v = typeof x === 'string' || typeof x === 'number' ? Number(x) : NaN;
     return Number.isFinite(v) && v >= 0 ? v : undefined; // OpenRouter uses -1 for "varies"
   };
+  // Per-token, as strings (OpenRouter, Nebius Token Factory, GMI Cloud).
   if (p.prompt != null && p.completion != null) {
     const inP = n(p.prompt);
     const outP = n(p.completion);
     if (inP == null || outP == null) return undefined;
     return { inPerTok: inP, outPerTok: outP, cacheReadPerTok: n(p.input_cache_read) };
   }
+  // Per-million, as numbers (Together AI).
   if (p.input != null && p.output != null) {
     const inP = n(p.input);
     const outP = n(p.output);
     if (inP == null || outP == null) return undefined;
-    return { inPerTok: inP / 1e6, outPerTok: outP / 1e6 };
+    const cacheRead = n(p.cached_input) ?? n(p.cachedInput);
+    return {
+      inPerTok: inP / 1e6,
+      outPerTok: outP / 1e6,
+      cacheReadPerTok: cacheRead == null ? undefined : cacheRead / 1e6,
+    };
   }
   return undefined;
 }
@@ -318,7 +339,7 @@ export interface ModelList {
 export async function listModels(ep: Endpoint): Promise<ModelList> {
   if (ep.provider.simulated) {
     const ids = Object.keys(SIM_PROFILES);
-    const rows = ids.map((id) => ({ id, type: 'simulated', owned_by: 'sim', shown: true, reason: '' }));
+    const rows = ids.map((id) => ({ id, type: 'simulated', owned_by: 'sim', inPerM: '', outPerM: '', shown: true, reason: '' }));
     logModelListing(ep.provider.name, '(no request: simulated)', SIM_PROFILES, rows, 0);
     return { ids, pricing: {} };
   }
@@ -351,8 +372,16 @@ export async function listModels(ep: Endpoint): Promise<ModelList> {
     if (!reason && seen.has(id)) reason = 'duplicate';
     seen.add(id);
     const price = parsePricing(m);
-    if (price && !reason) pricing[id] = price;
-    return { id, type, owned_by: str((o as { owned_by?: unknown }).owned_by), shown: !reason, reason };
+    if (price && !reason) pricing[id] = { ...price, source: 'provider' };
+    return {
+      id,
+      type,
+      owned_by: str((o as { owned_by?: unknown }).owned_by),
+      inPerM: price ? (price.inPerTok * 1e6).toFixed(2) : '',
+      outPerM: price ? (price.outPerTok * 1e6).toFixed(2) : '',
+      shown: !reason,
+      reason,
+    };
   });
   logModelListing(ep.provider.name, url, j, rows, performance.now() - t0);
   return { ids: rows.filter((r) => r.shown).map((r) => r.id).sort((a, b) => a.localeCompare(b)), pricing };
