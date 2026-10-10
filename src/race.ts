@@ -284,6 +284,7 @@ export class Race {
       }
       logResult(ctx, res, trace, apiErr);
 
+      res.atMs = this.elapsedMs;
       r.results[qi] = res;
       r.answered++;
       if (res.correct) r.correct++;

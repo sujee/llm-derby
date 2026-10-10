@@ -46,6 +46,8 @@ export interface AnswerResult {
   reasoning: string;
   correct: boolean;
   latencyMs: number;
+  /** Race clock when the answer landed (after any retries), for the race-progress chart. */
+  atMs?: number;
   /** Time to first token, when the reply was streamed. */
   ttftMs?: number;
   /** Token counts (reported by the provider, or estimated from the text). */

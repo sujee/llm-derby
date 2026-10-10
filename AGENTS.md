@@ -51,7 +51,11 @@ Run `npm test` and `npm run build` after every change. Test UI changes in a brow
 - **Every push to `main` raises the version by one.** The version is a whole number in `version.json` (v1, v2, v3, …), shown in the app header and footer and saved in exports. Run `npm run version:bump` (it also sets `package.json` and `package-lock.json` to `N.0.0`), include the change in the commit, and name the new version when asking for permission (e.g. "commit and push as v4?"). One bump per push, however many commits it contains.
 - Never force-push.
 - Before asking, check `git status` and list what's included. Make sure no `.env` file, key, or `calibration/` output is staged.
-- Reading is always fine: `git status`, `git diff`, `git log`.
+- Reading is always fine: `git status`, `git log`, `git diff --stat`. Inspect a full diff when you must, but never print it to the terminal (see Terminal output).
+
+## Terminal output
+
+- **Never print code diffs to the terminal.** Don't run `git diff`, `git show`, `git log -p`, or similar in a way that dumps a diff, and don't `cat` a file just to display it as a diff. Read changes privately when you need them and tell the user what changed in words (files and a short summary), not as a diff.
 
 ## Code layout
 
@@ -73,6 +77,7 @@ Run `npm test` and `npm run build` after every change. Test UI changes in a brow
 | `src/debuglog.ts` | Human-readable request/response logging (🐞 Debug toggle) |
 | `src/export.ts` | JSON / CSV results export |
 | `src/insights.ts` | Question-bank feedback from a finished race (models agreeing on a wrong answer) |
+| `src/charts.ts` | Pure data and geometry for the results analytics (race progress, lead changes, ticks, per-level accuracy) |
 | `version.json`, `src/version.ts`, `scripts/bump-version.mjs` | App version (whole number) and the script that raises it |
 | `video/` | Demo-video renderer (`render.py`, ffmpeg + headless Chrome) and its HTML cards; not part of the app |
 

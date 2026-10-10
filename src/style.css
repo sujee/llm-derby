@@ -1486,6 +1486,330 @@ select {
   margin-top: 2px;
 }
 
+/* ---------- Race analytics (results) ---------- */
+
+/* The results panel, then the analytics panel, spaced like the page's other panels. */
+.results {
+  display: grid;
+  gap: 18px;
+}
+
+.results > * {
+  min-width: 0;
+}
+
+.analytics {
+  display: grid;
+  gap: 12px;
+}
+
+.analytics > * {
+  min-width: 0;
+}
+
+.analytics h2 {
+  margin: 0;
+}
+
+/* As many equal cards per row as fit, so a row is never half empty. */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.chart-card {
+  margin: 0;
+  min-width: 0;
+  padding: 12px 14px 14px;
+  border: 2px solid var(--cream-2);
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chart-card figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.chart-card figcaption strong {
+  font-size: 14px;
+  color: #7d1225;
+}
+
+.chart-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Which horse: a dot in the lane colour next to a name in ink. */
+.chart-key {
+  flex: none;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chart-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.chart-plot {
+  position: relative;
+}
+
+.chart {
+  width: 100%;
+  display: block;
+  touch-action: pan-y;
+}
+
+.chart-axis {
+  stroke: #d9c9a3;
+  stroke-width: 1;
+}
+
+.chart-gridline {
+  stroke: #f3ead4;
+  stroke-width: 1;
+}
+
+.chart-finish {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.chart-tick {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-tick.strong {
+  fill: var(--ink);
+}
+
+.chart-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.chart-dot {
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.chart-leader {
+  stroke: #d9c9a3;
+  stroke-width: 1;
+}
+
+.chart-label {
+  font-size: 12px;
+  font-weight: 800;
+  fill: var(--ink);
+}
+
+.chart-hair {
+  stroke: var(--muted);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.chart-tip {
+  position: absolute;
+  top: 8px;
+  z-index: 1;
+  min-width: 140px;
+  max-width: 240px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.chart-tip-head {
+  margin-bottom: 4px;
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+.chart-tip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-tip-row span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chart-tip-row b {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Head-to-head bars: name and value on one line, the bar beneath. */
+.bars {
+  display: grid;
+  gap: 10px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  align-items: baseline;
+  font-size: 13px;
+}
+
+.bar-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-weight: 700;
+}
+
+.bar-name > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.bar-row.best .bar-value {
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.bar-star {
+  color: var(--gold-deep);
+}
+
+.bar-track {
+  grid-column: 1 / -1;
+  height: 10px;
+  border-radius: 5px;
+  background: #f6efdd;
+}
+
+.bar-fill {
+  width: var(--w);
+  height: 100%;
+  border-radius: 5px;
+  background: var(--c);
+}
+
+/* Accuracy by level: one hue, deeper where more answers were right. */
+.level-grid {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 3px;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.level-grid th {
+  padding: 4px 6px;
+  text-align: left;
+  font-weight: 700;
+}
+
+.level-grid thead th {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.level-grid thead th:not(:first-child) {
+  text-align: center;
+}
+
+.level-grid thead th:first-child {
+  width: 34%;
+}
+
+.level-grid td {
+  padding: 6px;
+  border-radius: 6px;
+  text-align: center;
+  background: rgb(47 158 68 / var(--a, 0));
+  font-variant-numeric: tabular-nums;
+}
+
+.level-grid td b {
+  display: block;
+  font-weight: 800;
+}
+
+.level-grid td span {
+  font-size: 11px;
+  color: #5c4a38;
+}
+
+.level-grid td.none {
+  color: var(--muted);
+}
+
+/* Phone: tighten the grid so four levels fit without sideways scrolling. */
+@media (max-width: 520px) {
+  .level-grid {
+    border-spacing: 2px;
+  }
+
+  .level-grid thead th {
+    padding: 4px 0;
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+
+  .level-grid thead th:first-child {
+    width: 30%;
+  }
+
+  .level-grid tbody th {
+    padding: 4px 2px;
+  }
+
+  .level-grid td {
+    padding: 5px 0;
+  }
+}
+
 /* ---------- Question board ---------- */
 
 .grid-panel h2 {

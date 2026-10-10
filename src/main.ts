@@ -1,7 +1,7 @@
 import './style.css';
 import { PROVIDER_MENU, providerById } from './providers';
 import { describeError, listModels, logError, type Pricing } from './api';
-import { Race, statsOf, type RaceSummary, type RacerState } from './race';
+import { Race, statsOf, type RaceSummary, type RacerState, type RacerStats } from './race';
 import { $, fmtClock, fmtLimit, fmtPct, fmtSec, fmtTok, fmtTps, fmtUsd, h, SVG_NS, wait } from './dom';
 import { horseSvg } from './horse';
 import { sound } from './sound';
@@ -18,6 +18,7 @@ import { APP_VERSION_LABEL } from './version';
 import { SERIES_POINTS, seriesClinched, seriesDone, seriesStandings, type SeriesState } from './series';
 import { SHARE_PREFIX, decodeSetup, encodeSetup, type ShareLimits } from './sharelink';
 import { aliasPatch, analyzeRace, type Insights } from './insights';
+import { DIFFICULTIES, bestLanes, correctAt, difficultyBreakdown, leadChanges, linearScale, niceTicks, raceProgress, spreadLabels } from './charts';
 import type { AnswerResult, Difficulty, Endpoint, Question } from './types';
 
 const LANES = [
@@ -201,6 +202,18 @@ function icon(path: string): SVGSVGElement {
 const copyIcon = () =>
   icon('<rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 5.5V4.1a1.6 1.6 0 0 0-1.6-1.6H4.1A1.6 1.6 0 0 0 2.5 4.1v4.8a1.6 1.6 0 0 0 1.6 1.6h1.4"/>');
 const checkIcon = () => icon('<path d="M3.5 8.5 6.5 11.5 12.5 4.5"/>');
+
+/** Build an SVG element (namespace-correct, unlike `h`); attributes only, no HTML parsing. */
+function svgEl<K extends keyof SVGElementTagNameMap>(
+  tag: K,
+  attrs: Record<string, string | number> = {},
+  ...children: (Node | string)[]
+): SVGElementTagNameMap[K] {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
+  for (const c of children) el.append(c);
+  return el;
+}
 
 /** Copy text to the clipboard, falling back to a temporary textarea where the API is blocked. */
 async function copyText(text: string): Promise<boolean> {
@@ -1926,6 +1939,244 @@ function feedbackPanel(insights: Insights): HTMLElement | null {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Race analytics (results): how the race unfolded, head-to-head bars, per-level accuracy
+// ---------------------------------------------------------------------------
+
+/** Lane colours for chart marks. Lane 3's yellow is too light on a white card, so it uses a deeper gold. */
+const CHART_COLORS = LANES.map((l, i) => (i === 2 ? '#c8901a' : l.color));
+
+/** A coloured dot that says which horse a label belongs to (labels themselves stay in ink). */
+const chartKey = (lane: number) => h('span', { class: 'chart-key', vars: { '--c': CHART_COLORS[lane] } });
+
+const clip = (s: string, max: number) => (s.length > max ? `${s.slice(0, max - 1)}…` : s);
+
+/** Seconds on the time axis: 45s, 1:30. */
+const fmtAxisTime = (sec: number) => (sec < 60 ? `${sec}s` : `${Math.floor(sec / 60)}:${String(Math.round(sec % 60)).padStart(2, '0')}`);
+
+function chartCard(title: string, hint: string, ...body: (HTMLElement | null)[]): HTMLElement {
+  return h(
+    'figure',
+    { class: 'chart-card' },
+    h('figcaption', null, h('strong', null, title), h('span', { class: 'chart-hint' }, hint)),
+    body,
+  );
+}
+
+const PROGRESS_H = 250;
+/** Narrower than this, the end-of-line labels are dropped and the legend carries the names. */
+const PROGRESS_LABEL_MIN_W = 560;
+
+/** Correct answers against the race clock, one stepped line per horse. */
+function progressCard(summary: RaceSummary, distance: number, name: (r: RacerState) => string): HTMLElement | null {
+  const racers = summary.ranking;
+  const lines = raceProgress(racers, summary.durationMs);
+  if (!lines.some((l) => l.points.length > 1)) return null;
+  const endMs = Math.max(summary.durationMs, ...lines.map((l) => l.points[l.points.length - 1].tMs), 1);
+  const changes = leadChanges(lines);
+
+  const svg = svgEl('svg', { class: 'chart', role: 'img', 'aria-label': 'Correct answers over time for each horse' });
+  const tip = h('div', { class: 'chart-tip', hidden: true });
+  const plot = h('div', { class: 'chart-plot' }, svg, tip);
+
+  const draw = (width: number) => {
+    const labelled = width >= PROGRESS_LABEL_MIN_W;
+    const x0 = 30;
+    const x1 = width - (labelled ? 150 : 12);
+    const y0 = PROGRESS_H - 26;
+    const y1 = 18;
+    const sx = linearScale([0, endMs], [x0, x1]);
+    const sy = linearScale([0, distance], [y0, y1]);
+    svg.setAttribute('viewBox', `0 0 ${width} ${PROGRESS_H}`);
+    svg.setAttribute('height', String(PROGRESS_H));
+
+    const yTicks = niceTicks(distance).filter((t) => Number.isInteger(t) && t < distance);
+    const xTicks = niceTicks(endMs / 1000, width < 480 ? 3 : 6).filter((t) => t * 1000 <= endMs);
+    const ends = lines.map((l) => {
+      const last = l.points[l.points.length - 1];
+      return { lane: l.lane, x: sx(last.tMs), y: sy(last.correct), correct: last.correct };
+    });
+    const labelY = spreadLabels(ends.map((e) => e.y), 15, y1, y0);
+
+    const hair = svgEl('line', { class: 'chart-hair', y1, y2: y0, visibility: 'hidden' });
+    svg.replaceChildren(
+      ...yTicks.flatMap((t) => [
+        svgEl('line', { x1: x0, x2: x1, y1: sy(t), y2: sy(t), class: t ? 'chart-gridline' : 'chart-axis' }),
+        svgEl('text', { x: x0 - 7, y: sy(t), class: 'chart-tick', 'text-anchor': 'end', 'dominant-baseline': 'middle' }, String(t)),
+      ]),
+      ...xTicks.map((t) => svgEl('text', { x: sx(t * 1000), y: y0 + 16, class: 'chart-tick', 'text-anchor': 'middle' }, fmtAxisTime(t))),
+      // The finish line: reaching it ends the race.
+      svgEl('line', { x1: x0, x2: x1, y1: sy(distance), y2: sy(distance), class: 'chart-finish' }),
+      svgEl('text', { x: x0 - 7, y: sy(distance), class: 'chart-tick strong', 'text-anchor': 'end', 'dominant-baseline': 'middle' }, String(distance)),
+      svgEl('text', { x: x0 + 4, y: sy(distance) - 6, class: 'chart-tick strong' }, '🏁 Finish'),
+      hair,
+      ...lines.map((l) =>
+        svgEl('path', {
+          class: 'chart-line',
+          stroke: CHART_COLORS[l.lane],
+          // Stepped: flat until the next correct answer lands, then straight up.
+          d: l.points.map((p, i) => (i ? `H${sx(p.tMs).toFixed(1)}V${sy(p.correct).toFixed(1)}` : `M${sx(p.tMs).toFixed(1)},${sy(p.correct).toFixed(1)}`)).join(''),
+        }),
+      ),
+      ...ends.flatMap((e, i) => {
+        const r = racers[i];
+        const dot = svgEl('circle', { cx: e.x, cy: e.y, r: 5, fill: CHART_COLORS[e.lane], class: 'chart-dot' });
+        if (!labelled) return [dot];
+        const lx = x1 + 14;
+        return [
+          // A thin leader ties a label to its line end when the two had to part.
+          svgEl('line', { x1: e.x, y1: e.y, x2: lx - 4, y2: labelY[i], class: 'chart-leader' }),
+          dot,
+          svgEl('text', { x: lx, y: labelY[i], class: 'chart-label', 'dominant-baseline': 'middle' }, `${clip(name(r), 17)} · ${e.correct}`),
+        ];
+      }),
+    );
+
+    // Hover: a hairline at the pointer's time, and every horse's score at that moment.
+    svg.onpointermove = (ev) => {
+      const box = svg.getBoundingClientRect();
+      const px = Math.min(x1, Math.max(x0, ev.clientX - box.left));
+      const tMs = ((px - x0) / (x1 - x0)) * endMs;
+      hair.setAttribute('x1', String(px));
+      hair.setAttribute('x2', String(px));
+      hair.setAttribute('visibility', 'visible');
+      const rows = lines.map((l, i) => ({ r: racers[i], n: correctAt(l, tMs) })).sort((a, b) => b.n - a.n);
+      tip.replaceChildren(
+        h('div', { class: 'chart-tip-head' }, `At ${fmtSec(tMs)}`),
+        ...rows.map(({ r, n }) => h('div', { class: 'chart-tip-row' }, chartKey(r.lane), h('span', null, clip(name(r), 22)), h('b', null, String(n)))),
+      );
+      tip.hidden = false;
+      const flip = px > (x0 + x1) / 2;
+      tip.style.left = flip ? '' : `${px + 12}px`;
+      tip.style.right = flip ? `${width - px + 12}px` : '';
+    };
+    svg.onpointerleave = () => {
+      hair.setAttribute('visibility', 'hidden');
+      tip.hidden = true;
+    };
+  };
+
+  // Drawn at the card's real pixel width, so text stays readable from phone to projector.
+  new ResizeObserver(([entry]) => {
+    const width = Math.floor(entry.contentRect.width);
+    if (width > 0) draw(width);
+  }).observe(plot);
+
+  const story = changes === 0 ? 'No lead changes' : `${changes} lead change${changes === 1 ? '' : 's'}`;
+  return chartCard(
+    'How the race unfolded',
+    `Correct answers over time · ${story}`,
+    h(
+      'div',
+      { class: 'chart-legend' },
+      racers.map((r) => h('span', { title: r.entry.model }, chartKey(r.lane), name(r))),
+    ),
+    plot,
+  );
+}
+
+interface Metric {
+  title: string;
+  hint: string;
+  better: 'high' | 'low';
+  value: (st: RacerStats) => number | null;
+  fmt: (v: number, st: RacerStats) => string;
+  /** Fixed end of the bar scale (accuracy is out of 100%); otherwise the largest value. */
+  max?: number;
+}
+
+const METRICS: Metric[] = [
+  { title: 'Accuracy', hint: 'Share of questions answered correctly', better: 'high', value: (st) => st.accuracy, fmt: (v) => fmtPct(v), max: 1 },
+  { title: 'Answer time', hint: 'Median per answer · shorter is better', better: 'low', value: (st) => st.medianLatencyMs, fmt: (v) => fmtSec(v) },
+  { title: 'Output speed', hint: 'Median tokens per second · higher is better', better: 'high', value: (st) => st.tokPerSecP50, fmt: (v, st) => fmtTps(v, st.tokPerSecEstimated) },
+  { title: 'Cost', hint: 'Whole race · lower is better', better: 'low', value: (st) => (st.costUsd ? st.costUsd : null), fmt: (v, st) => fmtUsd(v, st.tokensEstimated) },
+];
+
+/** One measure, every horse, best first: a bar each with its value at the end. */
+function metricCard(m: Metric, rows: { r: RacerState; st: RacerStats }[], name: (r: RacerState) => string): HTMLElement | null {
+  const vals = rows.map(({ r, st }) => ({ r, st, lane: r.lane, value: m.value(st) }));
+  const have = vals.filter((v) => v.value != null);
+  if (have.length < 2) return null;
+  const best = bestLanes(vals, m.better);
+  const max = m.max ?? Math.max(...have.map((v) => v.value!));
+  const dir = m.better === 'high' ? -1 : 1;
+  const sorted = [...vals].sort((a, b) => (a.value == null ? 1 : b.value == null ? -1 : dir * (a.value - b.value)));
+  return chartCard(
+    m.title,
+    m.hint,
+    h(
+      'div',
+      { class: 'bars' },
+      sorted.map((v) => {
+        // A tie across the whole field is not worth a star.
+        const top = v.value != null && best.includes(v.lane) && best.length < have.length;
+        return h(
+          'div',
+          { class: `bar-row${top ? ' best' : ''}` },
+          h('div', { class: 'bar-name', title: v.r.entry.model }, chartKey(v.lane), h('span', null, name(v.r))),
+          h('div', { class: 'bar-value' }, top ? h('span', { class: 'bar-star', title: 'Best' }, '★ ') : null, v.value == null ? '–' : m.fmt(v.value, v.st)),
+          h('div', { class: 'bar-track' }, v.value == null ? null : h('div', { class: 'bar-fill', vars: { '--c': CHART_COLORS[v.lane], '--w': `${Math.max(1.5, max > 0 ? (v.value / max) * 100 : 0)}%` } })),
+        );
+      }),
+    ),
+  );
+}
+
+/** Per-level accuracy as a small grid: the deeper the green, the more answers were right. */
+function difficultyCard(racers: RacerState[], questions: Question[], name: (r: RacerState) => string): HTMLElement | null {
+  const breakdown = difficultyBreakdown(racers, questions);
+  const levels = DIFFICULTIES.filter((l) => racers.some((r) => (breakdown.get(r.lane)!.find((x) => x.difficulty === l)?.answered ?? 0) > 0));
+  if (levels.length < 2) return null;
+  const table = h(
+    'table',
+    { class: 'level-grid' },
+    h('thead', null, h('tr', null, h('th', { scope: 'col' }, 'Horse'), levels.map((l) => h('th', { scope: 'col' }, LEVEL_LABEL[l])))),
+    h(
+      'tbody',
+      null,
+      racers.map((r) => {
+        const per = breakdown.get(r.lane)!;
+        return h(
+          'tr',
+          null,
+          h('th', { scope: 'row', title: r.entry.model }, h('span', { class: 'bar-name' }, chartKey(r.lane), h('span', null, name(r)))),
+          ...levels.map((l) => {
+            const x = per.find((y) => y.difficulty === l)!;
+            if (x.accuracy == null) return h('td', { class: 'none', title: 'No answers at this level' }, '–');
+            return h(
+              'td',
+              { vars: { '--a': (0.04 + x.accuracy * 0.5).toFixed(2) }, title: `${x.correct} of ${x.answered} correct` },
+              h('b', null, fmtPct(x.accuracy)),
+              h('span', null, `${x.correct}/${x.answered}`),
+            );
+          }),
+        );
+      }),
+    ),
+  );
+  return chartCard('Accuracy by difficulty', 'Correct out of answered, per question level · errors and timeouts not counted', h('div', { class: 'table-wrap' }, table));
+}
+
+/** The whole analytics section, or null when a race has too little data to show. */
+function analyticsSection(summary: RaceSummary, race: Race): HTMLElement | null {
+  const name = (r: RacerState) => shortModel(r.entry.model);
+  const racers = summary.ranking;
+  if (racers.filter((r) => r.answered > 0).length < 2) return null;
+  const rows = racers.map((r) => ({ r, st: statsOf(r) }));
+  const progress = progressCard(summary, race.distance, name);
+  const metrics = METRICS.map((m) => metricCard(m, rows, name)).filter((c): c is HTMLElement => !!c);
+  const levels = difficultyCard(racers, race.questions, name);
+  if (!progress && !metrics.length && !levels) return null;
+  return h(
+    'div',
+    { class: 'panel analytics' },
+    h('h2', null, '📊 Race analytics'),
+    progress,
+    metrics.length ? h('div', { class: 'chart-grid' }, metrics) : null,
+    levels,
+  );
+}
+
 function showResults(summary: RaceSummary) {
   const ui = UI!;
   const race = S.race!;
@@ -2091,42 +2342,43 @@ function showResults(summary: RaceSummary) {
   };
   const insights = analyzeRace(race.racers, race.questions);
 
-  ui.results.replaceChildren(
+  const resultsPanel = h(
+    'div',
+    { class: 'panel results-panel' },
+    h('h2', { class: 'headline' }, headline),
+    h('p', { class: 'muted' }, `Total race time ${fmtClock(summary.durationMs)} · ${S.questions.length} questions (${S.questionsLabel}) · finish at ${race.distance} correct${limited ? ` · timeout ${fmtLimit(race.timeLimitMs!)} per question` : ''}`),
+    podium,
+    h('div', { class: 'table-wrap' }, table),
+    seriesAndActions(summary, name),
     h(
       'div',
-      { class: 'panel results-panel' },
-      h('h2', { class: 'headline' }, headline),
-      h('p', { class: 'muted' }, `Total race time ${fmtClock(summary.durationMs)} · ${S.questions.length} questions (${S.questionsLabel}) · finish at ${race.distance} correct${limited ? ` · timeout ${fmtLimit(race.timeLimitMs!)} per question` : ''}`),
-      podium,
-      h('div', { class: 'table-wrap' }, table),
-      seriesAndActions(summary, name),
+      { class: 'results-actions export' },
       h(
-        'div',
-        { class: 'results-actions export' },
-        h(
-          'button',
-          {
-            class: 'btn ghost small',
-            type: 'button',
-            title: 'Race settings, standings, and every answer with replies and reasoning',
-            onclick: () => exportResults(summary, 'json', exportCtx),
-          },
-          '⬇ Full results (JSON)',
-        ),
-        h(
-          'button',
-          {
-            class: 'btn ghost small',
-            type: 'button',
-            title: 'One row per question per model, for spreadsheets',
-            onclick: () => exportResults(summary, 'csv', exportCtx),
-          },
-          '⬇ Answers (CSV)',
-        ),
+        'button',
+        {
+          class: 'btn ghost small',
+          type: 'button',
+          title: 'Race settings, standings, and every answer with replies and reasoning',
+          onclick: () => exportResults(summary, 'json', exportCtx),
+        },
+        '⬇ Full results (JSON)',
       ),
-      h('p', { class: 'muted board-note' }, 'The full question-by-question comparison is on the board below. Exports never include API keys.'),
+      h(
+        'button',
+        {
+          class: 'btn ghost small',
+          type: 'button',
+          title: 'One row per question per model, for spreadsheets',
+          onclick: () => exportResults(summary, 'csv', exportCtx),
+        },
+        '⬇ Answers (CSV)',
+      ),
     ),
+    h('p', { class: 'muted board-note' }, 'The full question-by-question comparison is on the board below. Exports never include API keys.'),
   );
+  // Analytics get a panel of their own, after the standings and the race controls.
+  const analytics = analyticsSection(summary, race);
+  ui.results.replaceChildren(resultsPanel, ...(analytics ? [analytics] : []));
   ui.results.hidden = false;
   // Bank feedback sits just above the question board, below the results.
   const feedback = feedbackPanel(insights);
