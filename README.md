@@ -92,6 +92,59 @@ npm run calibrate -- --models google/gemma-3-27b-it,openai/gpt-oss-120b
 #          --expert N (default 24) --limit N (bank questions) --concurrency N (default 8)
 ```
 
+### Debugging a single question
+
+`npm run debug` sends one question to a few models and prints, for each attempt, the
+full reply, the separated reasoning, the extracted answer, the grade against the key,
+timing, finish reason (to catch cut-offs) and token usage. It uses the same prompt,
+streaming and grading as the game, so what you see is what a race would see.
+
+```bash
+./debug.sh --id 42 --models Qwen/Qwen3-30B-A3B-Instruct-2507,deepseek-ai/DeepSeek-V4.1-Flash
+
+./debug.sh --question 'What is the sum of the digits of 9 to the power 84?' --answer 360 --provider nebius  --models nvidia/Nemotron-3_5-Lightning
+
+# or inline:  ./debug.sh --question "Capital of France?" --answer Paris --models …
+# or a file:  ./debug.sh --file one-question.json --models …
+# options: --aliases a,b --repeats N --provider ID --base-url URL --key-env NAME
+```
+
+`./debug.sh` loads API keys from `.env` (see `.env.example`) and forwards its
+arguments to `scripts/debug-question.mts`, which also runs directly via
+`npm run debug -- …` if the keys are already in the environment.
+
+Handy offline check with no keys: add `--provider sim`.
+
+### Troubleshooting
+
+- **`NEBIUS_API_KEY is not set` (or another `…_API_KEY`).** The key isn't in the
+  environment. `./debug.sh` loads `.env` automatically — make sure the file exists
+  (`cp .env.example .env`) and the variable for your provider is filled in. Running
+  `npm run debug` directly needs `set -a; . ./.env; set +a` first. If your key lives
+  under a different name, pass `--key-env NAME`.
+- **`HTTP 401` / `403`.** The key is wrong, expired, or not valid for that provider.
+  Check you're using the provider's own key with the matching `--key-env`.
+- **`HTTP 404: … model …`.** The model ID is wrong or the provider doesn't serve it.
+  Copy the exact ID from the setup screen's model list, or from the provider's
+  `/models` endpoint.
+- **`HTTP 429` or `5xx`.** Rate limit or a provider hiccup; the script retries with
+  backoff. If it keeps failing, wait, lower `--repeats`, or try another model.
+- **`Enter a base URL first`.** The Custom provider needs `--base-url`, which usually
+  ends in `/v1`.
+- **`ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX`, or Node rejects a `.mts` file.** Your Node is
+  too old to run the scripts directly. Use Node 22.7+ (check with `node --version`).
+- **Timeout after 120 s.** The request hit the script's own limit; retry or check the
+  provider's status.
+- **Reasoning is empty.** That model/provider didn't return separate reasoning, or
+  returned it inline in the reply. Reasoning is shown only when the provider sends it.
+- **A correct-looking answer grades as wrong.** Usually a missing alias. The script
+  prints the key and aliases; add `--aliases a,b` (or edit `src/questions.json`) and
+  re-run. Grading normalizes case, punctuation, number words, and spacing inside
+  words, and accepts a short answer that contains the key — but not spaces between
+  numbers.
+- **Need the provider's raw error.** On failure the script prints the HTTP status and
+  the response body under `Response body`.
+
 An optional per-question **time limit** (default 30 s) counts slow answers as wrong.
 Use ~10 s to reward speed, 15–30 s for a balanced race, and 60 s+ for reasoning models
 or Expert questions.

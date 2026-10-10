@@ -15,6 +15,7 @@ npm test          # unit tests (vitest)
 npm run build     # type-check + production build into dist/
 npm run preview   # serve the production build (strict CSP), http://localhost:4173
 npm run calibrate -- --models a,b   # check the question bank against real models (needs keys from .env)
+npm run debug -- --id N --models a,b  # one question, a few models: full reply, reasoning, grade (needs keys from .env)
 npm run version:bump                # raise the version by one (v1 → v2); do this before every push to main
 ```
 
@@ -67,6 +68,7 @@ Run `npm test` and `npm run build` after every change. Test UI changes in a brow
 | `src/sharelink.ts` | Setup links (`#setup=…`): encode, and validate untrusted input |
 | `src/commentary.ts`, `src/announcer.ts` | Race announcer: what to say, and how to show it |
 | `scripts/calibrate.mts` | Question calibration against real models (Node, not part of the app) |
+| `scripts/debug-question.mts` | Debug one question on a few models: full reply, reasoning, grade, timing (`npm run debug`) |
 | `src/prompt.ts` | The system prompt every model gets |
 | `src/debuglog.ts` | Human-readable request/response logging (🐞 Debug toggle) |
 | `src/export.ts` | JSON / CSV results export |
