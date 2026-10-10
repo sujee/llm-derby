@@ -17,6 +17,7 @@ import questionsUrl from './questions.json?url';
 import { APP_VERSION_LABEL } from './version';
 import { SERIES_POINTS, seriesClinched, seriesDone, seriesStandings, type SeriesState } from './series';
 import { SHARE_PREFIX, decodeSetup, encodeSetup, type ShareLimits } from './sharelink';
+import { aliasPatch, analyzeRace, type Insights } from './insights';
 import type { AnswerResult, Difficulty, Endpoint, Question } from './types';
 
 const LANES = [
@@ -503,6 +504,18 @@ function horseCard(i: number) {
     queueMicrotask(() => void loadModelsFor(i));
   }
 
+  const useForAll = h(
+    'button',
+    {
+      class: 'btn tiny',
+      type: 'button',
+      title: 'Use this provider for every horse',
+      'data-fid': `provider-all-${i}`,
+      onclick: () => applyProviderToAll(i),
+    },
+    'Use for all',
+  );
+
   const providerSel = h(
     'select',
     {
@@ -597,7 +610,7 @@ function horseCard(i: number) {
     'article',
     { class: 'horse-card', vars: { '--c': lane.color, '--coat': lane.coat, '--mane': lane.mane, '--silk': lane.color } },
     h('div', { class: 'card-head' }, h('div', { class: 'card-horse' }, horseSvg(i)), h('h3', null, `Horse ${i + 1}`)),
-    h('label', { class: 'field' }, h('span', null, 'Provider'), providerSel),
+    h('label', { class: 'field' }, h('span', null, 'Provider', useForAll), providerSel),
     urlField,
     keyField,
     h('label', { class: 'field' }, h('span', null, 'Model'), modelInput),
@@ -611,6 +624,22 @@ function horseCard(i: number) {
       : null,
     p.note ? h('p', { class: 'status note' }, p.note) : null,
   );
+}
+
+/** Copy horse `from`'s provider (and, for Custom, its base URL) to every horse. */
+function applyProviderToAll(from: number) {
+  const src = providerById(S.horses[from].providerId);
+  for (let j = 0; j < S.horseCount; j++) {
+    const hc = S.horses[j];
+    if (hc.providerId !== src.id) {
+      hc.providerId = src.id;
+      hc.model = ''; // models are specific to a provider
+    }
+    // A Custom provider means a particular server, so share its base URL too.
+    if (src.editableUrl) hc.baseUrl = S.horses[from].baseUrl;
+  }
+  saveSettings();
+  renderSetup();
 }
 
 /** Give each horse a random model from its provider's loaded list, avoiding duplicates where possible. */
@@ -868,6 +897,18 @@ function buildSetup() {
             '🔗 Copy setup link',
           ),
           countToggle,
+          S.race
+            ? h(
+                'button',
+                {
+                  class: 'btn small',
+                  type: 'button',
+                  title: 'Back to the race view (the race was stopped when you opened setup)',
+                  onclick: () => showView('race'),
+                },
+                '← Back to race',
+              )
+            : null,
         ),
       ),
       h(
@@ -981,6 +1022,8 @@ interface RaceUI {
   timer: HTMLElement;
   frontier: HTMLElement;
   results: HTMLElement;
+  /** Holder for the advisory question-bank feedback, above the question board. */
+  feedbackHost: HTMLElement;
   tbody: HTMLTableSectionElement;
   rows: Map<number, HTMLTableCellElement[]>;
   stopBtn: HTMLButtonElement;
@@ -1315,6 +1358,7 @@ function buildRaceView(racers: RacerState[], distance: number) {
   );
 
   const results = h('div', { class: 'results', hidden: true });
+  const feedbackHost = h('div', { class: 'feedback-host', hidden: true });
 
   const page = h(
     'div',
@@ -1334,6 +1378,7 @@ function buildRaceView(racers: RacerState[], distance: number) {
     announcerEl,
     lanesWrap,
     results,
+    feedbackHost,
     h(
       'div',
       { class: 'panel grid-panel' },
@@ -1350,6 +1395,7 @@ function buildRaceView(racers: RacerState[], distance: number) {
     timer,
     frontier,
     results,
+    feedbackHost,
     tbody,
     rows: new Map(),
     stopBtn,
@@ -1827,6 +1873,59 @@ function nextActions(summary: RaceSummary, rerender: () => void): HTMLElement {
   );
 }
 
+/** A small button that copies `text()` and shows a brief "Copied" state. */
+function copyButton(label: string, text: () => string): HTMLButtonElement {
+  let resetTimer: number | undefined;
+  const btn = h('button', { type: 'button', class: 'btn ghost small' }, label);
+  btn.addEventListener('click', async () => {
+    if (!(await copyText(text()))) return;
+    btn.textContent = '✓ Copied';
+    window.clearTimeout(resetTimer);
+    resetTimer = window.setTimeout(() => (btn.textContent = label), 1800);
+  });
+  return btn;
+}
+
+/**
+ * Advisory "question bank feedback" panel, built from the race just run. Shows questions
+ * where two or more models agreed on the same wrong answer (likely a missing alias or a
+ * wrong key); it never edits the bank. Hidden entirely when there is nothing to show.
+ */
+function feedbackPanel(insights: Insights): HTMLElement | null {
+  const { flags, checked } = insights;
+  if (!flags.length) return null;
+  return h(
+    'div',
+    { class: 'panel feedback' },
+    h('h2', null, '🔎 Question bank feedback'),
+    h(
+      'p',
+      { class: 'muted' },
+      `These questions had several models agree on the same wrong answer — usually a missing alias (or a wrong key). Advisory only: one race is a small sample (${checked} bank question${checked === 1 ? '' : 's'} checked).`,
+    ),
+    h(
+      'ul',
+      { class: 'feedback-list' },
+      flags.map((f) =>
+        h(
+          'li',
+          { class: 'feedback-item' },
+          h(
+            'div',
+            { class: 'feedback-head' },
+            h('span', { class: 'feedback-tag' }, 'Possible missing alias'),
+            h('span', { class: `diff ${f.question.difficulty}` }, f.question.difficulty),
+            h('span', { class: 'qid', title: 'Question ID in the shipped bank (questions.json)' }, `id: ${f.question.id}`),
+          ),
+          h('div', { class: 'feedback-q' }, f.question.question),
+          h('div', { class: 'feedback-detail' }, `${f.count} of ${f.graded} models answered “${f.answer}” · key “${f.question.answer}”`),
+          copyButton('Copy alias patch', () => aliasPatch(f.question, f.answer)),
+        ),
+      ),
+    ),
+  );
+}
+
 function showResults(summary: RaceSummary) {
   const ui = UI!;
   const race = S.race!;
@@ -1990,6 +2089,7 @@ function showResults(summary: RaceSummary) {
     difficulty: S.questionsLabel,
     series: S.seriesState && { of: S.seriesState.of, legs: [...S.seriesState.legs] },
   };
+  const insights = analyzeRace(race.racers, race.questions);
 
   ui.results.replaceChildren(
     h(
@@ -2028,6 +2128,10 @@ function showResults(summary: RaceSummary) {
     ),
   );
   ui.results.hidden = false;
+  // Bank feedback sits just above the question board, below the results.
+  const feedback = feedbackPanel(insights);
+  ui.feedbackHost.replaceChildren(...(feedback ? [feedback] : []));
+  ui.feedbackHost.hidden = !feedback;
   ui.results.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 

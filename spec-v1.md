@@ -17,6 +17,7 @@ A fun, carnival-style horse racing game where 3 or 4 LLMs compete by answering q
 - **Custom (OpenAI-compatible):** any base URL (e.g. `https://api.example.com/v1`), including local servers on `localhost`. Each Custom horse has its own base URL, key and model list, so different servers can race each other (e.g. a local vLLM against a private gateway). The key is optional. A Custom horse is labelled with its server's host (e.g. `localhost:8000`).
 - **Simulated (no API calls):** five built-in fake models with different speeds and accuracy (one also produces fake server errors), for offline demos and trying the game without keys.
 - Each provider card shows a "get a key" link where available.
+- **Use for all:** a small text link next to the Provider label copies that horse's provider to every horse. Horses whose provider changes get their model cleared (models are provider-specific); for Custom the base URL is shared too.
 
 ### API keys and models
 
@@ -132,6 +133,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 - Each row: question number, question text, difficulty and category tags, the bank question id (`id: 12`, for bank questions only; Expert questions are generated and have no bank id), and the expected answer.
 - One column per model: the model's answer with ✓ / ✗, its latency and tokens, and an expandable "Response" showing two boxes, Reasoning and Reply ("(none)" when a model sent no reasoning). "⏱ Timeout (30s)" and ⚠ errors (hover for details) are shown distinctly. Timeout cells say "started after 1.3s" or "no response received", with an expandable "Response (cut off)" showing the reasoning and reply received so far.
 - The board scrolls with the page. On desktop the column headers stay pinned at the top of the window; on narrow screens the table scrolls sideways.
+- **🔎 Question bank feedback** (above the board, after the race): advisory hints that the shipped question bank may have a bad key. A bank question is listed when **two or more models agreed on the same wrong answer** (a likely missing alias or a wrong key); errors, timeouts and generated Expert questions are ignored, and the panel is hidden when there is nothing to show. Each item shows the difficulty, `id: N`, the question, `N of M models answered "…" · key "…"`, and a **Copy alias patch** button that puts a paste-ready bank entry (with the answer added to `aliases`) on the clipboard. It never edits the bank, and a single race is a small sample.
 
 ### Sound and celebration
 
@@ -156,7 +158,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 - Start race (setup) / Stop race
 - New random race (fresh questions, same horses and settings)
 - Race again: same questions
-- Setup (back to the setup screen)
+- Setup (back to the setup screen; it stops any running race, and a **← Back to race** button on the setup screen returns to the race view)
 - Sound on/off, Announcer on/off
 - **📺 Present:** full screen with a bigger announcer and lanes, for a projector or screen share. The header, footer and question board are hidden; results and the podium still appear at the end. Esc or "✕ Exit presentation" leaves it.
 - Assign models, 3/4 horses
@@ -188,7 +190,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 - **Deployment:** a GitHub Actions workflow runs the tests, builds, and publishes to GitHub Pages on every push to `main`.
 - **Version:** a whole number (v1, v2, v3, …) in `version.json`, raised by one on every push to `main` with `npm run version:bump` (which also sets `package.json` to `N.0.0`). Shown in the header and footer and saved in JSON exports as `appVersion`.
 - **Layout:** responsive from phone width (no sideways page scrolling) to large screens, suitable for screen recording.
-- **Tests** (`npm test`): answer extraction and grading; that every question bank answer grades as correct and each level has at least 50 questions; question selection and splitting; expert generators checked against independent calculations; race statistics and ranking; and exports (including that no API key appears in them).
+- **Tests** (`npm test`): answer extraction and grading; that every question bank answer grades as correct and each level has at least 50 questions; question selection and splitting; expert generators checked against independent calculations; race statistics and ranking; question-bank feedback analysis (agreement on a wrong answer, boundary cases, Expert exclusion) and the alias patch; board width guards; and exports (including that no API key appears in them).
 
 ## 10. Design Goals
 

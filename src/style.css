@@ -225,6 +225,29 @@ summary:focus-visible,
   box-shadow: 0 3px 0 #7d1225;
 }
 
+/* Inline text-link button inside a field label (which is uppercase); keep it plain and in sentence case. */
+.btn.tiny {
+  font-size: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: #1e5fbf;
+  text-transform: none;
+  letter-spacing: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.btn.tiny:hover:not(:disabled) {
+  filter: none;
+  text-decoration-thickness: 2px;
+}
+
+.btn.tiny:active:not(:disabled) {
+  transform: none;
+}
+
 .btn.big {
   font-size: 20px;
   padding: 14px 28px;
@@ -1405,6 +1428,62 @@ select {
   justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+/* ---------- Question bank feedback (advisory, above the board) ---------- */
+
+/* The host stays in the grid even when hidden, so `hidden` collapses the gap. */
+.feedback-host[hidden] {
+  display: none;
+}
+
+.feedback > .muted {
+  font-size: 13px;
+  margin: 6px 0 12px;
+}
+
+.feedback-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.feedback-item {
+  border: 1px solid var(--cream-2);
+  border-left: 4px solid var(--err);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fffdf7;
+}
+
+.feedback-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.feedback-tag {
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--err);
+}
+
+.feedback-q {
+  font-weight: 700;
+}
+
+.feedback-detail {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 2px 0 6px;
+}
+
+.feedback-detail + .btn {
+  margin-top: 2px;
 }
 
 /* ---------- Question board ---------- */
