@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
-import { lookupPrice, parseCatalog } from './pricing';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { fetchCatalog, lookupPrice, parseCatalog } from './pricing';
 
 /** A trimmed models.dev api.json: one provider we map to, one we don't. */
 const CATALOG = {
@@ -53,79 +53,23 @@ describe('lookupPrice', () => {
     expect(lookupPrice(catalog, 'custom', 'anything')).toBeUndefined();
     expect(lookupPrice(catalog, 'sim', 'sim/steady')).toBeUndefined();
     expect(lookupPrice(catalog, 'gemini', 'not-a-model')).toBeUndefined();
-    expect(lookupPrice(null, 'gemini', 'gemini-3-flash')).toBeUndefined();
   });
 });
 
-describe('catalogNow', () => {
-  const stubStorage = (raw: string | null) =>
-    vi.stubGlobal('localStorage', { getItem: () => raw, setItem: () => {}, removeItem: () => {} });
+describe('fetchCatalog (the Refresh prices button)', () => {
+  afterEach(() => vi.unstubAllGlobals());
 
-  it('falls back to the bundled snapshot when no live copy is cached', async () => {
-    stubStorage(null);
-    vi.resetModules();
-    const { catalogNow } = await import('./pricing');
-    const bundled = { google: { 'gemini-x': [1, 2] as [number, number] } };
-    expect(catalogNow(bundled, 0)).toBe(bundled);
-    vi.unstubAllGlobals();
+  it('downloads and trims the catalog', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => CATALOG })));
+    expect(await fetchCatalog()).toEqual(parseCatalog(CATALOG));
   });
 
-  it('uses a cached catalog while it is younger than 72h', async () => {
-    const cached = { google: { x: [9, 9] as [number, number] } };
-    stubStorage(JSON.stringify({ at: 1_000_000, catalog: cached }));
-    vi.resetModules();
-    const { catalogNow } = await import('./pricing');
-    expect(catalogNow({ google: { y: [1, 1] as [number, number] } }, 1_000_000 + 60_000)).toEqual(cached);
-    vi.unstubAllGlobals();
-  });
-
-  it('falls back to the snapshot once the cache is older than 72h', async () => {
-    stubStorage(JSON.stringify({ at: 0, catalog: { google: { x: [9, 9] } } }));
-    vi.resetModules();
-    const { catalogNow } = await import('./pricing');
-    const bundled = { google: { y: [1, 1] as [number, number] } };
-    const day = 24 * 60 * 60 * 1000;
-    expect(catalogNow(bundled, 73 * day)).toBe(bundled);
-    vi.unstubAllGlobals();
-  });
-});
-
-describe('refreshCatalog (the Refresh prices button)', () => {
-  const stubStorage = (raw: string | null) =>
-    vi.stubGlobal('localStorage', { getItem: () => raw, setItem: () => {}, removeItem: () => {} });
-
-  it('downloads and trims the catalog on demand', async () => {
-    stubStorage(null);
-    const raw = { google: { models: { 'gemini-x': { cost: { input: 1, output: 2, cache_read: 0.5 } } } } };
-    const fetchSpy = vi.fn(async () => ({ ok: true, json: async () => raw }));
-    vi.stubGlobal('fetch', fetchSpy);
-    vi.resetModules();
-    const { refreshCatalog } = await import('./pricing');
-    expect(await refreshCatalog(0)).toEqual({ google: { 'gemini-x': [1, 2, 0.5] } });
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-    vi.unstubAllGlobals();
-  });
-
-  it('fetches even when a fresh cache exists (the button forces a refresh)', async () => {
-    stubStorage(JSON.stringify({ at: 1000, catalog: { google: { x: [1, 2] } } }));
-    const fetchSpy = vi.fn(async () => ({ ok: true, json: async () => ({ google: { models: {} } }) }));
-    vi.stubGlobal('fetch', fetchSpy);
-    vi.resetModules();
-    const { refreshCatalog } = await import('./pricing');
-    await refreshCatalog(2000);
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-    vi.unstubAllGlobals();
-  });
-
-  it('never calls models.dev when live pricing is turned off in code', async () => {
-    stubStorage(null);
-    const fetchSpy = vi.fn();
-    vi.stubGlobal('fetch', fetchSpy);
-    vi.resetModules();
-    const mod = await import('./pricing');
-    mod.PRICING.fetchLive = false;
-    expect(await mod.refreshCatalog(0)).toBeNull();
-    expect(fetchSpy).not.toHaveBeenCalled();
-    vi.unstubAllGlobals();
+  it('gives null when the request fails or the catalog has no prices', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, json: async () => ({}) })));
+    expect(await fetchCatalog()).toBeNull();
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ google: { models: {} } }) })));
+    expect(await fetchCatalog()).toBeNull();
+    vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new TypeError('offline'))));
+    expect(await fetchCatalog()).toBeNull();
   });
 });

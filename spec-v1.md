@@ -27,8 +27,8 @@ A fun, carnival-style horse racing game where 3 or 4 LLMs compete by answering q
 - Under the model box, the selected model's price (input / output, and cached input when known, per 1M tokens) is shown when it can be found — from the provider's own listing or the models.dev catalog (see §7).
 - Model lists hide entries that are clearly not chat models (embeddings, image, audio, rerank, moderation and similar), and remove duplicates.
 - Clear messages for common mistakes, e.g. a missing base URL, a URL without `/v1`, or a URL that returns a web page instead of JSON.
+- **🔄 Refresh prices:** downloads the latest model prices from models.dev and uses them until the page is reloaded. Prices otherwise come from the snapshot shipped with the app; there is no automatic request.
 - **🎲 Assign models:** gives each horse a random model from its provider's loaded list, avoiding duplicates where possible. Click again to re-roll.
-- **🔄 Refresh prices:** fetches the latest model prices from models.dev and caches them in this browser for 72 hours. Prices otherwise come from the snapshot shipped with the app; there is no automatic request.
 
 ### Race settings
 
@@ -132,7 +132,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 ### Question board
 
 - One row per question in **ascending order** (first question first), added as the leader reaches each question.
-- Each row: question number, question text, difficulty and category tags, the bank question id (`id: 12`, for bank questions only; Expert questions are generated and have no bank id), and the expected answer. When a question accepts more than one answer (extra spellings and forms, e.g. `Canberra` / `ACT`), the answer is an expandable section: its summary shows the primary answer and expanding it lists every accepted answer.
+- Each row: question number, question text, difficulty and category tags, the bank question id (`id: 12`, for bank questions only; Expert questions are generated and have no bank id), and the expected answer. When a question accepts more than one answer (extra spellings and forms, e.g. `Canberra` / `ACT`), the answer is an expandable section: its summary shows the primary answer and expanding it lists the others under "Also accepted:".
 - One column per model: the model's answer with ✓ / ✗, its latency and tokens, and an expandable "Response" showing two boxes, Reasoning and Reply ("(none)" when a model sent no reasoning). "⏱ Timeout (30s)" and ⚠ errors (hover for details) are shown distinctly. Timeout cells say "started after 1.3s" or "no response received", with an expandable "Response (cut off)" showing the reasoning and reply received so far.
 - The board scrolls with the page. On desktop the column headers stay pinned at the top of the window; on narrow screens the table scrolls sideways.
 - **🔎 Question bank feedback** (above the board, after the race): advisory hints that the shipped question bank may have a bad key. A bank question is listed when **two or more models agreed on the same wrong answer** (a likely missing alias or a wrong key); errors, timeouts and generated Expert questions are ignored, and the panel is hidden when there is nothing to show. Each item shows the difficulty, `id: N`, the question, `N of M models answered "…" · key "…"`, and a **Copy alias patch** button that puts a paste-ready bank entry (with the answer added to `aliases`) on the clipboard. It never edits the bank, and a single race is a small sample.
@@ -175,7 +175,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 
 - **API keys** are kept only in memory for the current tab: never saved, and sent only to the provider they belong to. They are re-entered each session.
 - **Remembered in the browser:** number of horses, each horse's provider and custom base URL, winning distance, difficulty levels, rising difficulty, time limit, sound and announcer. Models are restored only for providers that don't need a key (since keys are gone after a reload).
-- **Model prices:** a provider's own model listing is used where it publishes prices; where it doesn't, prices come from the [models.dev](https://models.dev) catalog. A trimmed snapshot ships with the app (`src/pricing.snapshot.json`, refreshed with `npm run pricing:update`). The **🔄 Refresh prices** button fetches the full catalog from `https://models.dev/api.json` on demand (no automatic request) and caches it in the browser for 72 hours; setting `PRICING.fetchLive = false` in `src/pricing.ts` removes the button and the request.
+- **Model prices:** a provider's own model listing is used where it publishes prices; where it doesn't, prices come from a trimmed snapshot of the [models.dev](https://models.dev) catalog shipped with the app (`src/pricing.snapshot.json`, refreshed with `npm run pricing:update`). The **🔄 Refresh prices** button fetches the full catalog from `https://models.dev/api.json` on demand (no automatic request) and uses it until the page is reloaded; nothing about prices is stored in the browser. A model missing from both simply has no cost.
 - Model output is always rendered as plain text, never as HTML.
 - No third-party scripts, fonts or assets. The production build ships a strict content security policy.
 

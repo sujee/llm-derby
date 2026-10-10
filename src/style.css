@@ -1918,17 +1918,21 @@ select {
 }
 
 /* A question with more than one accepted answer: the answer line is an expandable
-   summary that reveals every accepted answer when opened. */
+   summary that reveals the other accepted answers when opened. */
 .more-answers {
   display: inline-block;
+  /* Top, not baseline: once open, the baseline is the alias line and the tags beside it would drop.
+     The 2px puts the text back on the tags' baseline (the pills make the line a little taller). */
+  vertical-align: top;
+  margin-top: 2px;
   margin-left: 2px;
-  vertical-align: baseline;
   font-size: 12px;
 }
 
 .more-answers > summary {
   cursor: pointer;
   color: var(--muted);
+  font-weight: inherit;
 }
 
 .more-answers > summary:hover {
@@ -1945,6 +1949,10 @@ select {
 
 .more-answers .aliases {
   color: var(--ink);
+}
+
+.more-answers .aliases-label {
+  color: var(--muted);
 }
 
 .diff {

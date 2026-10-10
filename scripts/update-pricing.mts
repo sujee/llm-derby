@@ -4,7 +4,7 @@
 //
 // Writes src/pricing.snapshot.json: only the providers the app supports, and only their prices
 // (USD per 1M tokens), so the committed file stays small and its diffs are readable. The app
-// uses this snapshot instantly and offline, then refreshes from models.dev while it runs.
+// starts from this snapshot; its "Refresh prices" button fetches the live catalog on demand.
 import { writeFileSync } from 'node:fs';
 import { MODELS_DEV_PROVIDERS, parseCatalog } from '../src/pricing.ts';
 

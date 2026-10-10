@@ -79,7 +79,7 @@ Run `npm test` and `npm run build` after every change. Test UI changes in a brow
 | `src/prompt.ts` | The system prompt every model gets |
 | `src/debuglog.ts` | Human-readable request/response logging (🐞 Debug toggle) |
 | `src/export.ts` | JSON / CSV results export |
-| `src/pricing.ts` | Model prices: provider listing + models.dev catalog; the setup "Refresh prices" button fetches on demand (72 h cache); `PRICING.fetchLive = false` disables it |
+| `src/pricing.ts` | Model prices for providers that don't list them: lookup in the models.dev catalog (bundled snapshot; the setup "Refresh prices" button fetches the live one for the session) |
 | `src/pricing.snapshot.json` | Committed price snapshot, refreshed with `npm run pricing:update` |
 | `src/insights.ts` | Question-bank feedback from a finished race (models agreeing on a wrong answer) |
 | `src/charts.ts` | Pure data and geometry for the results analytics (race progress, lead changes, ticks, per-level accuracy) |

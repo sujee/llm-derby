@@ -8,9 +8,9 @@ import type { Pricing } from './api';
  * fills the gaps. A provider's own live listing still wins when it has a price (see `main.ts`),
  * because that is what its billing uses; models.dev is the fallback.
  *
- * Prices come from the snapshot shipped with the app (`pricing.snapshot.json`). A "Refresh prices"
- * button fetches the full models.dev catalog on demand and caches it in the browser for 72 hours;
- * there is no automatic request. Refresh the committed snapshot with `npm run pricing:update`.
+ * The app starts with the snapshot shipped with it (`pricing.snapshot.json`, refreshed with
+ * `npm run pricing:update`). The "Refresh prices" button downloads the current catalog for the
+ * rest of the session; nothing is fetched automatically and nothing is stored in the browser.
  */
 
 /** Our provider ids → models.dev provider ids. Providers models.dev doesn't carry are absent. */
@@ -31,29 +31,9 @@ export const MODELS_DEV_PROVIDERS: Record<string, string> = {
   baseten: 'baseten',
 };
 
-const CATALOG_URL = 'https://models.dev/api.json';
-const CACHE_KEY = 'llm-derby.pricing';
-/** Prices move slowly; a three-day-old catalog is fine and saves the download. */
-const CACHE_TTL_MS = 72 * 60 * 60 * 1000;
-const FETCH_TIMEOUT_MS = 15_000;
-
-/**
- * In-code pricing switches (there is no UI for these). Kept in an object so they are easy to
- * find and to toggle in tests.
- */
-export const PRICING = {
-  /**
-   * Whether the "Refresh prices" button may fetch the models.dev catalog. Set to `false` to
-   * disable the refresh entirely: prices then come only from the snapshot bundled with the app
-   * (`pricing.snapshot.json`) and any catalog already cached in the browser. Refresh the snapshot
-   * with `npm run pricing:update`.
-   */
-  fetchLive: true,
-};
-
 /** USD per 1M tokens: [input, output, cache read?]. */
 export type MillionPrice = [number, number, number?];
-/** models.dev provider id → model id → per-1M price. Kept small so it fits in localStorage. */
+/** models.dev provider id → model id → per-1M price. */
 export type PriceCatalog = Record<string, Record<string, MillionPrice>>;
 
 const num = (x: unknown): number | undefined => {
@@ -61,7 +41,7 @@ const num = (x: unknown): number | undefined => {
   return Number.isFinite(v) && v >= 0 ? v : undefined;
 };
 
-/** Keep only our providers and only their prices, so the cached catalog stays small. */
+/** Keep only our providers and only their prices, so the snapshot stays small. */
 export function parseCatalog(raw: unknown): PriceCatalog {
   const byProvider = (raw ?? {}) as Record<string, { models?: Record<string, unknown> } | undefined>;
   const out: PriceCatalog = {};
@@ -84,9 +64,9 @@ export function parseCatalog(raw: unknown): PriceCatalog {
 }
 
 /** Price for one model in per-token units, or undefined when models.dev has no entry for it. */
-export function lookupPrice(catalog: PriceCatalog | null, providerId: string, modelId: string): Pricing | undefined {
+export function lookupPrice(catalog: PriceCatalog, providerId: string, modelId: string): Pricing | undefined {
   const mdId = MODELS_DEV_PROVIDERS[providerId];
-  const row = mdId ? catalog?.[mdId]?.[modelId] : undefined;
+  const row = mdId ? catalog[mdId]?.[modelId] : undefined;
   if (!row) return undefined;
   return {
     inPerTok: row[0] / 1e6,
@@ -96,61 +76,16 @@ export function lookupPrice(catalog: PriceCatalog | null, providerId: string, mo
   };
 }
 
-function readCache(now: number): PriceCatalog | null {
+const CATALOG_URL = 'https://models.dev/api.json';
+
+/** Download the current catalog (the "Refresh prices" button). Null when it fails or has no prices. */
+export async function fetchCatalog(): Promise<PriceCatalog | null> {
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const saved = JSON.parse(raw) as { at?: unknown; catalog?: PriceCatalog };
-    if (typeof saved.at !== 'number' || now - saved.at > CACHE_TTL_MS) return null;
-    return saved.catalog && typeof saved.catalog === 'object' ? saved.catalog : null;
-  } catch {
-    return null; // no cache, or unreadable: fall through to a fetch
-  }
-}
-
-function writeCache(catalog: PriceCatalog, now: number) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ at: now, catalog }));
-  } catch {
-    /* storage full or unavailable: prices just won't be cached */
-  }
-}
-
-let current: PriceCatalog | null = null;
-let inflight: Promise<PriceCatalog | null> | null = null;
-
-/**
- * The best catalog available right now, synchronously: a fresh copy from the browser cache,
- * otherwise `bundled` (the snapshot shipped with the app). Never null, so prices work offline.
- */
-export function catalogNow(bundled: PriceCatalog, now = Date.now()): PriceCatalog {
-  current ??= readCache(now) ?? bundled;
-  return current;
-}
-
-/**
- * Fetch the models.dev catalog now (the "Refresh prices" button) and cache it for 72 hours.
- * Resolves to the fresh catalog, or null when it is turned off (`PRICING.fetchLive`) or the
- * fetch failed. There is no automatic refresh: this only runs when the button is clicked.
- */
-export function refreshCatalog(now = Date.now()): Promise<PriceCatalog | null> {
-  if (!PRICING.fetchLive) return Promise.resolve(null); // turned off in code: never call models.dev
-  inflight ??= fetchLive(now).finally(() => {
-    inflight = null;
-  });
-  return inflight;
-}
-
-async function fetchLive(now: number): Promise<PriceCatalog | null> {
-  try {
-    const res = await fetch(CATALOG_URL, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+    const res = await fetch(CATALOG_URL, { signal: AbortSignal.timeout(15_000) });
     if (!res.ok) return null;
     const catalog = parseCatalog(await res.json());
-    if (!Object.keys(catalog).length) return null;
-    current = catalog;
-    writeCache(catalog, now);
-    return catalog;
+    return Object.keys(catalog).length ? catalog : null;
   } catch {
-    return null; // pricing is optional: a failure just keeps the bundled snapshot
+    return null; // prices are optional: the caller keeps what it has
   }
 }
