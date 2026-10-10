@@ -6,7 +6,7 @@ import { $, fmtClock, fmtLimit, fmtPct, fmtSec, fmtTok, fmtTps, fmtUsd, h, SVG_N
 import { horseSvg } from './horse';
 import { sound } from './sound';
 import { confetti } from './confetti';
-import { DEFAULT_LEVELS, LEVELS, available, byLevel, ordered, pickQuestions, questionCount, splitCounts } from './questions';
+import { DEFAULT_LEVELS, LEVELS, available, byLevel, isBankQuestion, ordered, pickQuestions, questionCount, splitCounts } from './questions';
 import { GENERATORS, generateExpert } from './generated';
 import { buildExport, download, exportBaseName, toCsv } from './export';
 import { debugLog, logRaceEnd, logRaceStart } from './debuglog';
@@ -1386,6 +1386,7 @@ function ensureRow(qi: number): HTMLTableCellElement[] {
         'div',
         { class: 'qmeta' },
         h('span', { class: `diff ${q.difficulty}` }, q.difficulty),
+        isBankQuestion(q) ? h('span', { class: 'qid', title: 'Question ID in the shipped bank (questions.json)' }, `id: ${q.id}`) : null,
         h('span', { class: 'cat' }, q.category),
         ' Answer: ',
         h('strong', null, q.answer),

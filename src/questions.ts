@@ -12,6 +12,9 @@ export const DEFAULT_LEVELS: Difficulty[] = ['hard', 'expert'];
 
 export const byLevel = (level: Difficulty, from: Question[] = BANK) => from.filter((q) => q.difficulty === level);
 
+/** True for questions that come from the shipped bank (Expert questions are generated and have synthetic ids). */
+export const isBankQuestion = (q: Question) => q.difficulty !== 'expert';
+
 /** Questions available at a level (expert is unlimited because it's generated). */
 export const available = (level: Difficulty, from: Question[] = BANK) =>
   level === 'expert' ? Infinity : byLevel(level, from).length;

@@ -1519,6 +1519,18 @@ select {
   margin-right: 4px;
 }
 
+.qid {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--cream-2);
+  color: var(--muted);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin-right: 4px;
+}
+
 tr.fresh {
   animation: row-in 0.5s ease-out;
 }

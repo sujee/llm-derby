@@ -129,7 +129,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 ### Question board
 
 - One row per question in **ascending order** (first question first), added as the leader reaches each question.
-- Each row: question number, question text, difficulty and category tags, and the expected answer.
+- Each row: question number, question text, difficulty and category tags, the bank question id (`id: 12`, for bank questions only; Expert questions are generated and have no bank id), and the expected answer.
 - One column per model: the model's answer with ✓ / ✗, its latency and tokens, and an expandable "Response" showing two boxes, Reasoning and Reply ("(none)" when a model sent no reasoning). "⏱ Timeout (30s)" and ⚠ errors (hover for details) are shown distinctly. Timeout cells say "started after 1.3s" or "no response received", with an expandable "Response (cut off)" showing the reasoning and reply received so far.
 - The board scrolls with the page. On desktop the column headers stay pinned at the top of the window; on narrow screens the table scrolls sideways.
 
