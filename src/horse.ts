@@ -1,4 +1,4 @@
-const SVG_NS = 'http://www.w3.org/2000/svg';
+import { SVG_NS } from './dom';
 
 // Side-view racehorse facing right. Colors come from CSS variables (--coat, --mane, --silk)
 // set on a parent element, so the markup itself is static.

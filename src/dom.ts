@@ -1,6 +1,9 @@
 type Child = Node | string | number | null | undefined | false;
 type Props = Record<string, unknown>;
 
+/** XML namespace for elements built with createElementNS (icons, the horse SVG). */
+export const SVG_NS = 'http://www.w3.org/2000/svg';
+
 /**
  * Tiny element builder. Strings always become text nodes, so model output can never
  * inject markup. `vars` sets CSS custom properties (allowed under a strict CSP).

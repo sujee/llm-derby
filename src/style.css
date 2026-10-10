@@ -848,6 +848,62 @@ select {
   text-overflow: ellipsis;
 }
 
+.model-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.model-line > .model {
+  min-width: 0;
+}
+
+/* A small copy button that puts the full model ID on the clipboard. */
+.model-info {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--c, var(--muted));
+  cursor: pointer;
+  opacity: 0.65;
+}
+
+.model-info .ic {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.model-info:hover,
+.model-info:focus-visible {
+  opacity: 1;
+}
+
+.model-info:hover {
+  background: color-mix(in srgb, var(--c, var(--muted)) 16%, transparent);
+}
+
+.model-info:focus-visible {
+  outline: 2px solid var(--c, var(--muted));
+  outline-offset: 1px;
+}
+
+.model-info.copied {
+  color: #2f9e44;
+  opacity: 1;
+}
+
 .provider {
   font-size: 12px;
   color: var(--muted);

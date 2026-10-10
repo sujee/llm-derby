@@ -43,7 +43,7 @@ One panel. On desktop: **Winning distance** and **Time limit** on the first row,
 - Points per race: 1st 3, 2nd 2, 3rd 1, 4th 0. Ties go to most wins, then most correct answers.
 - After each race, a **series standings** table (points, wins, place in each race, total correct) appears under the race results.
 - **The series runs on its own:** after each race the results show "Race k of N starts in 8s…" with **▶ Start now**, **⏸ Pause series** (no more automatic starts in this series; a **▶ Next race** button appears instead) and **⏹ End series now** (the standings so far decide it). After a stopped race the series waits for you.
-- Long model names are cut with "…" in the race strip and tables; the full name is in the tooltip.
+- Long model names are cut with "…" in the race strip and tables; the full name is in the tooltip, and a copy button in the lanes puts it on the clipboard.
 - The series ends early when the leader can no longer be caught. The champion is announced with "🏆 … wins the series!", then **🏆 New series** or **🎲 Single race**.
 - A stopped race doesn't count; it can be run again. During a series the "Race again" and "New random race" buttons are replaced by the series buttons, so every race counts once.
 - The JSON export includes the series standings.
@@ -121,7 +121,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 
 - 3 or 4 horizontal lanes. Horses gallop, move smoothly forward one step per correct answer (with a "+1"), and celebrate when they finish.
 - Each lane shows three lines:
-  1. Model and provider.
+  1. Model and provider. A small copy button next to the model copies the full model ID to the clipboard on click; the icon briefly turns into a check.
   2. Score and status, e.g. `12 / 20  [Working on Q13 · Hard]`. The status pill is colored by the current question's difficulty, and changes to 🏆 Finished, 🚫 Withdrawn (hover for the error), 🏁 Out of questions or Race over.
   3. Stats: **correct count in green (✓)**, **wrong count in red (✗)** (including timeouts and errors), accuracy and median end-to-end latency, e.g. `✓ 12  ✗ 3  80% · latency (p50) 1.3s`. (TTFT is in the results table, exports and debug log.)
 - Withdrawn horses are greyed out.

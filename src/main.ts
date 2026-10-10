@@ -2,7 +2,7 @@ import './style.css';
 import { PROVIDER_MENU, providerById } from './providers';
 import { describeError, listModels, logError, type Pricing } from './api';
 import { Race, statsOf, type RaceSummary, type RacerState } from './race';
-import { $, fmtClock, fmtLimit, fmtPct, fmtSec, fmtTok, fmtTps, fmtUsd, h, wait } from './dom';
+import { $, fmtClock, fmtLimit, fmtPct, fmtSec, fmtTok, fmtTps, fmtUsd, h, SVG_NS, wait } from './dom';
 import { horseSvg } from './horse';
 import { sound } from './sound';
 import { confetti } from './confetti';
@@ -188,6 +188,70 @@ function endpointFor(i: number): Endpoint {
 /** "meta-llama/Llama-3.3-70B-Instruct" -> "Llama-3.3-70B-Instruct" */
 const shortModel = (id: string) => id.split('/').pop() || id;
 
+/** A small SVG icon for the copy / copied button states. */
+function icon(path: string): SVGSVGElement {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 16 16');
+  svg.setAttribute('class', 'ic');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.innerHTML = path;
+  return svg;
+}
+const copyIcon = () =>
+  icon('<rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 5.5V4.1a1.6 1.6 0 0 0-1.6-1.6H4.1A1.6 1.6 0 0 0 2.5 4.1v4.8a1.6 1.6 0 0 0 1.6 1.6h1.4"/>');
+const checkIcon = () => icon('<path d="M3.5 8.5 6.5 11.5 12.5 4.5"/>');
+
+/** Copy text to the clipboard, falling back to a temporary textarea where the API is blocked. */
+async function copyText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.append(ta);
+    ta.select();
+    let ok = false;
+    try {
+      ok = document.execCommand('copy');
+    } catch {
+      ok = false;
+    }
+    ta.remove();
+    return ok;
+  }
+}
+
+/** Short model name plus a copy button that puts the full model ID on the clipboard. */
+function modelName(model: string): HTMLElement {
+  const name = h('span', { class: 'model' }, shortModel(model));
+  let resetTimer: number | undefined;
+  const btn = h(
+    'button',
+    {
+      type: 'button',
+      class: 'model-info',
+      'aria-label': 'Copy full model name',
+      title: 'Copy full model name',
+      onclick: async () => {
+        if (!(await copyText(model))) return;
+        btn.classList.add('copied');
+        btn.replaceChildren(checkIcon());
+        window.clearTimeout(resetTimer);
+        resetTimer = window.setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.replaceChildren(copyIcon());
+        }, 1800);
+      },
+    },
+    copyIcon(),
+  );
+  return h('span', { class: 'model-line' }, name, btn);
+}
+
 const LEVEL_LABEL: Record<Difficulty, string> = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };
 /** One random example question per level for the setup legend, picked fresh on each page load. */
 const LEVEL_SAMPLE: Record<Difficulty, string> = (() => {
@@ -228,11 +292,10 @@ function setupLink(): string {
 
 async function copySetupLink(btn: HTMLButtonElement) {
   const link = setupLink();
-  try {
-    await navigator.clipboard.writeText(link);
+  if (await copyText(link)) {
     btn.textContent = '✓ Link copied';
     setTimeout(() => (btn.textContent = '🔗 Copy setup link'), 2000);
-  } catch {
+  } else {
     // Clipboard blocked (e.g. not a secure context): show the link so it can be copied by hand.
     S.setupNotice = `Copy this link: ${link}`;
     renderSetup();
@@ -1219,7 +1282,7 @@ function buildRaceView(racers: RacerState[], distance: number) {
           h(
             'div',
             { class: 'lane-names' },
-            h('div', { class: 'model', title: r.entry.model }, shortModel(r.entry.model)),
+            modelName(r.entry.model),
             h('div', { class: 'provider' }, p.name),
           ),
         ),
