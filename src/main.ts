@@ -186,7 +186,7 @@ function hostLabel(url: string): string {
   }
 }
 
-/** Horse i's price for a model: the provider's own listing if it has one, else the models.dev catalog. */
+/** Horse i's price for a model: the provider's own listing if it has one, else the models.dev catalog or a hand-entered price. */
 function priceOf(i: number, model: string): Pricing | undefined {
   return S.pricing[sourceOf(i)]?.[model] ?? lookupPrice(priceCatalog, S.horses[i].providerId, model);
 }
@@ -714,12 +714,17 @@ function horseCard(i: number) {
     priceLine.hidden = false;
     if (!price) {
       priceLine.className = 'model-price none';
-      priceLine.title = 'Only some providers publish prices, and the models.dev catalog only covers known model IDs.';
+      priceLine.title = 'Only some providers publish prices, and the models.dev catalog only covers known model IDs (a few models are entered by hand from the provider’s pricing page).';
       priceLine.replaceChildren('No published price for this model');
       return;
     }
     priceLine.className = 'model-price';
-    priceLine.title = price.source === 'models.dev' ? 'Price from the models.dev catalog' : `Price from ${p.name}’s published model list`;
+    priceLine.title =
+      price.source === 'models.dev'
+        ? 'Price from the models.dev catalog'
+        : price.source === 'manual'
+          ? `Price from ${p.name}’s pricing page`
+          : `Price from ${p.name}’s published model list`;
     const perM = (n: number) => `$${n >= 1 ? n.toFixed(2) : n >= 0.01 ? n.toFixed(3) : n.toPrecision(2)}`;
     const bits: (Node | string)[] = ['💵 ', h('b', null, perM(price.inPerTok * 1e6)), ' in · ', h('b', null, perM(price.outPerTok * 1e6)), ' out / 1M'];
     if (price.cacheReadPerTok != null) bits.push(' · cached ', h('b', null, perM(price.cacheReadPerTok * 1e6)));
@@ -2539,7 +2544,7 @@ function showResults(summary: RaceSummary) {
       {
         class: 'num',
         title: r.entry.pricing
-          ? `${r.entry.pricing.source === 'models.dev' ? 'From the models.dev catalog' : `From ${r.entry.endpoint.provider.name}’s published prices`}: $${(r.entry.pricing.inPerTok * 1e6).toFixed(2)} / $${(r.entry.pricing.outPerTok * 1e6).toFixed(2)} per 1M input / output tokens${st.tokensEstimated ? ' (token counts partly estimated)' : ''}`
+          ? `${r.entry.pricing.source === 'models.dev' ? 'From the models.dev catalog' : r.entry.pricing.source === 'manual' ? `From ${r.entry.endpoint.provider.name}’s pricing page` : `From ${r.entry.endpoint.provider.name}’s published prices`}: $${(r.entry.pricing.inPerTok * 1e6).toFixed(2)} / $${(r.entry.pricing.outPerTok * 1e6).toFixed(2)} per 1M input / output tokens${st.tokensEstimated ? ' (token counts partly estimated)' : ''}`
           : 'No published price for this model (only some providers list prices)',
       },
       fmtUsd(st.costUsd, st.tokensEstimated),

@@ -1,4 +1,5 @@
 import type { Pricing } from './api';
+import manualPrices from './pricing.manual.json' with { type: 'json' };
 
 /**
  * Prices from the models.dev catalog (https://models.dev/api.json, CORS-enabled).
@@ -11,6 +12,9 @@ import type { Pricing } from './api';
  * The app starts with the snapshot shipped with it (`pricing.snapshot.json`, refreshed with
  * `npm run pricing:update`). The "Refresh prices" button downloads the current catalog for the
  * rest of the session; nothing is fetched automatically and nothing is stored in the browser.
+ *
+ * A few models are missing from both the provider listing and models.dev (e.g. Meta's Muse Wonder);
+ * those are entered by hand in `pricing.manual.json`, from the provider's own pricing page.
  */
 
 /** Our provider ids → models.dev provider ids. Providers models.dev doesn't carry are absent. */
@@ -36,6 +40,16 @@ export const MODELS_DEV_PROVIDERS: Record<string, string> = {
 export type MillionPrice = [number, number, number?];
 /** models.dev provider id → model id → per-1M price. */
 export type PriceCatalog = Record<string, Record<string, MillionPrice>>;
+
+/**
+ * Prices for models that neither the provider's live listing nor models.dev carries, taken by hand
+ * from the provider's own pricing page. Our provider id → model id → per-1M price.
+ * Meta Model API (https://dev.meta.ai/docs/pricing-rate-limits, 2026-10-12): models.dev already
+ * prices the Muse Spark lines, so only Muse Wonder's gap is filled here. Muse Wonder is Standard
+ * mode only (no Contributor mode): $4 in / $20 out / $0.20 cached. `npm run pricing:update` does not
+ * touch this file.
+ */
+const MANUAL_PRICES = manualPrices as unknown as PriceCatalog;
 
 const num = (x: unknown): number | undefined => {
   const v = typeof x === 'number' || typeof x === 'string' ? Number(x) : NaN;
@@ -64,16 +78,17 @@ export function parseCatalog(raw: unknown): PriceCatalog {
   return out;
 }
 
-/** Price for one model in per-token units, or undefined when models.dev has no entry for it. */
+/** Price for one model in per-token units, or undefined when it isn't known from the catalog or the hand-entered map. */
 export function lookupPrice(catalog: PriceCatalog, providerId: string, modelId: string): Pricing | undefined {
   const mdId = MODELS_DEV_PROVIDERS[providerId];
-  const row = mdId ? catalog[mdId]?.[modelId] : undefined;
+  const fromCatalog = mdId ? catalog[mdId]?.[modelId] : undefined;
+  const row = fromCatalog ?? MANUAL_PRICES[providerId]?.[modelId];
   if (!row) return undefined;
   return {
     inPerTok: row[0] / 1e6,
     outPerTok: row[1] / 1e6,
     ...(row[2] == null ? {} : { cacheReadPerTok: row[2] / 1e6 }),
-    source: 'models.dev',
+    source: fromCatalog ? 'models.dev' : 'manual',
   };
 }
 

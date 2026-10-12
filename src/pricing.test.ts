@@ -49,6 +49,15 @@ describe('lookupPrice', () => {
     });
   });
 
+  it('falls back to hand-entered prices for models models.dev does not cover', () => {
+    expect(lookupPrice(catalog, 'meta', 'muse-wonder-1.0')).toEqual({
+      inPerTok: 4 / 1e6,
+      outPerTok: 20 / 1e6,
+      cacheReadPerTok: 0.2 / 1e6,
+      source: 'manual',
+    });
+  });
+
   it('has nothing for providers or models models.dev does not cover', () => {
     expect(lookupPrice(catalog, 'custom', 'anything')).toBeUndefined();
     expect(lookupPrice(catalog, 'sim', 'sim/steady')).toBeUndefined();

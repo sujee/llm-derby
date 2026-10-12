@@ -286,7 +286,7 @@ export interface Pricing {
   /** Price for cached input tokens, when the provider lists one. */
   cacheReadPerTok?: number;
   /** Where the price came from, for the cost tooltip. */
-  source?: 'provider' | 'models.dev';
+  source?: 'provider' | 'models.dev' | 'manual';
 }
 
 /**
