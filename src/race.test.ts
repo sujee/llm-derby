@@ -106,3 +106,39 @@ describe('timeouts', () => {
     expect(result?.ttftMs).toBeGreaterThan(0);
   });
 });
+
+describe('pause', () => {
+  it('stops the clock and holds back new questions until resumed, and stop releases it', async () => {
+    const { Race } = await import('./race');
+    const q = (id: number) => ({ id, difficulty: 'easy' as const, category: 'T', question: 'Capital of Australia?', answer: 'Canberra', aliases: [] });
+    const sim = { id: 'sim', name: 'Simulated', baseUrl: '', noKey: true, simulated: true };
+    let asked = 0;
+    let ended = false;
+    const race = new Race(
+      [{ endpoint: { provider: sim, baseUrl: '', apiKey: '' }, model: 'steady' }],
+      [q(1), q(2), q(3)],
+      3,
+      {
+        onAsk() { asked++; },
+        onText() {},
+        onAnswer() {},
+        onFinish() {},
+        onRacerDone() {},
+        onEnd: () => { ended = true; },
+      },
+    );
+    race.start();
+    race.pause();
+    expect(race.paused).toBe(true);
+    const t = race.elapsedMs;
+    await new Promise((r) => setTimeout(r, 30));
+    expect(race.elapsedMs).toBe(t);
+    race.resume();
+    expect(race.paused).toBe(false);
+    race.pause();
+    race.stop();
+    expect(ended).toBe(true);
+    expect(race.paused).toBe(false);
+    expect(asked).toBeLessThanOrEqual(1);
+  });
+});

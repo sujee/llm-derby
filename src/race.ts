@@ -150,6 +150,10 @@ export class Race {
   private startedAt = 0;
   private endedAt = 0;
   private readonly ctrl = new AbortController();
+  private pausedAt = 0;
+  private pausedMs = 0;
+  private resumeGate: (() => void) | null = null;
+  private gate: Promise<void> | null = null;
 
   constructor(
     entries: RaceEntry[],
@@ -177,7 +181,31 @@ export class Race {
 
   get elapsedMs() {
     if (!this.startedAt) return 0;
-    return (this.over ? this.endedAt : performance.now()) - this.startedAt;
+    const now = this.over ? this.endedAt : this.pausedAt || performance.now();
+    return now - this.startedAt - this.pausedMs;
+  }
+
+  get paused() {
+    return this.pausedAt > 0;
+  }
+
+  /** Horses finish the question they are on, then wait; the race clock stops. */
+  pause() {
+    if (this.over || this.paused || !this.started) return;
+    this.pausedAt = performance.now();
+    this.gate = new Promise((res) => (this.resumeGate = res));
+  }
+
+  resume() {
+    if (!this.paused) return;
+    this.pausedMs += performance.now() - this.pausedAt;
+    this.pausedAt = 0;
+    this.release();
+  }
+
+  private release() {
+    this.resumeGate?.();
+    this.resumeGate = this.gate = null;
   }
 
   start() {
@@ -193,6 +221,7 @@ export class Race {
     r.status = 'running';
     let consecutiveErrors = 0;
     for (let qi = 0; qi < this.questions.length; qi++) {
+      if (this.gate) await this.gate;
       if (this.over) return;
       const q = this.questions[qi];
       r.currentQ = qi;
@@ -313,7 +342,12 @@ export class Race {
   private end(reason: EndReason) {
     if (this.over) return;
     this.over = true;
+    if (this.pausedAt) {
+      this.pausedMs += performance.now() - this.pausedAt;
+      this.pausedAt = 0;
+    }
     this.endedAt = performance.now();
+    this.release();
     this.ctrl.abort();
     for (const r of this.racers) if (r.status === 'running' || r.status === 'waiting') r.status = 'stopped';
     this.ev.onEnd({ reason, ranking: rank(this.racers), durationMs: this.elapsedMs });

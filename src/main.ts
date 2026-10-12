@@ -1178,20 +1178,23 @@ interface LaneUI {
   ok: HTMLElement;
   bad: HTMLElement;
   meta: HTMLElement;
-  /** Status pill: "Working on Q8 · Hard", then Finished / Withdrawn / Out of questions / Race over. */
+  /** Status pill: "Q8 · Hard", then Finished / Withdrawn / Out of questions / Race over. */
   state: HTMLElement;
+  /** Progress bar fill: correct answers out of the finish distance. */
+  fill: HTMLElement;
 }
 
 interface RaceUI {
   lanes: LaneUI[];
   lanesWrap: HTMLElement;
   timer: HTMLElement;
-  frontier: HTMLElement;
+  leader: HTMLElement;
   results: HTMLElement;
   /** Holder for the advisory question-bank feedback, above the question board. */
   feedbackHost: HTMLElement;
   tbody: HTMLTableSectionElement;
   rows: Map<number, HTMLTableCellElement[]>;
+  pauseBtn: HTMLButtonElement;
   stopBtn: HTMLButtonElement;
   againBtn: HTMLButtonElement;
   newBtn: HTMLButtonElement;
@@ -1467,7 +1470,23 @@ function buildRaceView(racers: RacerState[], distance: number) {
     h('span', { class: 'call' }, 'The horses are at the gate…'),
   );
   const timer = h('div', { class: 'hud-value' }, '00:00.0');
-  const frontier = h('div', { class: 'hud-value' }, `0 / ${S.questions.length}`);
+  const leader = h('div', { class: 'hud-value' }, `0 / ${distance}`);
+  const pauseBtn = h(
+    'button',
+    {
+      class: 'btn',
+      type: 'button',
+      disabled: true,
+      onclick: () => {
+        const race = S.race;
+        if (!race) return;
+        if (race.paused) race.resume();
+        else race.pause();
+        syncPauseBtn();
+      },
+    },
+    '⏸ Pause',
+  );
   const stopBtn = h('button', { class: 'btn danger', type: 'button', disabled: true, onclick: () => S.race?.stop() }, '⏹ Stop race');
   const againBtn = h('button', { class: 'btn', type: 'button', onclick: () => void startRace() }, '🔁 Race again: same questions');
   const newBtn = h(
@@ -1505,7 +1524,8 @@ function buildRaceView(racers: RacerState[], distance: number) {
       title: 'Accuracy · median end-to-end time per answer (latency p50)',
     });
     const state = h('span', { class: 'lane-state' }, 'At the gate');
-    lanes.push({ horse, score, ok, bad, meta, state });
+    const fill = h('div', { class: 'lane-bar-fill' });
+    lanes.push({ horse, score, ok, bad, meta, state, fill });
     const ticks = Array.from({ length: distance - 1 }, (_, k) =>
       h('span', { class: 'tick', vars: { '--k': String((k + 1) / distance) } }),
     );
@@ -1526,8 +1546,9 @@ function buildRaceView(racers: RacerState[], distance: number) {
             h('div', { class: 'provider' }, p.name),
           ),
         ),
-        h('div', { class: 'lane-progress' }, score, state),
+        h('div', { class: 'lane-progress' }, state),
         h('div', { class: 'lane-stats' }, ok, bad, meta),
+        h('div', { class: 'lane-bar-row', title: `Correct answers toward the finish line (${distance})` }, h('div', { class: 'lane-bar' }, fill), score),
       ),
       h('div', { class: 'track' }, ticks, h('div', { class: 'gate' }), h('div', { class: 'finish' }), horse),
     );
@@ -1563,14 +1584,17 @@ function buildRaceView(racers: RacerState[], distance: number) {
     h(
       'div',
       { class: 'hud panel' },
-      h('div', { class: 'hud-item' }, h('div', { class: 'hud-label' }, 'Race time'), timer),
-      h('div', { class: 'hud-item' }, h('div', { class: 'hud-label' }, 'Leader on question'), frontier),
-      h('div', { class: 'hud-item' }, h('div', { class: 'hud-label' }, 'Finish line'), h('div', { class: 'hud-value' }, `${distance} correct`)),
-      series
-        ? h('div', { class: 'hud-item' }, h('div', { class: 'hud-label' }, `Best of ${series.of}`), h('div', { class: 'hud-value' }, `Race ${Math.min(series.legs.length + 1, series.of)}`))
-        : null,
+      h(
+        'div',
+        { class: 'hud-item hud-left' },
+        h('div', { class: 'hud-label' }, 'To finish'),
+        h('div', { class: 'hud-value' }, `${distance} questions`),
+        series ? h('div', { class: 'hud-label' }, `Best of ${series.of} · Race ${Math.min(series.legs.length + 1, series.of)}`) : null,
+      ),
+      h('div', { class: 'hud-item hud-center' }, h('div', { class: 'hud-label' }, 'Race time'), timer),
+      h('div', { class: 'hud-item hud-right' }, h('div', { class: 'hud-label' }, 'Leader'), leader),
       // In a series, the next race starts from the results (so every race counts once).
-      h('div', { class: 'hud-controls' }, stopBtn, series ? null : againBtn, series ? null : newBtn, setupBtn, presentButton()),
+      h('div', { class: 'hud-controls' }, pauseBtn, stopBtn, series ? null : againBtn, series ? null : newBtn, setupBtn, presentButton()),
     ),
     announcerEl,
     lanesWrap,
@@ -1590,11 +1614,12 @@ function buildRaceView(racers: RacerState[], distance: number) {
     lanes,
     lanesWrap,
     timer,
-    frontier,
+    leader,
     results,
     feedbackHost,
     tbody,
     rows: new Map(),
+    pauseBtn,
     stopBtn,
     againBtn,
     newBtn,
@@ -1603,9 +1628,19 @@ function buildRaceView(racers: RacerState[], distance: number) {
   };
 }
 
+/** Pause button label and a "paused" look on the clock. */
+function syncPauseBtn() {
+  if (!UI) return;
+  const paused = !!S.race?.paused && !S.race.over;
+  UI.pauseBtn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+  UI.timer.classList.toggle('paused', paused);
+}
+
 function setRunningControls(running: boolean) {
   if (!UI) return;
   UI.stopBtn.disabled = !running;
+  UI.pauseBtn.disabled = !running;
+  syncPauseBtn();
   UI.againBtn.disabled = running;
   UI.newBtn.disabled = running;
 }
@@ -1657,7 +1692,6 @@ function ensureRow(qi: number): HTMLTableCellElement[] {
   // question n only after n-1, which created that row), so appending keeps them sorted.
   ui.tbody.append(row);
   row.classList.add('fresh');
-  ui.frontier.textContent = `${qi + 1} / ${S.questions.length}`;
   return cells;
 }
 
@@ -1744,6 +1778,15 @@ function updateLane(r: RacerState) {
     ? `${fmtPct(st.accuracy)} · latency (p50) ${s1(st.medianLatencyMs)}`
     : '';
   ui.horse.style.setProperty('--p', String(Math.min(1, r.correct / d)));
+  ui.fill.style.width = `${Math.min(1, r.correct / d) * 100}%`;
+  // Leader: most successful completions so far.
+  const all = S.race!.racers;
+  const best = Math.max(...all.map((x) => x.correct));
+  const ahead = best > 0 ? all.filter((x) => x.correct === best) : [];
+  UI!.leader.replaceChildren(
+    ...ahead.map((x) => h('span', { class: 'lane-num', title: x.entry.model, vars: { '--c': LANES[x.lane].color } }, String(x.lane + 1))),
+    `${best} / ${d}`,
+  );
 }
 
 /**
@@ -1804,7 +1847,7 @@ async function startRace() {
     onAsk(r, qi) {
       setPending(ensureRow(qi)[r.lane]);
       const level = S.questions[qi].difficulty;
-      setLaneState(r.lane, `Working on Q${qi + 1} · ${LEVEL_LABEL[level]}`, level);
+      setLaneState(r.lane, `Q${qi + 1} · ${LEVEL_LABEL[level]}`, level);
     },
     onText() {
       // Live text isn't shown in the lanes; full replies are on the question board.

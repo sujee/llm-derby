@@ -110,8 +110,8 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 
 ### Race header
 
-- Race time, the question the leader is on, and the finish line.
-- Controls: Stop race, Race again (same questions), New random race, Setup.
+- Three items: **To finish** (the distance, e.g. 20 questions) on the left, **Race time** centered, and **Leader** on the right (most correct answers so far, e.g. `③ 12 / 20`, with the leading horse's lane number in its lane colour; tied horses all show; only correct answers count).
+- Controls, on one row below: **⏸ Pause / ▶ Resume** (the race clock stops and horses finish the question they are on, then wait; replies already in flight still count and their time limit keeps running), Stop race, Race again (same questions), New random race, Setup.
 
 ### Announcer
 
@@ -124,10 +124,11 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 ### Lanes
 
 - 3 or 4 horizontal lanes. Horses gallop, move smoothly forward one step per correct answer (with a "+1"), and celebrate when they finish.
-- Each lane shows three lines:
+- Each lane shows four lines:
   1. Model and provider. A small copy button next to the model copies the full model ID to the clipboard on click; the icon briefly turns into a check.
-  2. Score and status, e.g. `12 / 20  [Working on Q13 · Hard]`. The status pill is colored by the current question's difficulty, and changes to 🏆 Finished, 🚫 Withdrawn (hover for the error), 🏁 Out of questions or Race over.
+  2. Status pill with the question being attempted, e.g. `[Q13 · Hard]`. The pill is colored by the current question's difficulty, and changes to 🏆 Finished, 🚫 Withdrawn (hover for the error), 🏁 Out of questions or Race over.
   3. Stats: **correct count in green (✓)**, **wrong count in red (✗)** (including timeouts and errors), accuracy and median end-to-end latency, e.g. `✓ 12  ✗ 3  80% · latency (p50) 1.3s`. (TTFT is in the results table, exports and debug log.)
+  4. A progress bar toward the finish line (correct answers out of the distance) with the score, e.g. `12 / 20`.
 - Withdrawn horses are greyed out.
 
 ### Question board

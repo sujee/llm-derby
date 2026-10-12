@@ -763,11 +763,26 @@ select {
 /* ---------- HUD ---------- */
 
 .hud {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px 22px;
+  padding: 12px 18px;
+}
+
+.hud-center {
+  text-align: center;
+}
+
+.hud-right .hud-value {
   display: flex;
   align-items: center;
-  gap: 22px;
-  flex-wrap: wrap;
-  padding: 12px 18px;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.hud-right {
+  text-align: right;
 }
 
 .hud-label {
@@ -785,11 +800,22 @@ select {
   color: #7d1225;
 }
 
+.hud-value.paused {
+  opacity: 0.5;
+}
+
 .hud-controls {
-  margin-left: auto;
+  grid-column: 1 / -1;
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.hud-controls .btn {
+  padding: 6px 10px;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 /* ---------- Announcer ---------- */
@@ -982,8 +1008,30 @@ select {
   flex-wrap: wrap;
 }
 
+.lane-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lane-bar {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.lane-bar-fill {
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--c);
+  transition: width 0.4s ease-out;
+}
+
 .score {
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--c);
   filter: brightness(0.85);
@@ -1024,7 +1072,7 @@ select {
   white-space: nowrap;
 }
 
-/* Line 2: score and what the horse is doing. Line 3 (.lane-stats): ✓ ✗ accuracy · median. */
+/* Line 2: current question. Line 3 (.lane-stats): ✓ ✗ accuracy · median. Line 4: progress bar and score. */
 .lane-progress {
   display: flex;
   align-items: center;
@@ -2237,8 +2285,8 @@ details pre.empty {
   }
 
   .hud-controls {
-    margin-left: 0;
     width: 100%;
+    flex-wrap: wrap;
   }
 
   .hud-controls .btn {
