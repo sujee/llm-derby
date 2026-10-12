@@ -45,14 +45,14 @@ One panel. On desktop: **Winning distance** and **Time limit** on the first row,
 - Each race in a series uses fresh questions; the race header shows "Best of N · Race k".
 - Points per race: 1st 3, 2nd 2, 3rd 1, 4th 0. Ties go to most wins, then most correct answers.
 - After each race, a **series standings** table (points, wins, place in each race, total correct) appears under the race results.
-- **The series runs on its own:** after each race the results show "Race k of N starts in 8s…" with **▶ Start now**, **⏸ Pause series** (no more automatic starts in this series; a **▶ Next race** button appears instead) and **⏹ End series now** (the standings so far decide it). After a stopped race the series waits for you.
+- **The series runs on its own:** a control bar sits right under the race results and above the series standings, and stays in place in every state. While counting down it shows a large number of seconds (8) with a draining line, plus **▶ Start now**, **⏸ Pause** and **⏹ End series** (the standings so far decide it). Paused, it says so and offers **▶ Start race now** and **⏵ Resume auto-start**. When the series is over the bar says so and offers **🏆 See final tally** (opens the Series tally), **New series** and **Single race**. After a stopped race the series waits for you (**🔁 Run race again**).
 - Long model names are cut with "…" in the race strip and tables; the full name is in the tooltip, and a copy button in the lanes puts it on the clipboard.
 - The series ends early when the leader can no longer be caught. The champion is announced with "🏆 … wins the series!", then **🏆 New series** or **🎲 Single race**.
 - A stopped race doesn't count; it can be run again. During a series the "Race again" and "New random race" buttons are replaced by the series buttons, so every race counts once.
 - The JSON export includes the series standings.
 - **Race strip:** from the first race of a series, a strip above the race view lists every race in it (`Race 1 🏆 steady · Race 2 live · Race 3 · Race 4 · Race 5`) and a **🏆 Series tally** tab. Races not run yet are greyed out and can't be clicked; the tally becomes clickable after the first race.
   - Click a race to see it again exactly as it finished: lanes, results, the series standings at that point, and its question board. Past races are read-only (no race controls or announcer), but their exports work and export that race.
-  - **🏆 Series tally** shows the whole series so far: points, wins, each horse's place in every race, total correct, and accuracy, latency p50, tok/s p50 and cost across all counted races.
+  - **🏆 Series tally** shows the whole series so far: points, wins, each horse's place in every race (the column header shows that race's time on a second line, e.g. "Race 2" over "01:18.6"), questions attempted, total correct, incorrect, and accuracy, latency p50, tok/s p50 and cost across all counted races.
 
 ## 2. Questions
 
@@ -117,6 +117,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 
 - A caption bar between the race header and the lanes calls the race as it happens: the start, the first correct answer, lead changes and ties, streaks (3, 5, 7, 10 in a row), halfway, the final stretch, stumbles on Hard/Expert questions, timeouts, withdrawn horses, and the finish ("📸 Photo finish!" when the runner-up is one answer behind, or the winner), a stopped race, or a win on points.
 - Paced for readability: each call stays up about 2.5 seconds (1.6 when busy). Big moments go first; minor calls are dropped when things happen too fast. The closing call appears immediately.
+- **Logo:** clicking "LLM Derby" in the header returns to the setup (main) screen, same as **⚙ Setup**; if a race is running it asks before stopping it.
 - **📣 Announcer on/off** in the header (remembered; on by default). Off hides the bar; it can be switched back on mid-race.
 - Horse names appear as pills in their lane color. When two horses run the same model, names add the provider (e.g. "DeepSeek-V4 @ GMI Cloud") or, on the same provider, the lane number (e.g. "steady #2").
 
@@ -175,6 +176,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
 ## 7. Settings, Privacy and Security
 
 - **API keys** are kept only in memory for the current tab: never saved, and sent only to the provider they belong to. They are re-entered each session.
+- **↺ Reset** (setup screen, next to Copy setup link; asks to confirm) clears the saved settings and the typed keys and reloads with the defaults. A plain reload keeps the settings.
 - **Remembered in the browser:** number of horses, each horse's provider and custom base URL, winning distance, difficulty levels, rising difficulty, time limit, sound and announcer. Models are restored only for providers that don't need a key (since keys are gone after a reload).
 - **Model prices:** a provider's own model listing is used where it publishes prices; where it doesn't, prices come from a trimmed snapshot of the [models.dev](https://models.dev) catalog shipped with the app (`src/pricing.snapshot.json`, refreshed with `npm run pricing:update`). The **🔄 Refresh prices** button fetches the full catalog from `https://models.dev/api.json` on demand (no automatic request) and uses it until the page is reloaded; nothing about prices is stored in the browser. A model missing from both simply has no cost.
 - Model output is always rendered as plain text, never as HTML.

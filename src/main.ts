@@ -229,6 +229,8 @@ function svgEl<K extends keyof SVGElementTagNameMap>(
 
 interface SortColumn<T> {
   label: string;
+  /** A second, smaller line under the label. */
+  sub?: string;
   key: (row: T) => SortValue;
   /** Direction of the first click: the one that puts the best on top. */
   dir: 1 | -1;
@@ -246,7 +248,7 @@ function sortableStandings<T>(columns: SortColumn<T>[], rows: T[], renderRow: (r
     h(
       'th',
       { 'aria-sort': ci ? 'none' : 'ascending' },
-      h('button', { type: 'button', class: 'sort', title: `Sort by ${c.label.toLowerCase()}`, onclick: () => sortBy(ci) }, c.label, h('span', { class: 'sort-arrow', 'aria-hidden': 'true' }, ci ? '' : '▲')),
+      h('button', { type: 'button', class: 'sort', title: `Sort by ${c.label.toLowerCase()}`, onclick: () => sortBy(ci) }, c.label, c.sub ? h('span', { class: 'col-sub' }, c.sub) : null, h('span', { class: 'sort-arrow', 'aria-hidden': 'true' }, ci ? '' : '▲')),
     ),
   );
   const sortBy = (col: number) => {
@@ -321,6 +323,11 @@ const LEVEL_SAMPLE: Record<Difficulty, string> = (() => {
   return { easy: random('easy'), medium: random('medium'), hard: random('hard'), expert: generateExpert(1)[0].question };
 })();
 const levelsLabel = (levels: Difficulty[]) => ordered(levels).map((l) => LEVEL_LABEL[l]).join(' + ');
+/** "Hard 10 + Expert 20": how many questions of each level are in the race. */
+const levelMix = (qs: { difficulty: Difficulty }[]) =>
+  ordered([...new Set(qs.map((q) => q.difficulty))])
+    .map((l) => `${LEVEL_LABEL[l]} ${qs.filter((q) => q.difficulty === l).length}`)
+    .join(' + ');
 const MIN_TIME_LIMIT = 3;
 const MAX_TIME_LIMIT = 300;
 
@@ -347,6 +354,17 @@ function setupLink(): string {
     timeLimitSec: S.timeLimitOn ? S.timeLimitSec : null,
   });
   return `${location.origin}${location.pathname}${SHARE_PREFIX}${code}`;
+}
+
+/** Forget every saved setting and the typed keys by reloading the page from the defaults. */
+function resetAll() {
+  if (!confirm('Reset all settings to the defaults and forget the API keys typed in this session?')) return;
+  try {
+    localStorage.removeItem(SETTINGS_KEY);
+  } catch {
+    /* storage unavailable: nothing was saved */
+  }
+  location.reload();
 }
 
 async function copySetupLink(btn: HTMLButtonElement) {
@@ -475,7 +493,12 @@ $('#app').append(
     h(
       'div',
       { class: 'header-row' },
-      h('div', { class: 'marquee' }, h('h1', null, 'LLM Derby'), devBadge),
+      h(
+        'div',
+        { class: 'marquee' },
+        h('h1', null, h('a', { href: location.pathname, class: 'logo-link', title: 'Back to the main screen', onclick: (e: Event) => (e.preventDefault(), logoClick()) }, 'LLM Derby')),
+        devBadge,
+      ),
       h(
         'div',
         { class: 'header-info' },
@@ -511,6 +534,22 @@ function showView(view: 'setup' | 'race') {
   $('#setup').hidden = view !== 'setup';
   $('#race').hidden = view !== 'race';
   window.scrollTo({ top: 0 });
+}
+
+/** Stop any race and go to the setup screen. */
+function openSetup() {
+  S.race?.stop();
+  cancelAutoNext();
+  setPresenting(false);
+  renderSetup();
+  showView('setup');
+}
+
+/** The logo goes to the main (setup) screen; a race in progress asks first. */
+function logoClick() {
+  const live = S.race?.racers.some((r) => r.status === 'running' || r.status === 'waiting');
+  if (live && !confirm('A race is in progress. Stop it and go to the main screen?')) return;
+  openSetup();
 }
 
 // ---------------------------------------------------------------------------
@@ -1012,6 +1051,16 @@ function buildSetup() {
             },
             '🔗 Copy setup link',
           ),
+          h(
+            'button',
+            {
+              class: 'btn small ghost',
+              type: 'button',
+              title: 'Back to the default setup: forgets saved settings and the API keys typed in',
+              onclick: resetAll,
+            },
+            '↺ Reset',
+          ),
           countToggle,
           S.race
             ? h(
@@ -1267,8 +1316,10 @@ function renderTally() {
     { label: 'Horse', key: (x) => name(x.r).toLowerCase(), dir: 1 },
     { label: 'Points', key: (x) => x.row.points, dir: -1 },
     { label: 'Wins', key: (x) => x.row.wins, dir: -1 },
-    ...s.legs.map((_, k): SortColumn<TallyRow> => ({ label: `Race ${k + 1}`, key: (x) => x.row.places[k] || null, dir: 1 })),
+    ...s.legs.map((_, k): SortColumn<TallyRow> => ({ label: `Race ${k + 1}`, sub: s.legs[k].durationMs != null ? fmtClock(s.legs[k].durationMs!) : undefined, key: (x) => x.row.places[k] || null, dir: 1 })),
+    { label: 'Attempted', key: (x) => x.st.answered, dir: -1 },
     { label: 'Correct', key: (x) => x.row.correct, dir: -1 },
+    { label: 'Incorrect', key: (x) => x.st.incorrect, dir: 1 },
     { label: 'Accuracy', key: (x) => x.st.accuracy, dir: -1 },
     { label: 'Latency p50', key: (x) => x.st.medianLatencyMs, dir: 1 },
     { label: 'Tok/s p50', key: (x) => x.st.tokPerSecP50, dir: -1 },
@@ -1296,7 +1347,9 @@ function renderTally() {
           h('td', { class: 'num points' }, String(row.points)),
           h('td', { class: 'num' }, String(row.wins)),
           s.legs.map((_, k) => h('td', { class: 'num' }, row.places[k] ? PLACE_MARK[row.places[k] - 1] : '–')),
+          h('td', { class: 'num' }, String(st.answered)),
           h('td', { class: 'num' }, String(row.correct)),
+          h('td', { class: 'num' }, String(st.incorrect)),
           h('td', { class: 'num' }, fmtPct(st.accuracy)),
           h('td', { class: 'num' }, fmtSec(st.medianLatencyMs)),
           h('td', { class: 'num' }, fmtTps(st.tokPerSecP50, st.tokPerSecEstimated)),
@@ -1398,13 +1451,7 @@ function buildRaceView(racers: RacerState[], distance: number) {
     {
       class: 'btn ghost',
       type: 'button',
-      onclick: () => {
-        S.race?.stop();
-        cancelAutoNext();
-        setPresenting(false);
-        renderSetup();
-        showView('setup');
-      },
+      onclick: openSetup,
     },
     '⚙ Setup',
   );
@@ -1761,6 +1808,7 @@ async function startRace() {
         S.seriesState.legs.push({
           order: summary.ranking.map((r) => r.lane),
           correct: race.racers.map((r) => r.correct),
+          durationMs: summary.durationMs,
         });
         markLiveRace(`🏆 ${shortModel(summary.ranking[0].entry.model)}`, true, summary.ranking[0].entry.model);
       } else if (S.seriesState) markLiveRace('stopped', false);
@@ -1849,7 +1897,7 @@ const PLACE_MARK = ['🥇', '🥈', '🥉', '4th'];
 /** Series standings (when racing a series) and the buttons for what to do next. */
 function seriesAndActions(summary: RaceSummary, name: (r: RacerState) => string): HTMLElement {
   const box = h('div', { class: 'series-box' });
-  const render = () => box.replaceChildren(...[seriesPanel(summary, name), nextActions(summary, render)].filter((x): x is HTMLElement => !!x));
+  const render = () => box.replaceChildren(...[nextActions(summary, render), seriesPanel(summary, name)].filter((x): x is HTMLElement => !!x));
   render();
   return box;
 }
@@ -1937,14 +1985,23 @@ function nextActions(summary: RaceSummary, rerender: () => void): HTMLElement {
   if (seriesOver()) {
     return h(
       'div',
-      { class: 'results-actions' },
-      btn(`🏆 New series (best of ${s.of})`, () => go({ of: s.of, legs: [] })),
-      btn('🎲 Single race', () => go(null)),
+      { class: 'next-bar done', role: 'group', 'aria-label': 'Series controls' },
+      h('div', { class: 'next-status' }, h('div', null, h('div', { class: 'next-title' }, '🏁 Series complete'), h('div', { class: 'next-sub' }, 'Points, places and totals across every race'))),
+      h(
+        'div',
+        { class: 'next-controls' },
+        btn('🏆 See final tally', () => {
+          showRacePage('tally');
+          window.scrollTo({ top: 0 });
+        }),
+        btn(`New series (best of ${s.of})`, () => go({ of: s.of, legs: [] }), 'btn ghost'),
+        btn('🎲 Single race', () => go(null), 'btn ghost'),
+      ),
     );
   }
   const k = s.legs.length + 1;
   const endBtn = btn(
-    '⏹ End series now',
+    '⏹ End series',
     () => {
       cancelAutoNext();
       if (!s.legs.length) S.seriesState = null;
@@ -1953,31 +2010,30 @@ function nextActions(summary: RaceSummary, rerender: () => void): HTMLElement {
     },
     'btn ghost',
   );
-
-  // The series runs on its own: the next race starts after a short countdown, unless paused.
-  // A race the user stopped never continues by itself.
-  if (summary.reason !== 'stopped' && !seriesPaused) {
-    let left = AUTO_NEXT_SEC;
-    const note = h('p', { class: 'auto-next', role: 'status' });
-    const tick = () => (note.textContent = `Race ${k} of ${s.of} starts in ${left}s…`);
-    tick();
-    cancelAutoNext();
-    autoNextTimer = window.setInterval(() => {
-      left--;
-      if (!note.isConnected) return cancelAutoNext(); // the view was replaced
-      if (left <= 0) go(s);
-      else tick();
-    }, 1000);
-    return h(
+  const bar = (state: string, status: HTMLElement[], ...controls: HTMLElement[]) =>
+    h(
       'div',
-      { class: 'results-actions auto' },
-      note,
-      btn('▶ Start now', () => go(s)),
+      { class: `next-bar ${state}`, role: 'group', 'aria-label': 'Series controls' },
+      h('div', { class: 'next-status' }, ...status),
+      h('div', { class: 'next-controls' }, ...controls),
+    );
+  const label = (text: string, sub: string) => [h('div', { class: 'next-title' }, text), h('div', { class: 'next-sub' }, sub)];
+
+  // A race the user stopped never continues by itself.
+  if (summary.reason === 'stopped') {
+    return bar('waiting', label(`Race ${k} of ${s.of} is next`, 'The stopped race doesn’t count'), btn(`🔁 Run race ${k} again`, () => go(s)), endBtn);
+  }
+  // The series runs on its own: the next race starts after a short countdown, unless paused.
+  // The bar stays in place in every state, so the controls are always where you left them.
+  if (seriesPaused) {
+    return bar(
+      'paused',
+      label('⏸ Series paused', `Race ${k} of ${s.of} is next`),
+      btn('▶ Start race now', () => go(s)),
       btn(
-        '⏸ Pause series',
+        '⏵ Resume auto-start',
         () => {
-          cancelAutoNext();
-          seriesPaused = true;
+          seriesPaused = false;
           rerender();
         },
         'btn ghost',
@@ -1985,15 +2041,34 @@ function nextActions(summary: RaceSummary, rerender: () => void): HTMLElement {
       endBtn,
     );
   }
-  return h(
-    'div',
-    { class: 'results-actions' },
-    btn(summary.reason === 'stopped' ? `🔁 Run race ${k} again` : `▶ Next race (${k} of ${s.of})`, () => {
-      seriesPaused = false;
-      go(s);
-    }),
+  let left = AUTO_NEXT_SEC;
+  const secs = h('div', { class: 'next-secs', 'aria-hidden': 'true' }, String(left));
+  const live = h('div', { class: 'sr-only', role: 'status' }, `Race ${k} of ${s.of} starts in ${left} seconds`);
+  cancelAutoNext();
+  autoNextTimer = window.setInterval(() => {
+    left--;
+    if (!secs.isConnected) return cancelAutoNext(); // the view was replaced
+    if (left <= 0) return go(s);
+    secs.textContent = String(left);
+    if (left % 4 === 0) live.textContent = `Race ${k} of ${s.of} starts in ${left} seconds`;
+  }, 1000);
+  const counting = bar(
+    'counting',
+    [secs, ...label(`Race ${k} of ${s.of} starts in…`, 'seconds'), live],
+    btn('▶ Start now', () => go(s)),
+    btn(
+      '⏸ Pause',
+      () => {
+        cancelAutoNext();
+        seriesPaused = true;
+        rerender();
+      },
+      'btn ghost',
+    ),
     endBtn,
   );
+  counting.style.setProperty('--dur', `${AUTO_NEXT_SEC}s`);
+  return counting;
 }
 
 /** A small button that copies `text()` and shows a brief "Copied" state. */
@@ -2400,7 +2475,7 @@ function showResults(summary: RaceSummary) {
     'div',
     { class: 'panel results-panel' },
     h('h2', { class: 'headline' }, headline),
-    h('p', { class: 'muted' }, `Total race time ${fmtClock(summary.durationMs)} · ${S.questions.length} questions (${S.questionsLabel}) · finish at ${race.distance} correct${limited ? ` · timeout ${fmtLimit(race.timeLimitMs!)} per question` : ''}`),
+    h('p', { class: 'muted' }, `Total race time ${fmtClock(summary.durationMs)} · First to ${race.distance} correct answers wins the race · ${S.questions.length} questions (${levelMix(S.questions)}${S.questionsLabel.endsWith(', rising') ? ', rising' : ''})${limited ? ` · timeout ${fmtLimit(race.timeLimitMs!)} per question` : ''}`),
     podium,
     h('div', { class: 'table-wrap' }, table),
     seriesAndActions(summary, name),

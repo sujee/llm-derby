@@ -7,6 +7,8 @@ export interface SeriesLeg {
   order: number[];
   /** Correct answers by lane. */
   correct: number[];
+  /** How long the race took, in ms. */
+  durationMs?: number;
 }
 
 export interface SeriesState {

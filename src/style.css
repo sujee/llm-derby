@@ -148,6 +148,11 @@ a {
   line-height: 1.05;
 }
 
+.logo-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 .tagline {
   margin: 0;
   color: var(--cream);
@@ -2481,6 +2486,7 @@ details pre.empty {
 /* A past race is read-only: no race controls, no announcer, no "next race" buttons. */
 .race-page.archived .hud-controls,
 .race-page.archived .announcer,
+.race-page.archived .next-bar,
 .race-page.archived .series-box .results-actions {
   display: none;
 }
@@ -2518,17 +2524,97 @@ details pre.empty {
   gap: 10px;
 }
 
-.results-actions.auto {
+/* Series controls: a bar above the series standings that stays put in every state
+   (counting down, paused, waiting), so the next step is always in the same place. */
+.next-bar {
+  position: relative;
+  overflow: hidden;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin: 14px 0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--cream-2);
+  border: 2px solid var(--gold-deep);
 }
 
-.auto-next {
-  flex-basis: 100%;
-  margin: 0;
+.next-bar.done {
+  background: #fff3c4;
+  border-color: var(--gold-deep);
+}
+
+.next-bar.paused {
+  background: var(--err-bg);
+  border-color: var(--err);
+}
+
+.next-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.next-secs {
+  min-width: 2ch;
   text-align: center;
+  font-size: 52px;
+  line-height: 1;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: #7d1225;
+}
+
+.next-title {
   font-weight: 800;
   font-size: 17px;
-  color: #7d1225;
+}
+
+.next-sub {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.next-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* A thin bar along the bottom edge that drains as the countdown runs. */
+.next-bar.counting::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 4px;
+  width: 100%;
+  background: var(--tent-red);
+  transform-origin: left;
+  animation: next-drain var(--dur, 8s) linear forwards;
+}
+
+@keyframes next-drain {
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .next-bar.counting::after {
+    animation: none;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .preview-foot {
@@ -2578,4 +2664,12 @@ details pre.empty {
 
 .present .credits {
   display: none;
+}
+
+/* Second line in a table header, e.g. a race's time under "Race 1". */
+.col-sub {
+  display: block;
+  font-size: 0.85em;
+  font-weight: 500;
+  opacity: 0.85;
 }
