@@ -226,19 +226,41 @@ const CSV_COLUMNS = [
   'tokens_in', 'tokens_cached', 'tokens_out', 'tokens_reasoning', 'tokens_estimated', 'cost_usd', 'error',
 ] as const;
 
+function csvRows(data: RaceExport): unknown[][] {
+  return data.questions.flatMap((q) =>
+    q.answers.map((a) => [
+      q.number, q.difficulty, q.category, q.question, q.expectedAnswer,
+      a.lane, a.provider, a.model, a.result, a.answer, a.ttftMs, a.latencyMs, a.tokPerSec,
+      a.tokensIn, a.tokensCached, a.tokensOut, a.tokensReasoning, a.tokensEstimated ? 'yes' : 'no', a.costUsd, a.error,
+    ]),
+  );
+}
+
+const joinCsv = (rows: unknown[][]) => rows.map((r) => r.map(csvField).join(',')).join('\r\n') + '\r\n';
+
 /** One row per question per model (long format, easy to pivot in a spreadsheet). */
 export function toCsv(data: RaceExport): string {
-  const rows: unknown[][] = [[...CSV_COLUMNS]];
-  for (const q of data.questions) {
-    for (const a of q.answers) {
-      rows.push([
-        q.number, q.difficulty, q.category, q.question, q.expectedAnswer,
-        a.lane, a.provider, a.model, a.result, a.answer, a.ttftMs, a.latencyMs, a.tokPerSec,
-        a.tokensIn, a.tokensCached, a.tokensOut, a.tokensReasoning, a.tokensEstimated ? 'yes' : 'no', a.costUsd, a.error,
-      ]);
-    }
-  }
-  return rows.map((r) => r.map(csvField).join(',')).join('\r\n') + '\r\n';
+  return joinCsv([[...CSV_COLUMNS], ...csvRows(data)]);
+}
+
+/** A whole series in one JSON file: the series standings plus every counted race's full export. */
+export interface SeriesBundle {
+  app: 'llm-derby';
+  appVersion: number;
+  exportVersion: 1;
+  type: 'series';
+  exportedAt: string;
+  series: SeriesExport;
+  races: { raceNo: number; data: RaceExport }[];
+}
+
+export function buildSeriesBundle(series: SeriesExport, races: { raceNo: number; data: RaceExport }[], now = new Date()): SeriesBundle {
+  return { app: 'llm-derby', appVersion: APP_VERSION, exportVersion: 1, type: 'series', exportedAt: now.toISOString(), series, races };
+}
+
+/** Every counted race in one table: the per-race columns with a leading `race_no`. */
+export function toSeriesCsv(races: { raceNo: number; data: RaceExport }[]): string {
+  return joinCsv([['race_no', ...CSV_COLUMNS], ...races.flatMap(({ raceNo, data }) => csvRows(data).map((r) => [raceNo, ...r]))]);
 }
 
 /** e.g. llm-derby-2026-10-08-1532 (local time). */

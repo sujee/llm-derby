@@ -1,0 +1,758 @@
+{
+  "baseUrl": "https://api.anthropic.com/v1",
+  "models": [
+    "claude-fable-5-1",
+    "claude-opus-5-5",
+    "claude-sonnet-5-5"
+  ],
+  "byModel": [
+    {
+      "m": "claude-fable-5-1",
+      "per": [
+        null,
+        null,
+        null,
+        0.9545454545454546
+      ],
+      "overall": 0.9545454545454546,
+      "errors": 2,
+      "medMs": 7787.97075
+    },
+    {
+      "m": "claude-opus-5-5",
+      "per": [
+        null,
+        null,
+        null,
+        1
+      ],
+      "overall": 1,
+      "errors": 3,
+      "medMs": 7773.271790999999
+    },
+    {
+      "m": "claude-sonnet-5-5",
+      "per": [
+        null,
+        null,
+        null,
+        0.9523809523809523
+      ],
+      "overall": 0.9523809523809523,
+      "errors": 3,
+      "medMs": 5919.815291999999
+    }
+  ],
+  "questions": [
+    {
+      "id": 100000,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Write the decimal number 58550720 in base 3. Reverse the order of its digits, read the result as a base 3 number, and give that value in decimal.",
+      "answer": "102761464",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "102761464",
+          "correct": true,
+          "ms": 8291.159375000001
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "102761464",
+          "correct": true,
+          "ms": 11944.89275
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "102761464",
+          "correct": true,
+          "ms": 9015.138333
+        }
+      ]
+    },
+    {
+      "id": 100001,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "How many days are there from 1 September 2001 to 9 July 2033? (Give the difference in days.)",
+      "answer": "11634",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "11634",
+          "correct": true,
+          "ms": 4497.498083
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "11634",
+          "correct": true,
+          "ms": 4092.026541
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "11634",
+          "correct": true,
+          "ms": 3386.780875
+        }
+      ]
+    },
+    {
+      "id": 100002,
+      "difficulty": "expert",
+      "category": "Strings",
+      "question": "Write this string backwards: cherrynumbermarblejacketquartzhelmetzipperlemon",
+      "answer": "nomelreppiztemlehztrauqtekcajelbramrebmunyrrehc",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "nomelreppiztemlehztrauqtekcajelbramrebmunyrrehc",
+          "correct": true,
+          "ms": 7532.251584000001
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "nomelreppiztemlehztrauqtekcajelbramrebmunyrrehc",
+          "correct": true,
+          "ms": 4479.892707999999
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "nomelreppiztemlehztrauqtekcajelbramrebmunyrrehc",
+          "correct": true,
+          "ms": 4207.095541999999
+        }
+      ]
+    },
+    {
+      "id": 100003,
+      "difficulty": "expert",
+      "category": "Modular arithmetic",
+      "question": "What is the remainder when 93802 to the power 205934520 is divided by 716076?",
+      "answer": "513352",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "513352",
+          "correct": true,
+          "ms": 41668.66375
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "513352",
+          "correct": true,
+          "ms": 33169.180333
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "513352",
+          "correct": true,
+          "ms": 26099.988959
+        }
+      ]
+    },
+    {
+      "id": 100004,
+      "difficulty": "expert",
+      "category": "Sequences",
+      "question": "Start at 286057257. If the number is even, halve it; if it is odd, multiply by 3 and add 1. How many steps does it take to reach 1?",
+      "answer": "230",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "230",
+          "correct": true,
+          "ms": 50386.556458
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "230",
+          "correct": true,
+          "ms": 21287.138458
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "230",
+          "correct": true,
+          "ms": 16540.727583
+        }
+      ]
+    },
+    {
+      "id": 100005,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Start at 34595886. If the number is even, halve it; if it is odd, multiply by 3 and add 1. Let S be the number of steps to reach 1. What is the smallest prime number greater than S × 100?",
+      "answer": "6907",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "6907",
+          "correct": true,
+          "ms": 18882.107375
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "6907",
+          "correct": true,
+          "ms": 15071.411041
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "6907",
+          "correct": true,
+          "ms": 11464.958166999999
+        }
+      ]
+    },
+    {
+      "id": 100006,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Multiply 58352676 by 12473197, then add up the digits of the product. What is the sum?",
+      "answer": "60",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "60",
+          "correct": true,
+          "ms": 7787.97075
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "60",
+          "correct": true,
+          "ms": 7773.271790999999
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "60",
+          "correct": true,
+          "ms": 5109.477790999999
+        }
+      ]
+    },
+    {
+      "id": 100007,
+      "difficulty": "expert",
+      "category": "Counting",
+      "question": "How many times does the letter \"b\" appear in this string: chbgdddhekcagaghfccfabgkfbfkafeghdeahecfefecbkfebbchbkchccgkddhkddkkehbdcbckcchbbaggfhdhagghbebddhfgagakacakafeeadekbffbaeheffegbebfaghcbdkddegdafgdefhakhbddaekbbaafeegcehgaffaeckdbkgdgcagehhahgedcegc",
+      "answer": "22",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "22",
+          "correct": true,
+          "ms": 13503.45175
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "22",
+          "correct": true,
+          "ms": 10582.01325
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "21",
+          "correct": false,
+          "ms": 6083.274000000001
+        }
+      ]
+    },
+    {
+      "id": 100008,
+      "difficulty": "expert",
+      "category": "Number bases",
+      "question": "Write the decimal number 115069186757 in base 9. Give just the digits, without a base subscript.",
+      "answer": "360010870282",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "360010870282",
+          "correct": true,
+          "ms": 7165.805417000003
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "360010870282",
+          "correct": true,
+          "ms": 9025.253042
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "360010870282",
+          "correct": true,
+          "ms": 6511.2458750000005
+        }
+      ]
+    },
+    {
+      "id": 100009,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is 4199944124 × 69878855?",
+      "answer": "293487286449098020",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "293487286449098020",
+          "correct": true,
+          "ms": 6555.556916999998
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "293487286449098020",
+          "correct": true,
+          "ms": 6051.563084000001
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "293487286449098020",
+          "correct": true,
+          "ms": 4704.293792
+        }
+      ]
+    },
+    {
+      "id": 100010,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Let N be the sum of the digits of 3 to the power 117. In the Gregorian calendar, what day of the week is it N days after 22 September 1957?",
+      "answer": "Tuesday",
+      "aliases": [
+        "Tue"
+      ],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "Tuesday",
+          "correct": true,
+          "ms": 64409.150708
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "Tuesday",
+          "correct": true,
+          "ms": 32688.940124999997
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "Tuesday",
+          "correct": true,
+          "ms": 28932.795833
+        }
+      ]
+    },
+    {
+      "id": 100011,
+      "difficulty": "expert",
+      "category": "Primes",
+      "question": "What is the 6th prime number greater than 895925612?",
+      "answer": "895925707",
+      "aliases": [],
+      "rate": null,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90002.52933300001
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.173083
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90003.62729199999
+        }
+      ]
+    },
+    {
+      "id": 100012,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "In the Gregorian calendar, what day of the week is 1 July 2377?",
+      "answer": "Friday",
+      "aliases": [
+        "Fri"
+      ],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "Friday",
+          "correct": true,
+          "ms": 3995.339458000002
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "Friday",
+          "correct": true,
+          "ms": 5239.767208000001
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "Friday",
+          "correct": true,
+          "ms": 3417.030749999998
+        }
+      ]
+    },
+    {
+      "id": 100013,
+      "difficulty": "expert",
+      "category": "Sorting",
+      "question": "Sort these words alphabetically: tunnel, saddle, quartz, jacket, island, dinner, apple, tablet, violin, window, salmon, jungle, rabbit, pepper, summer, zipper, lemon, anchor, yogurt, silver, velvet, ribbon, dragon, spider, parrot, orange, garden, winter, candle, parcel, oyster, cobalt, magnet, engine, meadow, banana, number, cherry, teapot, eagle. Which word comes 29th?",
+      "answer": "silver",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "silver",
+          "correct": true,
+          "ms": 6702.035416999999
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "silver",
+          "correct": true,
+          "ms": 5530.210416999995
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "silver",
+          "correct": true,
+          "ms": 4379.540291000001
+        }
+      ]
+    },
+    {
+      "id": 100014,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is the sum of the digits of 6 to the power 633?",
+      "answer": "2205",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "approximately 2214 (exact value requires computation; it is a multiple of 9)",
+          "correct": false,
+          "ms": 9247.440457999997
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90002.04891700001
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.81612500001
+        }
+      ]
+    },
+    {
+      "id": 100015,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is 2458944822 × 26682898?",
+      "answer": "65611773873054156",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "65611773873054156",
+          "correct": true,
+          "ms": 6105.216832999999
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "65611773873054156",
+          "correct": true,
+          "ms": 5837.030957999996
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "65611773873054156",
+          "correct": true,
+          "ms": 6650.323790999999
+        }
+      ]
+    },
+    {
+      "id": 100016,
+      "difficulty": "expert",
+      "category": "Modular arithmetic",
+      "question": "What is the remainder when 40556 to the power 766120127 is divided by 788554?",
+      "answer": "96424",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "96424",
+          "correct": true,
+          "ms": 26657.740166999996
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "96424",
+          "correct": true,
+          "ms": 23961.424416
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "96424",
+          "correct": true,
+          "ms": 18463.9825
+        }
+      ]
+    },
+    {
+      "id": 100017,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "How many days are there from 24 September 2095 to 24 October 2167? (Give the difference in days.)",
+      "answer": "26327",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "26327",
+          "correct": true,
+          "ms": 4073.190416000005
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "26327",
+          "correct": true,
+          "ms": 4731.574667000001
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "26327",
+          "correct": true,
+          "ms": 4503.446041000003
+        }
+      ]
+    },
+    {
+      "id": 100018,
+      "difficulty": "expert",
+      "category": "Counting",
+      "question": "How many times does the letter \"b\" appear in this string: gekdbfckaghaedakggfkacdeedkakbeadafaggegcacdbekbffafehheeeahhhabhhkhdehbkhbbbahgdgeadgfakgbfgfgbbafecefcakehggdkgfkbfdebgdakfehdgkbabedgagbdkcbgbbgchehhbhehkkcafbhhfghdagegfebdkhgbfgbgdabdggdcfgchdbgf",
+      "answer": "27",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "27",
+          "correct": true,
+          "ms": 12026.740124999997
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "27",
+          "correct": true,
+          "ms": 10744.721250000002
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "27",
+          "correct": true,
+          "ms": 6571.409249999997
+        }
+      ]
+    },
+    {
+      "id": 100019,
+      "difficulty": "expert",
+      "category": "Number bases",
+      "question": "Write the decimal number 369794651448 in base 12. Use the letters a, b, … for digits above 9. Give just the digits, without a base subscript.",
+      "answer": "5b8035924a0",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "5b8035924a0",
+          "correct": true,
+          "ms": 6201.807207999998
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "5b8035924a0",
+          "correct": true,
+          "ms": 11026.793124999997
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "5b8035924a0",
+          "correct": true,
+          "ms": 5919.815291999999
+        }
+      ]
+    },
+    {
+      "id": 100020,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Multiply 80125488 by 31533918, then add up the digits of the product. What is the sum?",
+      "answer": "72",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "72",
+          "correct": true,
+          "ms": 10392.034333000003
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "72",
+          "correct": true,
+          "ms": 5803.690457999997
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "72",
+          "correct": true,
+          "ms": 4449.2978340000045
+        }
+      ]
+    },
+    {
+      "id": 100021,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Write the decimal number 4220559 in base 7. Reverse the order of its digits, read the result as a base 7 number, and give that value in decimal.",
+      "answer": "802233",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "802233",
+          "correct": true,
+          "ms": 5018.045415999994
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "802233",
+          "correct": true,
+          "ms": 7078.7774999999965
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "802233",
+          "correct": true,
+          "ms": 4013.173917
+        }
+      ]
+    },
+    {
+      "id": 100022,
+      "difficulty": "expert",
+      "category": "Sorting",
+      "question": "Sort these words alphabetically: window, garden, meadow, banana, lemon, walnut, orange, velvet, dinner, engine, spider, cobalt, number, jungle, cherry, jacket, magnet, pepper, ribbon, tablet, planet, helmet, puzzle, canyon, oyster, pencil, parcel, kettle, candle, rabbit, needle, saddle, teapot, ladder, carpet, summer, harbor, tunnel, marble, ginger. Which word comes 4th?",
+      "answer": "carpet",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "carpet",
+          "correct": true,
+          "ms": 3381.2028329999885
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "carpet",
+          "correct": true,
+          "ms": 4524.213166000001
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "carpet",
+          "correct": true,
+          "ms": 2482.6067919999987
+        }
+      ]
+    },
+    {
+      "id": 100023,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Let N be the sum of the digits of 9 to the power 112. In the Gregorian calendar, what day of the week is it N days after 11 July 2033?",
+      "answer": "Thursday",
+      "aliases": [
+        "Thu"
+      ],
+      "rate": null,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.47683400002
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.53137500002
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.86670799999
+        }
+      ]
+    }
+  ]
+}

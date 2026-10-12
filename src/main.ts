@@ -10,7 +10,7 @@ import { sound } from './sound';
 import { confetti } from './confetti';
 import { DEFAULT_LEVELS, LEVELS, available, byLevel, isBankQuestion, ordered, pickQuestions, questionCount, splitCounts } from './questions';
 import { GENERATORS, generateExpert } from './generated';
-import { buildExport, buildSeriesExport, download, downloadBlob, exportBaseName, toCsv, type RaceExport, type SeriesExport } from './export';
+import { buildExport, buildSeriesBundle, buildSeriesExport, download, downloadBlob, exportBaseName, toCsv, toSeriesCsv, type RaceExport, type SeriesExport } from './export';
 import { drawResultsCard } from './png';
 import { debugLog, logRaceEnd, logRaceStart } from './debuglog';
 import { Announcer } from './announcer';
@@ -1216,6 +1216,8 @@ interface RacePage {
   race: Race;
   /** Full model ID of the winner, for the tooltip. */
   winner?: string;
+  /** The race's full export, built when it ends; the series tally bundles these. */
+  data?: RaceExport;
 }
 
 /** Earlier races of the current series, oldest first. */
@@ -1357,8 +1359,41 @@ function renderTally() {
         ),
       ),
     ),
-    h('p', { class: 'muted' }, 'Click a race above to see its lanes, results and question board.'),
+    h(
+      'div',
+      { class: 'results-actions export' },
+      h(
+        'button',
+        {
+          class: 'btn ghost small',
+          type: 'button',
+          title: 'The series standings plus every counted race: settings, standings, and every answer with replies and reasoning',
+          onclick: () => exportSeries('json', counted, s, racers),
+        },
+        '⬇ Series results (JSON)',
+      ),
+      h(
+        'button',
+        {
+          class: 'btn ghost small',
+          type: 'button',
+          title: 'One row per question per model for every counted race, with a race_no column, for spreadsheets',
+          onclick: () => exportSeries('csv', counted, s, racers),
+        },
+        '⬇ Series answers (CSV)',
+      ),
+    ),
+    h('p', { class: 'muted' }, 'Click a race above to see its lanes, results and question board. Exports never include API keys.'),
   );
+}
+
+/** Download every counted race of the series as one file. */
+function exportSeries(format: 'json' | 'csv', pages: RacePage[], series: SeriesState, racers: RacerState[]) {
+  const races = pages.flatMap((p) => (p.data ? [{ raceNo: p.num, data: p.data }] : []));
+  if (!races.length) return;
+  const name = `${exportBaseName(new Date(races[0].data.race.startedAt))}-series`;
+  if (format === 'json') download(`${name}.json`, JSON.stringify(buildSeriesBundle(buildSeriesExport(series, racers), races), null, 2), 'application/json');
+  else download(`${name}.csv`, '\ufeff' + toSeriesCsv(races), 'text/csv;charset=utf-8');
 }
 
 /** Record how the latest race ended, for its button in the strip. */
@@ -1863,13 +1898,18 @@ interface ExportContext {
   series: SeriesState | null;
 }
 
-function exportResults(summary: RaceSummary, format: 'json' | 'csv' | 'png', ctx: ExportContext) {
+function raceExportData(summary: RaceSummary, ctx: ExportContext): RaceExport {
   const { race, startedAt } = ctx;
-  const data = buildExport(race.racers, race.questions, race.distance, summary, {
+  return buildExport(race.racers, race.questions, race.distance, summary, {
     startedAt,
     difficulty: ctx.difficulty,
     timeLimitMs: race.timeLimitMs,
   });
+}
+
+function exportResults(summary: RaceSummary, format: 'json' | 'csv' | 'png', ctx: ExportContext) {
+  const { startedAt, race } = ctx;
+  const data = raceExportData(summary, ctx);
   const name = exportBaseName(startedAt);
   const series = ctx.series && buildSeriesExport(ctx.series, race.racers);
   if (format === 'json') download(`${name}.json`, JSON.stringify(series ? { ...data, series } : data, null, 2), 'application/json');
@@ -2469,6 +2509,7 @@ function showResults(summary: RaceSummary) {
     difficulty: S.questionsLabel,
     series: S.seriesState && { of: S.seriesState.of, legs: [...S.seriesState.legs] },
   };
+  if (livePage?.race === race) livePage.data = raceExportData(summary, exportCtx);
   const insights = analyzeRace(race.racers, race.questions);
 
   const resultsPanel = h(

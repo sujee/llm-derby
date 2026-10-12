@@ -59,8 +59,8 @@ type Generated = Pick<Question, 'category' | 'question' | 'answer' | 'aliases'>;
 
 export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
   multiply(rand) {
-    const a = int(rand, 100_000, 999_999);
-    const b = int(rand, 10_000, 99_999);
+    const a = int(rand, 1_000_000_000, 9_999_999_999);
+    const b = int(rand, 10_000_000, 99_999_999);
     return { category: 'Arithmetic', question: `What is ${a} × ${b}?`, answer: String(BigInt(a) * BigInt(b)), aliases: [] };
   },
   weekday(rand) {
@@ -75,7 +75,7 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
   },
   letterCount(rand) {
     const letters = [...'abcdefghk'];
-    const s = Array.from({ length: 80 }, () => pick(rand, letters)).join('');
+    const s = Array.from({ length: 200 }, () => pick(rand, letters)).join('');
     const target = pick(rand, letters);
     const n = [...s].filter((c) => c === target).length;
     return {
@@ -86,7 +86,8 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     };
   },
   reverse(rand) {
-    const s = Array.from({ length: 24 }, () => pick(rand, [...'bcdfghjklmnpqrstvwxz'])).join('');
+    // Real words run together, not random letters: some providers' content filters block "reverse this random string" (see experiments/expert-difficulty).
+    const s = shuffle(WORDS, rand).slice(0, 8).join('');
     return {
       category: 'Strings',
       question: `Write this string backwards: ${s}`,
@@ -106,8 +107,8 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     };
   },
   baseConvert(rand) {
-    const n = int(rand, 100_000, 9_999_999);
-    const base = pick(rand, [3, 5, 6, 7, 9, 12, 16]);
+    const n = int(rand, 100_000_000, 999_999_999_999);
+    const base = pick(rand, [3, 5, 6, 7, 9, 11, 12, 13, 16]);
     const answer = n.toString(base);
     return {
       category: 'Number bases',
@@ -117,9 +118,9 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     };
   },
   modPow(rand) {
-    const m = pick(rand, [41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]);
-    const b = int(rand, 2, 999);
-    const e = int(rand, 1000, 99_999);
+    const m = int(rand, 10_000, 999_999);
+    const b = int(rand, 2, 99_999);
+    const e = int(rand, 1_000_000, 999_999_999);
     return {
       category: 'Modular arithmetic',
       question: `What is the remainder when ${b} to the power ${e} is divided by ${m}?`,
@@ -128,8 +129,8 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     };
   },
   sortWords(rand) {
-    const words = shuffle(WORDS, rand).slice(0, 12);
-    const k = int(rand, 2, 11);
+    const words = shuffle(WORDS, rand).slice(0, 40);
+    const k = int(rand, 2, 39);
     const sorted = [...words].sort();
     return {
       category: 'Sorting',
@@ -140,7 +141,7 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
   },
   digitSum(rand) {
     const b = int(rand, 3, 9);
-    const e = int(rand, 30, 90);
+    const e = int(rand, 300, 900);
     const sum = [...String(BigInt(b) ** BigInt(e))].reduce((s, c) => s + Number(c), 0);
     return {
       category: 'Arithmetic',
@@ -150,13 +151,8 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     };
   },
   collatz(rand) {
-    const start = int(rand, 1000, 99_999);
-    let n = start;
-    let steps = 0;
-    while (n !== 1) {
-      n = n % 2 ? 3 * n + 1 : n / 2;
-      steps++;
-    }
+    const start = int(rand, 10_000_000, 999_999_999);
+    const steps = collatzSteps(start);
     return {
       category: 'Sequences',
       question: `Start at ${start}. If the number is even, halve it; if it is odd, multiply by 3 and add 1. How many steps does it take to reach 1?`,
@@ -165,10 +161,9 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
     };
   },
   primeAfter(rand) {
-    const start = int(rand, 10_000, 99_999);
-    const k = int(rand, 1, 3);
-    let n = start;
-    for (let found = 0; found < k; ) if (isPrime(++n)) found++;
+    const start = int(rand, 10_000_000, 999_999_999);
+    const k = int(rand, 3, 6);
+    const n = nthPrimeAfter(start, k);
     return {
       category: 'Primes',
       question: `What is the ${ordinal(k)} prime number greater than ${start}?`,
@@ -176,7 +171,74 @@ export const GENERATORS: Record<string, (rand: Rand) => Generated> = {
       aliases: [],
     };
   },
+
+  // Chained questions: each step is easy, but one slip anywhere gives a wrong final answer.
+  chainBase(rand) {
+    const n = int(rand, 1_000_000, 99_999_999);
+    const base = pick(rand, [3, 5, 6, 7, 9]);
+    const reversed = [...n.toString(base)].reverse().join('');
+    return {
+      category: 'Multi-step',
+      question: `Write the decimal number ${n} in base ${base}. Reverse the order of its digits, read the result as a base ${base} number, and give that value in decimal.`,
+      answer: String(parseInt(reversed, base)),
+      aliases: [],
+    };
+  },
+  chainWeekday(rand) {
+    const b = int(rand, 3, 9);
+    const e = int(rand, 100, 300);
+    const d = randomDate(rand, 1900, 2100);
+    const n = digitSumOfPower(b, e);
+    const day = WEEKDAYS[new Date(d.getTime() + n * DAY_MS).getUTCDay()];
+    return {
+      category: 'Multi-step',
+      question: `Let N be the sum of the digits of ${b} to the power ${e}. In the Gregorian calendar, what day of the week is it N days after ${fmtDate(d)}?`,
+      answer: day,
+      aliases: [day.slice(0, 3)],
+    };
+  },
+  chainProduct(rand) {
+    const a = int(rand, 10_000_000, 99_999_999);
+    const b = int(rand, 10_000_000, 99_999_999);
+    const sum = [...String(BigInt(a) * BigInt(b))].reduce((t, c) => t + Number(c), 0);
+    return {
+      category: 'Multi-step',
+      question: `Multiply ${a} by ${b}, then add up the digits of the product. What is the sum?`,
+      answer: String(sum),
+      aliases: [],
+    };
+  },
+  chainCollatzPrime(rand) {
+    const start = int(rand, 100_000, 99_999_999);
+    const target = collatzSteps(start) * 100;
+    return {
+      category: 'Multi-step',
+      question: `Start at ${start}. If the number is even, halve it; if it is odd, multiply by 3 and add 1. Let S be the number of steps to reach 1. What is the smallest prime number greater than S × 100?`,
+      answer: String(nthPrimeAfter(target, 1)),
+      aliases: [],
+    };
+  },
 };
+
+function collatzSteps(start: number): number {
+  let n = start;
+  let steps = 0;
+  while (n !== 1) {
+    n = n % 2 ? 3 * n + 1 : n / 2;
+    steps++;
+  }
+  return steps;
+}
+
+function digitSumOfPower(b: number, e: number): number {
+  return [...String(BigInt(b) ** BigInt(e))].reduce((t, c) => t + Number(c), 0);
+}
+
+function nthPrimeAfter(start: number, k: number): number {
+  let n = start;
+  for (let found = 0; found < k; ) if (isPrime(++n)) found++;
+  return n;
+}
 
 function isPrime(n: number): boolean {
   if (n < 2) return false;

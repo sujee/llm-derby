@@ -1,7 +1,7 @@
 // Question calibration: run the question bank against a few models and flag questions
 // that look too easy, too hard, mislabeled, or likely to have a wrong / incomplete answer key.
 //
-//   npm run calibrate -- --models a,b,c [--base-url URL] [--key-env NAME] [--expert N] [--limit N] [--concurrency N]
+//   npm run calibrate -- --models a,b,c [--base-url URL] [--key-env NAME] [--expert N] [--seed N] [--limit N] [--concurrency N]
 //                        [--file questions.json] [--out DIR]
 //
 // Keys come from the environment (see .env.example); load them with `set -a; . ./.env; set +a`.
@@ -22,6 +22,7 @@ const keyEnv = args.get('key-env') ?? 'NEBIUS_API_KEY';
 const apiKey = process.env[keyEnv] ?? '';
 const models = (args.get('models') ?? '').split(',').map((m) => m.trim()).filter(Boolean);
 const expertCount = Number(args.get('expert') ?? 24);
+const seedArg = args.get('seed');
 const limit = Number(args.get('limit') ?? Infinity);
 const concurrency = Number(args.get('concurrency') ?? 8);
 const TIMEOUT_MS = 90_000;
@@ -35,10 +36,22 @@ if (!apiKey) {
   process.exit(1);
 }
 
+// Seeded PRNG (mulberry32): the same --seed gives the same generated Expert questions, so runs can be compared.
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 const file = args.get('file');
 const outDir = args.get('out') ?? 'calibration';
 const bank = JSON.parse(readFileSync(file ?? new URL('../src/questions.json', import.meta.url), 'utf8')) as Question[];
-const questions: Question[] = [...bank.slice(0, limit), ...generateExpert(expertCount)];
+const questions: Question[] = [...bank.slice(0, limit), ...generateExpert(expertCount, seedArg === undefined ? Math.random : mulberry32(Number(seedArg)))];
 
 interface Attempt {
   model: string;
@@ -156,7 +169,7 @@ const table = (rs: typeof rows) =>
 
 const md = `# Question calibration
 
-${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC · ${baseUrl} · ${questions.length} questions (${bank.slice(0, limit).length} from the bank + ${expertCount} generated Expert) · ${n} models
+${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC · ${baseUrl} · ${questions.length} questions (${bank.slice(0, limit).length} from the bank + ${expertCount} generated Expert, seed ${seedArg ?? 'random'}) · ${n} models
 
 ## Accuracy by level
 

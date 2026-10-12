@@ -1,0 +1,756 @@
+{
+  "baseUrl": "https://api.anthropic.com/v1",
+  "models": [
+    "claude-fable-5-1",
+    "claude-opus-5-5",
+    "claude-sonnet-5-5"
+  ],
+  "byModel": [
+    {
+      "m": "claude-fable-5-1",
+      "per": [
+        null,
+        null,
+        null,
+        0.8260869565217391
+      ],
+      "overall": 0.8260869565217391,
+      "errors": 1,
+      "medMs": 7911.3189170000005
+    },
+    {
+      "m": "claude-opus-5-5",
+      "per": [
+        null,
+        null,
+        null,
+        0.95
+      ],
+      "overall": 0.95,
+      "errors": 4,
+      "medMs": 9618.023000000001
+    },
+    {
+      "m": "claude-sonnet-5-5",
+      "per": [
+        null,
+        null,
+        null,
+        0.7619047619047619
+      ],
+      "overall": 0.7619047619047619,
+      "errors": 3,
+      "medMs": 6813.653582999999
+    }
+  ],
+  "questions": [
+    {
+      "id": 100000,
+      "difficulty": "expert",
+      "category": "Sequences",
+      "question": "Start at 255048657. If the number is even, halve it; if it is odd, multiply by 3 and add 1. How many steps does it take to reach 1?",
+      "answer": "297",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "297",
+          "correct": true,
+          "ms": 37043.654417
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "297",
+          "correct": true,
+          "ms": 22374.607207999998
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "297",
+          "correct": true,
+          "ms": 17308.69725
+        }
+      ]
+    },
+    {
+      "id": 100001,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is 2390438214 × 54022950?",
+      "answer": "129138524113011300",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "129138524113011300",
+          "correct": true,
+          "ms": 6715.1715
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "129138524113011300",
+          "correct": true,
+          "ms": 5767.691334
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "129138524113011300",
+          "correct": true,
+          "ms": 4553.297458
+        }
+      ]
+    },
+    {
+      "id": 100002,
+      "difficulty": "expert",
+      "category": "Modular arithmetic",
+      "question": "What is the remainder when 39463 to the power 767340917 is divided by 76696?",
+      "answer": "60007",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "60007",
+          "correct": true,
+          "ms": 29321.321540999998
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "60007",
+          "correct": true,
+          "ms": 26099.7525
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "60007",
+          "correct": true,
+          "ms": 13613.444458999998
+        }
+      ]
+    },
+    {
+      "id": 100003,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Write the decimal number 29300305 in base 3. Reverse the order of its digits, read the result as a base 3 number, and give that value in decimal.",
+      "answer": "20997659",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "20997659",
+          "correct": true,
+          "ms": 9636.612667
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "20997659",
+          "correct": true,
+          "ms": 12070.863
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "20997659",
+          "correct": true,
+          "ms": 7200.7475
+        }
+      ]
+    },
+    {
+      "id": 100004,
+      "difficulty": "expert",
+      "category": "Primes",
+      "question": "What is the 4th prime number greater than 52302412?",
+      "answer": "52302517",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "52302461",
+          "correct": false,
+          "ms": 67011.307459
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90002.327417
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90002.936292
+        }
+      ]
+    },
+    {
+      "id": 100005,
+      "difficulty": "expert",
+      "category": "Counting",
+      "question": "How many times does the letter \"f\" appear in this string: fhcbfegbgegkcgbcdcbgfbcafhckgdcgkkgkhkbahchekgbgkbkbdbdcfeeahhcbckcbfecbbacgfbeebhckkhabakcghachhhbabdechckhfgcdcbckkbcaahdcbhckedgdceghabffacdhfddfakeffbahbgcfcekaabgaedhcakkahbdfedgbckfeabfcbffaaadg",
+      "answer": "20",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "20",
+          "correct": true,
+          "ms": 6256.483415999999
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "20",
+          "correct": true,
+          "ms": 8815.609250000001
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "20",
+          "correct": true,
+          "ms": 5795.812667
+        }
+      ]
+    },
+    {
+      "id": 100006,
+      "difficulty": "expert",
+      "category": "Number bases",
+      "question": "Write the decimal number 798424680623 in base 11. Use the letters a, b, … for digits above 9. Give just the digits, without a base subscript.",
+      "answer": "288678a0aa59",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "288678a0aa59",
+          "correct": true,
+          "ms": 7911.3189170000005
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "288678a0aa59",
+          "correct": true,
+          "ms": 9618.023000000001
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "288678a0aa59",
+          "correct": true,
+          "ms": 7365.978917
+        }
+      ]
+    },
+    {
+      "id": 100007,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is the sum of the digits of 7 to the power 875?",
+      "answer": "3325",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "3334",
+          "correct": false,
+          "ms": 6360.577666000001
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "3334",
+          "correct": false,
+          "ms": 13721.359874999998
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "3334",
+          "correct": false,
+          "ms": 31517.628417
+        }
+      ]
+    },
+    {
+      "id": 100008,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Start at 2346749. If the number is even, halve it; if it is odd, multiply by 3 and add 1. Let S be the number of steps to reach 1. What is the smallest prime number greater than S × 100?",
+      "answer": "17401",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "17401",
+          "correct": true,
+          "ms": 39490.44041699999
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "17401",
+          "correct": true,
+          "ms": 25098.237334000005
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "17401",
+          "correct": true,
+          "ms": 20983.916417
+        }
+      ]
+    },
+    {
+      "id": 100009,
+      "difficulty": "expert",
+      "category": "Sorting",
+      "question": "Sort these words alphabetically: jungle, silver, ticket, summer, violin, dinner, cobalt, pocket, cherry, winter, puzzle, velvet, spider, engine, forest, salmon, ginger, marble, tunnel, tablet, helmet, planet, walnut, zipper, falcon, eagle, saddle, quartz, magnet, dragon, ribbon, parrot, parcel, kettle, canyon, basket, meadow, pencil, carpet, needle. Which word comes 8th?",
+      "answer": "eagle",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "eagle",
+          "correct": true,
+          "ms": 3966.3802920000016
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "eagle",
+          "correct": true,
+          "ms": 2905.2579579999983
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "eagle",
+          "correct": true,
+          "ms": 3356.503625000001
+        }
+      ]
+    },
+    {
+      "id": 100010,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Let N be the sum of the digits of 7 to the power 278. In the Gregorian calendar, what day of the week is it N days after 17 May 2018?",
+      "answer": "Thursday",
+      "aliases": [
+        "Thu"
+      ],
+      "rate": null,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90002.07791700002
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.91825
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.06391699999
+        }
+      ]
+    },
+    {
+      "id": 100011,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "In the Gregorian calendar, what day of the week is 7 November 2067?",
+      "answer": "Monday",
+      "aliases": [
+        "Mon"
+      ],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "Monday",
+          "correct": true,
+          "ms": 3287.2548749999987
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "Monday",
+          "correct": true,
+          "ms": 4143.978000000003
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "Monday",
+          "correct": true,
+          "ms": 4141.553208000005
+        }
+      ]
+    },
+    {
+      "id": 100012,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Multiply 46496211 by 65346221, then add up the digits of the product. What is the sum?",
+      "answer": "75",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "75",
+          "correct": true,
+          "ms": 11366.797833000004
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "75",
+          "correct": true,
+          "ms": 8752.703459000004
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "75",
+          "correct": true,
+          "ms": 5529.492584
+        }
+      ]
+    },
+    {
+      "id": 100013,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "How many days are there from 16 June 1970 to 27 June 2035? (Give the difference in days.)",
+      "answer": "23752",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "23752",
+          "correct": true,
+          "ms": 3117.365958999995
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "23752",
+          "correct": true,
+          "ms": 5070.633499999996
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "23752",
+          "correct": true,
+          "ms": 3093.4237920000014
+        }
+      ]
+    },
+    {
+      "id": 100014,
+      "difficulty": "expert",
+      "category": "Strings",
+      "question": "Write this string backwards: zippercarpetcanyonspiderpebblegardenfalconparcel",
+      "answer": "lecrapnoclafnedragelbbepredipsnoynactepracreppiz",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "lecrapnoclafnedragelbbepredipsnoynactepracreppiz",
+          "correct": true,
+          "ms": 5006.498124999998
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "lecrapnoclafnedragelbbepredipsnoynactepracreppiz",
+          "correct": true,
+          "ms": 4453.603499999997
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "lecrapnoclafnedragelbbepredipsnonyactepracreppiz",
+          "correct": false,
+          "ms": 3620.7157919999954
+        }
+      ]
+    },
+    {
+      "id": 100015,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Multiply 13374120 by 60170245, then add up the digits of the product. What is the sum?",
+      "answer": "57",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "57",
+          "correct": true,
+          "ms": 6033.2281250000015
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "57",
+          "correct": true,
+          "ms": 6102.064666999999
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "57",
+          "correct": true,
+          "ms": 4846.778458000001
+        }
+      ]
+    },
+    {
+      "id": 100016,
+      "difficulty": "expert",
+      "category": "Number bases",
+      "question": "Write the decimal number 340907566797 in base 11. Use the letters a, b, … for digits above 9. Give just the digits, without a base subscript.",
+      "answer": "12163a485746",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "12163a485746",
+          "correct": true,
+          "ms": 6006.297707999998
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "12163a485746",
+          "correct": true,
+          "ms": 10022.955041000001
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "1216399623a5",
+          "correct": false,
+          "ms": 6813.653582999999
+        }
+      ]
+    },
+    {
+      "id": 100017,
+      "difficulty": "expert",
+      "category": "Counting",
+      "question": "How many times does the letter \"h\" appear in this string: cbcccffadbhebeabdfkdfeddaffeacafkkeheackadhhdghfbabfeeecfghahedheddhfhbkdgbccgdeedggkakcadfdedgkgaccbeaacdcgcafekhdeffafdcghdgkkhhddbkgachfgaffacagakbdafghkakffcahbgkcdkhbgafdbabdfbkcadbdafkkcheckaaad",
+      "answer": "19",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "19",
+          "correct": true,
+          "ms": 11332.772916999995
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "19",
+          "correct": true,
+          "ms": 6740.834750000002
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "19",
+          "correct": true,
+          "ms": 5896.649832999996
+        }
+      ]
+    },
+    {
+      "id": 100018,
+      "difficulty": "expert",
+      "category": "Modular arithmetic",
+      "question": "What is the remainder when 29168 to the power 360958652 is divided by 664974?",
+      "answer": "24706",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "24706",
+          "correct": true,
+          "ms": 40286.479208000004
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "24706",
+          "correct": true,
+          "ms": 31190.67620799999
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "24706",
+          "correct": true,
+          "ms": 26486.421707999994
+        }
+      ]
+    },
+    {
+      "id": 100019,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Start at 44810842. If the number is even, halve it; if it is odd, multiply by 3 and add 1. Let S be the number of steps to reach 1. What is the smallest prime number greater than S × 100?",
+      "answer": "11113",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "11113",
+          "correct": true,
+          "ms": 27646.993166
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "11113",
+          "correct": true,
+          "ms": 20373.008042
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "11113",
+          "correct": true,
+          "ms": 16921.900791000007
+        }
+      ]
+    },
+    {
+      "id": 100020,
+      "difficulty": "expert",
+      "category": "Strings",
+      "question": "Write this string backwards: enginevelvetmagnetticketoysterforestyogurtcandle",
+      "answer": "eldnactrugoytserofretsyotekcittengamtevlevenigne",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "eldnactrugoytserofretsyotekcittengamtevlevenigne",
+          "correct": true,
+          "ms": 3852.9665410000016
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "eldnactrugoytserofretsyotekcittengamtevlevenigne",
+          "correct": true,
+          "ms": 4684.009290999995
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "eldnactrugoytserofretsyotekcittengamtevlevenigne",
+          "correct": true,
+          "ms": 5379.317416999998
+        }
+      ]
+    },
+    {
+      "id": 100021,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is the sum of the digits of 9 to the power 778?",
+      "answer": "3357",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "approximately 3348",
+          "correct": false,
+          "ms": 7141.703290999998
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90000.728333
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "3348",
+          "correct": false,
+          "ms": 21167.934832999992
+        }
+      ]
+    },
+    {
+      "id": 100022,
+      "difficulty": "expert",
+      "category": "Primes",
+      "question": "What is the 4th prime number greater than 502547876?",
+      "answer": "502547939",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "502547909",
+          "correct": false,
+          "ms": 24677.472916000013
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.794291
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.77670800002
+        }
+      ]
+    },
+    {
+      "id": 100023,
+      "difficulty": "expert",
+      "category": "Sequences",
+      "question": "Start at 806152683. If the number is even, halve it; if it is odd, multiply by 3 and add 1. How many steps does it take to reach 1?",
+      "answer": "309",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "claude-fable-5-1",
+          "answer": "309",
+          "correct": true,
+          "ms": 67165.048709
+        },
+        {
+          "model": "claude-opus-5-5",
+          "answer": "309",
+          "correct": true,
+          "ms": 20674.301042000006
+        },
+        {
+          "model": "claude-sonnet-5-5",
+          "answer": "185",
+          "correct": false,
+          "ms": 15172.268209000002
+        }
+      ]
+    }
+  ]
+}

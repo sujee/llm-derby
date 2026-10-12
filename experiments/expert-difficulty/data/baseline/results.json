@@ -1,0 +1,750 @@
+{
+  "baseUrl": "https://api.openai.com/v1",
+  "models": [
+    "gpt-6-astra",
+    "gpt-6-sol",
+    "gpt-6-luna"
+  ],
+  "byModel": [
+    {
+      "m": "gpt-6-astra",
+      "per": [
+        null,
+        null,
+        null,
+        1
+      ],
+      "overall": 1,
+      "errors": 0,
+      "medMs": 4210.065083000001
+    },
+    {
+      "m": "gpt-6-sol",
+      "per": [
+        null,
+        null,
+        null,
+        1
+      ],
+      "overall": 1,
+      "errors": 0,
+      "medMs": 2787.7312500000007
+    },
+    {
+      "m": "gpt-6-luna",
+      "per": [
+        null,
+        null,
+        null,
+        1
+      ],
+      "overall": 1,
+      "errors": 0,
+      "medMs": 3645.9723749999994
+    }
+  ],
+  "questions": [
+    {
+      "id": 100000,
+      "difficulty": "expert",
+      "category": "Modular arithmetic",
+      "question": "What is the remainder when 489 to the power 14754 is divided by 61?",
+      "answer": "1",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "1",
+          "correct": true,
+          "ms": 2975.770208
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "1",
+          "correct": true,
+          "ms": 1233.782125
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "1",
+          "correct": true,
+          "ms": 1420.7204579999998
+        }
+      ]
+    },
+    {
+      "id": 100001,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is 463370 × 32277?",
+      "answer": "14956193490",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "14,956,193,490",
+          "correct": true,
+          "ms": 3873.493541
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "14956193490",
+          "correct": true,
+          "ms": 1701.978209
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "14,956,193,490",
+          "correct": true,
+          "ms": 2486.8175
+        }
+      ]
+    },
+    {
+      "id": 100002,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "How many days are there from 8 May 1846 to 4 December 1887? (Give the difference in days.)",
+      "answer": "15185",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "15,185 days",
+          "correct": true,
+          "ms": 4377.475874999999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "15185 days",
+          "correct": true,
+          "ms": 3439.068875
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "15,185 days",
+          "correct": true,
+          "ms": 5974.323833
+        }
+      ]
+    },
+    {
+      "id": 100003,
+      "difficulty": "expert",
+      "category": "Sorting",
+      "question": "Sort these words alphabetically: jungle, quartz, yogurt, parcel, carpet, window, pocket, velvet, ribbon, pepper, winter, basket. Which word comes 5th?",
+      "answer": "pepper",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "pepper",
+          "correct": true,
+          "ms": 2346.141333
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "pepper",
+          "correct": true,
+          "ms": 1147.3065
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "pepper",
+          "correct": true,
+          "ms": 1640.685208
+        }
+      ]
+    },
+    {
+      "id": 100004,
+      "difficulty": "expert",
+      "category": "Primes",
+      "question": "What is the 2nd prime number greater than 20583?",
+      "answer": "20599",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "20599",
+          "correct": true,
+          "ms": 15941.409416
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "20599",
+          "correct": true,
+          "ms": 9905.069375000001
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "20599",
+          "correct": true,
+          "ms": 12153.932875
+        }
+      ]
+    },
+    {
+      "id": 100005,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "In the Gregorian calendar, what day of the week is 17 June 1859?",
+      "answer": "Friday",
+      "aliases": [
+        "Fri"
+      ],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "Friday",
+          "correct": true,
+          "ms": 3183.2041249999997
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "Friday",
+          "correct": true,
+          "ms": 2436.7891250000002
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "Friday",
+          "correct": true,
+          "ms": 2343.8242920000002
+        }
+      ]
+    },
+    {
+      "id": 100006,
+      "difficulty": "expert",
+      "category": "Strings",
+      "question": "Write this string backwards: rnncvwhfjwhdrnjddcjrrdnn",
+      "answer": "nndrrjcddjnrdhwjfhwvcnnr",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "nndrrjcddjnrdhwjfhwvcnnr",
+          "correct": true,
+          "ms": 3528.036292
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "nndrrjcddjnrdhwjfhwvcnnr",
+          "correct": true,
+          "ms": 4156.253416
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "nndrrjcddjnrdhwjfhwvcnnr",
+          "correct": true,
+          "ms": 6695.232249999999
+        }
+      ]
+    },
+    {
+      "id": 100007,
+      "difficulty": "expert",
+      "category": "Counting",
+      "question": "How many times does the letter \"c\" appear in this string: bhckkhabakcghachhhbabdechckhfgcdcbckkbcaahdcbhckedgdceghabffacdhfddfakeffbahbgcf",
+      "answer": "14",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "14",
+          "correct": true,
+          "ms": 6076.162041999999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "14",
+          "correct": true,
+          "ms": 4390.432917
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "14",
+          "correct": true,
+          "ms": 3931.7526669999997
+        }
+      ]
+    },
+    {
+      "id": 100008,
+      "difficulty": "expert",
+      "category": "Number bases",
+      "question": "Write the decimal number 5501378 in base 16. Use the letters a, b, … for digits above 9. Give just the digits, without a base subscript.",
+      "answer": "53f1c2",
+      "aliases": [
+        "0x53f1c2"
+      ],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "53f1c2",
+          "correct": true,
+          "ms": 3840.331082999999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "53f1c2",
+          "correct": true,
+          "ms": 2133.2954170000003
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "53f1c2",
+          "correct": true,
+          "ms": 4267.695833
+        }
+      ]
+    },
+    {
+      "id": 100009,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is the sum of the digits of 3 to the power 36?",
+      "answer": "81",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "81",
+          "correct": true,
+          "ms": 3154.88325
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "81",
+          "correct": true,
+          "ms": 2076.127125
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "81",
+          "correct": true,
+          "ms": 2018.1050409999998
+        }
+      ]
+    },
+    {
+      "id": 100010,
+      "difficulty": "expert",
+      "category": "Sequences",
+      "question": "Start at 18160. If the number is even, halve it; if it is odd, multiply by 3 and add 1. How many steps does it take to reach 1?",
+      "answer": "66",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "66",
+          "correct": true,
+          "ms": 7214.914042
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "66",
+          "correct": true,
+          "ms": 3109.531333000001
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "66 steps",
+          "correct": true,
+          "ms": 3422.3335829999996
+        }
+      ]
+    },
+    {
+      "id": 100011,
+      "difficulty": "expert",
+      "category": "Sorting",
+      "question": "Sort these words alphabetically: basket, planet, quartz, tablet, island, dinner, candle, engine, pencil, helmet, bridge, harbor. Which word comes 11th?",
+      "answer": "quartz",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "quartz",
+          "correct": true,
+          "ms": 1474.675374999999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "quartz",
+          "correct": true,
+          "ms": 1727.279208
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "quartz",
+          "correct": true,
+          "ms": 1504.0854170000002
+        }
+      ]
+    },
+    {
+      "id": 100012,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is 402869 × 91945?",
+      "answer": "37041790205",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "37,041,790,205",
+          "correct": true,
+          "ms": 3114.998291
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "37041790205",
+          "correct": true,
+          "ms": 1780.3164160000006
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "37,041,790,205",
+          "correct": true,
+          "ms": 2649.8002080000006
+        }
+      ]
+    },
+    {
+      "id": 100013,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "How many days are there from 11 January 2055 to 19 August 2107? (Give the difference in days.)",
+      "answer": "19212",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "19,212 days",
+          "correct": true,
+          "ms": 4244.088750000001
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "19212 days",
+          "correct": true,
+          "ms": 2569.257334
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "19212 days",
+          "correct": true,
+          "ms": 4608.219499999999
+        }
+      ]
+    },
+    {
+      "id": 100014,
+      "difficulty": "expert",
+      "category": "Strings",
+      "question": "Write this string backwards: mplgdxqbppffzhbmjzqmbqbt",
+      "answer": "tbqbmqzjmbhzffppbqxdglpm",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "tbqbmqzjmbhzffppbqxdglpm",
+          "correct": true,
+          "ms": 2039.6229170000006
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "tbqbmqzjmbhzffppbqxdglpm",
+          "correct": true,
+          "ms": 2119.7351659999986
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "tbqbmqzjmbhzffppbqxdglpm",
+          "correct": true,
+          "ms": 3080.7226249999985
+        }
+      ]
+    },
+    {
+      "id": 100015,
+      "difficulty": "expert",
+      "category": "Number bases",
+      "question": "Write the decimal number 9729255 in base 5. Give just the digits, without a base subscript.",
+      "answer": "4442314010",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "4442314010",
+          "correct": true,
+          "ms": 4294.883834
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "4442314010",
+          "correct": true,
+          "ms": 2843.2750829999986
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "4442314010",
+          "correct": true,
+          "ms": 3645.9723749999994
+        }
+      ]
+    },
+    {
+      "id": 100016,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "In the Gregorian calendar, what day of the week is 15 January 2118?",
+      "answer": "Saturday",
+      "aliases": [
+        "Sat"
+      ],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "Saturday",
+          "correct": true,
+          "ms": 4256.383458999999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "Saturday",
+          "correct": true,
+          "ms": 3360.3517919999995
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "Saturday",
+          "correct": true,
+          "ms": 4142.076959
+        }
+      ]
+    },
+    {
+      "id": 100017,
+      "difficulty": "expert",
+      "category": "Sequences",
+      "question": "Start at 88693. If the number is even, halve it; if it is odd, multiply by 3 and add 1. How many steps does it take to reach 1?",
+      "answer": "208",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "208 steps",
+          "correct": true,
+          "ms": 17759.307333
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "208",
+          "correct": true,
+          "ms": 8284.653917
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "208 steps",
+          "correct": true,
+          "ms": 8473.428417000001
+        }
+      ]
+    },
+    {
+      "id": 100018,
+      "difficulty": "expert",
+      "category": "Primes",
+      "question": "What is the 2nd prime number greater than 63003?",
+      "answer": "63031",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "63031",
+          "correct": true,
+          "ms": 24101.981584000005
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "63031",
+          "correct": true,
+          "ms": 17680.364792
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "63031",
+          "correct": true,
+          "ms": 17007.156167
+        }
+      ]
+    },
+    {
+      "id": 100019,
+      "difficulty": "expert",
+      "category": "Counting",
+      "question": "How many times does the letter \"f\" appear in this string: dffhhdggcbkdkefdbgfgbahhbcgacackcdgbfhfeadkekkfbfffkdkaecaeehchkdbeedkfeeadbeafd",
+      "answer": "12",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "12",
+          "correct": true,
+          "ms": 2872.0414579999997
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "12",
+          "correct": true,
+          "ms": 3548.3261249999996
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "12",
+          "correct": true,
+          "ms": 4004.0384999999987
+        }
+      ]
+    },
+    {
+      "id": 100020,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is the sum of the digits of 4 to the power 38?",
+      "answer": "106",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "106",
+          "correct": true,
+          "ms": 4124.675041999999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "106",
+          "correct": true,
+          "ms": 2787.7312500000007
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "106",
+          "correct": true,
+          "ms": 3366.0701249999984
+        }
+      ]
+    },
+    {
+      "id": 100021,
+      "difficulty": "expert",
+      "category": "Modular arithmetic",
+      "question": "What is the remainder when 307 to the power 29804 is divided by 53?",
+      "answer": "10",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "10",
+          "correct": true,
+          "ms": 4210.065083000001
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "10",
+          "correct": true,
+          "ms": 1635.1169580000023
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "10",
+          "correct": true,
+          "ms": 1831.524290999998
+        }
+      ]
+    },
+    {
+      "id": 100022,
+      "difficulty": "expert",
+      "category": "Modular arithmetic",
+      "question": "What is the remainder when 355 to the power 58921 is divided by 43?",
+      "answer": "35",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "35",
+          "correct": true,
+          "ms": 4633.614833
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "35",
+          "correct": true,
+          "ms": 2678.098833
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "35",
+          "correct": true,
+          "ms": 2687.4045000000006
+        }
+      ]
+    },
+    {
+      "id": 100023,
+      "difficulty": "expert",
+      "category": "Number bases",
+      "question": "Write the decimal number 9794604 in base 6. Give just the digits, without a base subscript.",
+      "answer": "545533220",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "545533220",
+          "correct": true,
+          "ms": 6008.314708000002
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "545533220",
+          "correct": true,
+          "ms": 2982.5224579999995
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "545533220",
+          "correct": true,
+          "ms": 5341.914249999998
+        }
+      ]
+    }
+  ]
+}

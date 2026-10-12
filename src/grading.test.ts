@@ -112,3 +112,11 @@ describe('question bank', () => {
     for (const q of questions) for (const w of wrong) expect(isCorrect(w, [q.answer, ...q.aliases])).toBe(false);
   });
 });
+
+describe('very large whole numbers', () => {
+  it('are compared digit for digit, not rounded through floating point', () => {
+    expect(isCorrect('12345678901234567', ['12345678901234568'])).toBe(false);
+    expect(isCorrect('12345678901234567', ['12345678901234567'])).toBe(true);
+    expect(isCorrect('007', ['7'])).toBe(true);
+  });
+});

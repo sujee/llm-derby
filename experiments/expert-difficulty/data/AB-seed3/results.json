@@ -1,0 +1,756 @@
+{
+  "baseUrl": "https://api.openai.com/v1",
+  "models": [
+    "gpt-6-astra",
+    "gpt-6-sol",
+    "gpt-6-luna"
+  ],
+  "byModel": [
+    {
+      "m": "gpt-6-astra",
+      "per": [
+        null,
+        null,
+        null,
+        0.9523809523809523
+      ],
+      "overall": 0.9523809523809523,
+      "errors": 3,
+      "medMs": 7195.380374999993
+    },
+    {
+      "m": "gpt-6-sol",
+      "per": [
+        null,
+        null,
+        null,
+        0.782608695652174
+      ],
+      "overall": 0.782608695652174,
+      "errors": 1,
+      "medMs": 4864.456167
+    },
+    {
+      "m": "gpt-6-luna",
+      "per": [
+        null,
+        null,
+        null,
+        0.75
+      ],
+      "overall": 0.75,
+      "errors": 0,
+      "medMs": 6684.013917
+    }
+  ],
+  "questions": [
+    {
+      "id": 100000,
+      "difficulty": "expert",
+      "category": "Primes",
+      "question": "What is the 6th prime number greater than 795794737?",
+      "answer": "795794873",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90003.449417
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "nextprime(795794737, 6)",
+          "correct": false,
+          "ms": 20409.646125
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "795794861",
+          "correct": false,
+          "ms": 58740.040457999996
+        }
+      ]
+    },
+    {
+      "id": 100001,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is 3912612996 × 72152325?",
+      "answer": "282304124486615700",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "282304124486615700",
+          "correct": true,
+          "ms": 5735.8535
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "282304124486615700",
+          "correct": true,
+          "ms": 4276.580542000001
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "282304124486615700",
+          "correct": true,
+          "ms": 4250.838292
+        }
+      ]
+    },
+    {
+      "id": 100002,
+      "difficulty": "expert",
+      "category": "Number bases",
+      "question": "Write the decimal number 286818394391 in base 12. Use the letters a, b, … for digits above 9. Give just the digits, without a base subscript.",
+      "answer": "47706a9715b",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "47706a9715b",
+          "correct": true,
+          "ms": 7661.565125
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "47706a9715b",
+          "correct": true,
+          "ms": 4928.592375
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "47706a9715b",
+          "correct": true,
+          "ms": 6329.1939170000005
+        }
+      ]
+    },
+    {
+      "id": 100003,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Multiply 57378571 by 84856046, then add up the digits of the product. What is the sum?",
+      "answer": "80",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "80",
+          "correct": true,
+          "ms": 7546.816334
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "80",
+          "correct": true,
+          "ms": 5099.989042
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "89",
+          "correct": false,
+          "ms": 6684.013917
+        }
+      ]
+    },
+    {
+      "id": 100004,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is the sum of the digits of 6 to the power 306?",
+      "answer": "1179",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.8245
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "sum(map(int, str(6306)))",
+          "correct": false,
+          "ms": 17255.67325
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "1071",
+          "correct": false,
+          "ms": 18304.782583
+        }
+      ]
+    },
+    {
+      "id": 100005,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "How many days are there from 17 March 2063 to 3 August 2090? (Give the difference in days.)",
+      "answer": "10001",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "10001 days",
+          "correct": true,
+          "ms": 3560.9077909999996
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "10001 days",
+          "correct": true,
+          "ms": 2718.489125
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "10001 days",
+          "correct": true,
+          "ms": 2393.2325
+        }
+      ]
+    },
+    {
+      "id": 100006,
+      "difficulty": "expert",
+      "category": "Sequences",
+      "question": "Start at 937453590. If the number is even, halve it; if it is odd, multiply by 3 and add 1. How many steps does it take to reach 1?",
+      "answer": "224",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "224",
+          "correct": true,
+          "ms": 19461.938209
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "224",
+          "correct": true,
+          "ms": 14948.987209000003
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "224 steps",
+          "correct": true,
+          "ms": 11979.218249999998
+        }
+      ]
+    },
+    {
+      "id": 100007,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "In the Gregorian calendar, what day of the week is 1 July 2215?",
+      "answer": "Saturday",
+      "aliases": [
+        "Sat"
+      ],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "Saturday",
+          "correct": true,
+          "ms": 6226.063499999998
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "Saturday",
+          "correct": true,
+          "ms": 3748.2778749999998
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "Saturday",
+          "correct": true,
+          "ms": 4311.822542
+        }
+      ]
+    },
+    {
+      "id": 100008,
+      "difficulty": "expert",
+      "category": "Sorting",
+      "question": "Sort these words alphabetically: pebble, salmon, oyster, bridge, tablet, forest, tunnel, winter, canyon, velvet, ticket, dinner, banana, jacket, teapot, walnut, cobalt, parcel, candle, dragon, carpet, quartz, eagle, ladder, anchor, ribbon, window, harbor, parrot, magnet, violin, falcon, pencil, planet, engine, spider, orange, needle, jungle, zipper. Which word comes 39th?",
+      "answer": "winter",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "winter",
+          "correct": true,
+          "ms": 2167.2713750000003
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "winter",
+          "correct": true,
+          "ms": 2662.0586249999997
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "winter",
+          "correct": true,
+          "ms": 3853.1283330000006
+        }
+      ]
+    },
+    {
+      "id": 100009,
+      "difficulty": "expert",
+      "category": "Strings",
+      "question": "Write this string backwards: zpwzvjqxkpdqnhwbvclwbrdhznfbfqqvrvdfdqrpsjzczfkmlphrbmtjlkzc",
+      "answer": "czkljtmbrhplmkfzczjsprqdfdvrvqqfbfnzhdrbwlcvbwhnqdpkxqjvzwpz",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "czkljtmbrhplmkfzczjsprqdfdvrvqqfbfnzhdrbwlcvbwhnqdpkxqjvzwpz",
+          "correct": true,
+          "ms": 4969.253208999999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "czkljtmbrhplmkfzczjsprqdfdvrvqqfbfnzhdrbwlcvbwhnqdpkxqjvzwpz",
+          "correct": true,
+          "ms": 4608.021375
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "czkljtmbrhplmkfzczjsprqdfdvrvqqfbfnzhdrbwlcvbwhnqdpkxqjvzwpz",
+          "correct": true,
+          "ms": 3528.359625000001
+        }
+      ]
+    },
+    {
+      "id": 100010,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Write the decimal number 11200455 in base 3. Reverse the order of its digits, read the result as a base 3 number, and give that value in decimal.",
+      "answer": "1128983",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "1128983",
+          "correct": true,
+          "ms": 10504.670167
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "1128983",
+          "correct": true,
+          "ms": 4864.456167
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "1128983",
+          "correct": true,
+          "ms": 6657.1030409999985
+        }
+      ]
+    },
+    {
+      "id": 100011,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Start at 12756856. If the number is even, halve it; if it is odd, multiply by 3 and add 1. Let S be the number of steps to reach 1. What is the smallest prime number greater than S × 100?",
+      "answer": "14813",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "14813",
+          "correct": true,
+          "ms": 46325.80862499999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "14813",
+          "correct": true,
+          "ms": 21758.548917000004
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "14813",
+          "correct": true,
+          "ms": 25759.201916
+        }
+      ]
+    },
+    {
+      "id": 100012,
+      "difficulty": "expert",
+      "category": "Counting",
+      "question": "How many times does the letter \"g\" appear in this string: hghdadcbbdcaeedkkkcccbgabdkcfbfhakcaaeghefhfhhfcfkebbebfhbhfcckgehdhedgdgcgegkhhdbabgfkcgchcefhhahckhggdacfeefakgfhkkkhadeaffhgcfebadgcdfebadacbcdgdgekkfhhhgdkcddcghdeddacdggkeagbeefefbhcdgachchdfabbd",
+      "answer": "23",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "23",
+          "correct": true,
+          "ms": 8095.687791999997
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "22",
+          "correct": false,
+          "ms": 6548.338625
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "23",
+          "correct": true,
+          "ms": 15014.070999999996
+        }
+      ]
+    },
+    {
+      "id": 100013,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Let N be the sum of the digits of 3 to the power 153. In the Gregorian calendar, what day of the week is it N days after 26 November 2030?",
+      "answer": "Wednesday",
+      "aliases": [
+        "Wed"
+      ],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "Wednesday",
+          "correct": true,
+          "ms": 20259.271208
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "Wednesday",
+          "correct": true,
+          "ms": 39973.927333
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "Saturday",
+          "correct": false,
+          "ms": 69631.747209
+        }
+      ]
+    },
+    {
+      "id": 100014,
+      "difficulty": "expert",
+      "category": "Modular arithmetic",
+      "question": "What is the remainder when 35903 to the power 285219913 is divided by 779318?",
+      "answer": "3265",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "206957",
+          "correct": false,
+          "ms": 66438.31625
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "Unable to determine reliably",
+          "correct": false,
+          "ms": 79348.492917
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "650493",
+          "correct": false,
+          "ms": 77862.161333
+        }
+      ]
+    },
+    {
+      "id": 100015,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "How many days are there from 22 December 1812 to 13 January 1822? (Give the difference in days.)",
+      "answer": "3309",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "3309 days",
+          "correct": true,
+          "ms": 3124.0858339999977
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "3309 days",
+          "correct": true,
+          "ms": 2356.7454160000016
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "3309 days",
+          "correct": true,
+          "ms": 2272.898874999999
+        }
+      ]
+    },
+    {
+      "id": 100016,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is 1083685753 × 47770191?",
+      "answer": "51767875404788823",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "51767875404788823",
+          "correct": true,
+          "ms": 6809.612374999997
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "51767875404788823",
+          "correct": true,
+          "ms": 4710.910833000002
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "51,767,875,404,788,823",
+          "correct": true,
+          "ms": 3188.2496249999967
+        }
+      ]
+    },
+    {
+      "id": 100017,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Multiply 82779813 by 17879313, then add up the digits of the product. What is the sum?",
+      "answer": "72",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "72",
+          "correct": true,
+          "ms": 6759.252208999998
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "72",
+          "correct": true,
+          "ms": 4714.867459000001
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "72",
+          "correct": true,
+          "ms": 4916.182249999998
+        }
+      ]
+    },
+    {
+      "id": 100018,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Start at 62250663. If the number is even, halve it; if it is odd, multiply by 3 and add 1. Let S be the number of steps to reach 1. What is the smallest prime number greater than S × 100?",
+      "answer": "18119",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "18119",
+          "correct": true,
+          "ms": 31073.162790999995
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "18119",
+          "correct": true,
+          "ms": 21089.117416
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "18119",
+          "correct": true,
+          "ms": 27029.625916000005
+        }
+      ]
+    },
+    {
+      "id": 100019,
+      "difficulty": "expert",
+      "category": "Primes",
+      "question": "What is the 6th prime number greater than 177963847?",
+      "answer": "177964021",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.64795900001
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "nextprime(177963847, 6)",
+          "correct": false,
+          "ms": 46399.399750000004
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "177963967",
+          "correct": false,
+          "ms": 58740.948208
+        }
+      ]
+    },
+    {
+      "id": 100020,
+      "difficulty": "expert",
+      "category": "Counting",
+      "question": "How many times does the letter \"d\" appear in this string: bahdchhhcggbckfhgdgdcchfabeggdgbgdahbehedekdbdbafafafdfedegkabgddeeehbhfbhkgeecdbbffhhagecaehdeakghddfkbffbcheckckbhaebabcbcgcddhbkcgegkghckgffhagfgaddgfbgeddakcdhbdbecegbgkchkbdhgkdkcbekgfgdeggafgdab",
+      "answer": "28",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "28",
+          "correct": true,
+          "ms": 7195.380374999993
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "28",
+          "correct": true,
+          "ms": 4049.5172500000044
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "28",
+          "correct": true,
+          "ms": 13482.511999999988
+        }
+      ]
+    },
+    {
+      "id": 100021,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Let N be the sum of the digits of 4 to the power 274. In the Gregorian calendar, what day of the week is it N days after 6 January 1903?",
+      "answer": "Sunday",
+      "aliases": [
+        "Sun"
+      ],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "Sunday",
+          "correct": true,
+          "ms": 65031.377666
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.20587499999
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "Sunday",
+          "correct": true,
+          "ms": 19558.187249999988
+        }
+      ]
+    },
+    {
+      "id": 100022,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "In the Gregorian calendar, what day of the week is 5 December 1687?",
+      "answer": "Friday",
+      "aliases": [
+        "Fri"
+      ],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "Friday",
+          "correct": true,
+          "ms": 3914.674583
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "Friday",
+          "correct": true,
+          "ms": 2709.073666999997
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "Friday",
+          "correct": true,
+          "ms": 2978.2401669999963
+        }
+      ]
+    },
+    {
+      "id": 100023,
+      "difficulty": "expert",
+      "category": "Sorting",
+      "question": "Sort these words alphabetically: walnut, number, helmet, oyster, window, cobalt, kettle, candle, parrot, eagle, jungle, basket, spider, ticket, salmon, rabbit, teapot, forest, anchor, puzzle, parcel, carpet, velvet, pepper, saddle, island, zipper, summer, harbor, cherry, jacket, dinner, ladder, pocket, ginger, garden, marble, falcon, banana, yogurt. Which word comes 14th?",
+      "answer": "harbor",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "harbor",
+          "correct": true,
+          "ms": 2096.868208999993
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "harbor",
+          "correct": true,
+          "ms": 2031.455958000006
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "harbor",
+          "correct": true,
+          "ms": 2590.1830839999893
+        }
+      ]
+    }
+  ]
+}

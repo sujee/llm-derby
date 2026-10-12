@@ -111,7 +111,8 @@ export function normalize(s: string): string {
     .replace(/\s+/g, ' ')
     .replace(/(?<![\d.])\d{1,3}(?: \d{3})+(?![\d.])/g, (m) => m.replace(/ /g, '')); // 50 201 940 -> 50201940
   let tokens = t.split(/\s+/).filter(Boolean);
-  tokens = wordsToDigits(tokens).map((w) => (/^\d+(\.\d+)?$/.test(w) ? String(Number(w)) : w));
+  // Whole numbers only lose their leading zeros: going through Number would round answers past 2^53.
+  tokens = wordsToDigits(tokens).map((w) => (/^\d+$/.test(w) ? w.replace(/^0+(?=\d)/, '') : /^\d+\.\d+$/.test(w) ? String(Number(w)) : w));
   if (tokens.length > 1 && ['the', 'a', 'an'].includes(tokens[0])) tokens = tokens.slice(1);
   t = tokens.join(' ');
   return t;

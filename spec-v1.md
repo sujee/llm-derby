@@ -65,7 +65,7 @@ One panel. On desktop: **Winning distance** and **Time limit** on the first row,
 ### Expert questions
 
 - Generated fresh for every race, with answers computed in code, so they can't be memorized and the answer key is always correct. Added because the latest models scored 100% on the factual levels.
-- Eleven kinds, sized so that strong reasoning models still slip (calibration: gpt-oss-120b 85%, DeepSeek-V4.1-Flash 82%, Qwen3-30B 57%, Gemma 3 27B 21%): 6-digit × 5-digit multiplication; day of the week for a date in 1600–2399; days between two dates (up to 30,000 days); counting a letter in an 80-character string; reversing a 24-letter string; converting a number up to 9,999,999 to base 3–16; remainders of large powers (exponent up to 99,999); picking the k-th of 12 words after sorting; the digit sum of a power such as 7^45; Collatz steps from a 4–5 digit number; and the k-th prime after a 5-digit number.
+- Fifteen kinds, sized so that strong reasoning models still slip (calibration of the current set, three OpenAI models, 24 questions per seed: see `experiments/expert-difficulty/`): 10-digit × 8-digit multiplication; day of the week for a date in 1600–2399; days between two dates (up to 30,000 days); counting a letter in a 200-character string; reversing 8 real words run together (about 50 letters); converting a number up to 12 digits to base 3–16; remainders of powers with exponents up to 999,999,999 and moduli up to 999,999; picking the k-th of 40 words after sorting; the digit sum of a power such as 7^875; Collatz steps from a number up to 999,999,999; the k-th prime (k = 3–6) after a number up to 999,999,999; and four chained "Multi-step" questions (base conversion, reverse, read back; digit sum of a power, then a weekday that many days after a date; product, then digit sum; Collatz steps, then the next prime after S × 100).
 
 ### Selection
 
@@ -159,6 +159,7 @@ Colorful, animated carnival theme: striped tent banner, marquee title with blink
   - **⬇ Answers (CSV):** one row per question per model (result is correct, wrong, timeout, error or not answered; includes `ttft_ms`, `latency_ms` and `tok_per_sec`), for spreadsheets.
   - **⬇ Results image (PNG):** a shareable standings card drawn on a canvas: race settings, the podium and the standings table (with the series standings when racing a series). No third-party library, so the strict CSP is unchanged.
   - File names use the race start time, e.g. `llm-derby-2026-10-08-2326.json` (`.png` for the image).
+  - **Series exports** (on the **🏆 Series tally**, same style as the per-race buttons): **⬇ Series results (JSON)** is one file with the series standings (`series`, as in a race's JSON) and every counted race's full export under `races[]` (`raceNo` plus the same data as that race's JSON); **⬇ Series answers (CSV)** is one table of every counted race, the per-race columns with a leading `race_no`. Stopped races are not counted and not included. Files are named like `llm-derby-2026-10-08-1532-series.json` (time of the first race). One file each, no zip.
   - Exports never include API keys. CSV cells that look like spreadsheet formulas are neutralized, and the CSV opens correctly in Excel (UTF-8).
 
 ## 6. Controls

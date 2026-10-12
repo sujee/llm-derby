@@ -86,6 +86,8 @@ describe('expert generators produce correct answer keys', () => {
       const g = GENERATORS.reverse(rand);
       const s = g.question.split(': ')[1];
       expect(g.answer.split('').reverse().join('')).toBe(s);
+      expect(s.length).toBeGreaterThanOrEqual(40);
+      expect(/^[a-z]+$/.test(s)).toBe(true);
     }
   });
   it('base conversion', () => {
@@ -102,8 +104,15 @@ describe('expert generators produce correct answer keys', () => {
     for (let i = 0; i < N; i++) {
       const g = GENERATORS.modPow(rand);
       const [b, e, m] = g.question.match(/when (\d+) to the power (\d+) is divided by (\d+)/)!.slice(1).map(BigInt);
-      expect(BigInt(g.answer)).toBe(b ** e % m);
+      // Independent check: scan the exponent bits from the top (the generator scans from the bottom).
+      let r = 1n;
+      for (const bit of e.toString(2)) {
+        r = (r * r) % m;
+        if (bit === '1') r = (r * b) % m;
+      }
+      expect(BigInt(g.answer)).toBe(r);
     }
+    expect(GENERATORS.modPow(() => 0).answer).toBe(String(modPow(2, 1_000_000, 10_000)));
     expect(modPow(2, 100, 7)).toBe(2);
   });
   it('word sort', () => {
@@ -130,7 +139,7 @@ describe('new expert generators', () => {
       }
       expect(BigInt(g.answer)).toBe(sum);
     }
-    expect(GENERATORS.digitSum(() => 0).answer).toBe(String([...String(3n ** 30n)].reduce((s, c) => s + Number(c), 0)));
+    expect(GENERATORS.digitSum(() => 0).answer).toBe(String([...String(3n ** 300n)].reduce((s, c) => s + Number(c), 0)));
   });
   it('Collatz steps (checked by replaying the sequence backwards)', () => {
     const rand = seeded(12);
@@ -152,17 +161,75 @@ describe('new expert generators', () => {
     }
     expect(steps).toBe(111);
   });
-  it('k-th prime after N (checked with a sieve)', () => {
-    const sieve = new Uint8Array(110_000).fill(1);
-    sieve[0] = sieve[1] = 0;
-    for (let i = 2; i * i < sieve.length; i++) if (sieve[i]) for (let j = i * i; j < sieve.length; j += i) sieve[j] = 0;
+  it('k-th prime after N (checked by 6k±1 trial division)', () => {
+    const prime = (n: number) => {
+      if (n % 2 === 0 || n % 3 === 0) return n === 2 || n === 3;
+      for (let d = 5; d * d <= n; d += 6) if (n % d === 0 || n % (d + 2) === 0) return false;
+      return n > 1;
+    };
     const rand = seeded(13);
     for (let i = 0; i < N; i++) {
       const g = GENERATORS.primeAfter(rand);
       const [, k, start] = g.question.match(/the (\d+)\w\w prime number greater than (\d+)/)!;
       let n = Number(start);
-      for (let found = 0; found < Number(k); ) if (sieve[++n]) found++;
+      for (let found = 0; found < Number(k); ) if (prime(++n)) found++;
       expect(Number(g.answer)).toBe(n);
+    }
+  });
+});
+
+describe('chained expert generators', () => {
+  const digitSum = (x: bigint) => [...String(x)].reduce((t, c) => t + Number(c), 0);
+  it('base → reverse → decimal', () => {
+    const rand = seeded(21);
+    for (let i = 0; i < N; i++) {
+      const g = GENERATORS.chainBase(rand);
+      const [n, base] = g.question.match(/number (\d+) in base (\d+)/)!.slice(1).map(Number);
+      let digits: number[] = [];
+      for (let x = n; x > 0; x = Math.floor(x / base)) digits.push(x % base); // least significant first = already reversed
+      expect(Number(g.answer)).toBe(digits.reduce((t, d) => t * base + d, 0));
+    }
+  });
+  it('weekday N days after a date (N = digit sum of a power)', () => {
+    const rand = seeded(22);
+    const names = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    for (let i = 0; i < N; i++) {
+      const g = GENERATORS.chainWeekday(rand);
+      const [, b, e, date] = g.question.match(/digits of (\d+) to the power (\d+)\. .* after (\d+ \w+ \d+)\?/)!;
+      const { y, m, d } = parseDate(date);
+      const total = dayNumber({ y, m, d }) + digitSum(BigInt(b) ** BigInt(e));
+      // Day number 0 mod 7 → Monday in this day-count convention; calibrate with the start date's own Zeller weekday.
+      const shift = digitSum(BigInt(b) ** BigInt(e)) % 7;
+      expect(total - dayNumber({ y, m, d })).toBe(digitSum(BigInt(b) ** BigInt(e)));
+      expect(g.answer).toBe(names[(zeller(y, m, d) + shift) % 7]);
+    }
+  });
+  it('digit sum of a product', () => {
+    const rand = seeded(23);
+    for (let i = 0; i < N; i++) {
+      const g = GENERATORS.chainProduct(rand);
+      const [a, b] = g.question.match(/Multiply (\d+) by (\d+)/)!.slice(1).map(BigInt);
+      expect(Number(g.answer)).toBe(digitSum(a * b));
+    }
+  });
+  it('Collatz steps → next prime', () => {
+    const rand = seeded(24);
+    const prime = (n: number) => {
+      for (let d = 2; d * d <= n; d++) if (n % d === 0) return false;
+      return n > 1;
+    };
+    for (let i = 0; i < N; i++) {
+      const g = GENERATORS.chainCollatzPrime(rand);
+      let n = Number(g.question.match(/Start at (\d+)/)![1]);
+      let steps = 0;
+      while (n !== 1) {
+        n = n % 2 ? 3 * n + 1 : n / 2;
+        steps++;
+      }
+      const answer = Number(g.answer);
+      expect(prime(answer)).toBe(true);
+      expect(answer).toBeGreaterThan(steps * 100);
+      for (let x = steps * 100 + 1; x < answer; x++) expect(prime(x)).toBe(false);
     }
   });
 });
@@ -170,7 +237,7 @@ describe('new expert generators', () => {
 describe('generateExpert', () => {
   it('uses every generator type and grades its own answers as correct', () => {
     const qs = generateExpert(400, seeded(9));
-    expect(new Set(qs.map((q) => q.category)).size).toBeGreaterThanOrEqual(9);
+    expect(new Set(qs.map((q) => q.category)).size).toBeGreaterThanOrEqual(10);
     for (const q of qs) {
       expect(isCorrect(extractFinalAnswer(`Working…\nANSWER: ${q.answer}`), [q.answer, ...q.aliases]), q.question).toBe(true);
     }
@@ -179,7 +246,7 @@ describe('generateExpert', () => {
     const rand = seeded(10);
     for (let i = 0; i < 100; i++) {
       const g = GENERATORS.multiply(rand);
-      expect(isCorrect(String(Number(g.answer) + 1), [g.answer])).toBe(false);
+      expect(isCorrect(String(BigInt(g.answer) + 1n), [g.answer])).toBe(false);
       const r = GENERATORS.reverse(rand);
       expect(isCorrect(r.answer.slice(1), [r.answer])).toBe(false);
     }

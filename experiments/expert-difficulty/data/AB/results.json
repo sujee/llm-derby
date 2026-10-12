@@ -1,0 +1,751 @@
+{
+  "baseUrl": "https://api.openai.com/v1",
+  "models": [
+    "gpt-6-astra",
+    "gpt-6-sol",
+    "gpt-6-luna"
+  ],
+  "byModel": [
+    {
+      "m": "gpt-6-astra",
+      "per": [
+        null,
+        null,
+        null,
+        0.9047619047619048
+      ],
+      "overall": 0.9047619047619048,
+      "errors": 3,
+      "medMs": 7066.143499999991
+    },
+    {
+      "m": "gpt-6-sol",
+      "per": [
+        null,
+        null,
+        null,
+        0.7916666666666666
+      ],
+      "overall": 0.7916666666666666,
+      "errors": 0,
+      "medMs": 5077.942125
+    },
+    {
+      "m": "gpt-6-luna",
+      "per": [
+        null,
+        null,
+        null,
+        0.5833333333333334
+      ],
+      "overall": 0.5833333333333334,
+      "errors": 0,
+      "medMs": 7291.36825
+    }
+  ],
+  "questions": [
+    {
+      "id": 100000,
+      "difficulty": "expert",
+      "category": "Sequences",
+      "question": "Start at 255048657. If the number is even, halve it; if it is odd, multiply by 3 and add 1. How many steps does it take to reach 1?",
+      "answer": "297",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "297",
+          "correct": true,
+          "ms": 33510.67175
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "297",
+          "correct": true,
+          "ms": 13288.538875
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "297 steps",
+          "correct": true,
+          "ms": 12325.137083
+        }
+      ]
+    },
+    {
+      "id": 100001,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is 2390438214 × 54022950?",
+      "answer": "129138524113011300",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "129138524113011300",
+          "correct": true,
+          "ms": 3736.702542
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "129138524113011300",
+          "correct": true,
+          "ms": 3782.4262909999998
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "129138524113011300",
+          "correct": true,
+          "ms": 2792.25625
+        }
+      ]
+    },
+    {
+      "id": 100002,
+      "difficulty": "expert",
+      "category": "Modular arithmetic",
+      "question": "What is the remainder when 39463 to the power 767340917 is divided by 76696?",
+      "answer": "60007",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "60007",
+          "correct": true,
+          "ms": 23734.786167
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "60007",
+          "correct": true,
+          "ms": 19063.665458
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "60007",
+          "correct": true,
+          "ms": 26598.612875000003
+        }
+      ]
+    },
+    {
+      "id": 100003,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Write the decimal number 29300305 in base 3. Reverse the order of its digits, read the result as a base 3 number, and give that value in decimal.",
+      "answer": "20997659",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "20997659",
+          "correct": true,
+          "ms": 7656.073459
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "20997659",
+          "correct": true,
+          "ms": 7377.929
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "6998672",
+          "correct": false,
+          "ms": 7291.36825
+        }
+      ]
+    },
+    {
+      "id": 100004,
+      "difficulty": "expert",
+      "category": "Primes",
+      "question": "What is the 4th prime number greater than 52302412?",
+      "answer": "52302517",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90002.68475
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "sympy.nextprime(52302412, 4)",
+          "correct": false,
+          "ms": 24457.291791
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "52302449",
+          "correct": false,
+          "ms": 52323.661167
+        }
+      ]
+    },
+    {
+      "id": 100005,
+      "difficulty": "expert",
+      "category": "Counting",
+      "question": "How many times does the letter \"f\" appear in this string: fhcbfegbgegkcgbcdcbgfbcafhckgdcgkkgkhkbahchekgbgkbkbdbdcfeeahhcbckcbfecbbacgfbeebhckkhabakcghachhhbabdechckhfgcdcbckkbcaahdcbhckedgdceghabffacdhfddfakeffbahbgcfcekaabgaedhcakkahbdfedgbckfeabfcbffaaadg",
+      "answer": "20",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "20",
+          "correct": true,
+          "ms": 4864.384083000001
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "20",
+          "correct": true,
+          "ms": 4683.16675
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "19",
+          "correct": false,
+          "ms": 5485.04575
+        }
+      ]
+    },
+    {
+      "id": 100006,
+      "difficulty": "expert",
+      "category": "Number bases",
+      "question": "Write the decimal number 798424680623 in base 11. Use the letters a, b, … for digits above 9. Give just the digits, without a base subscript.",
+      "answer": "288678a0aa59",
+      "aliases": [],
+      "rate": 0.3333333333333333,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "288678a03498",
+          "correct": false,
+          "ms": 7423.194916999999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "288678a0aa59",
+          "correct": true,
+          "ms": 5077.942125
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "288678a0aa40",
+          "correct": false,
+          "ms": 9803.820208
+        }
+      ]
+    },
+    {
+      "id": 100007,
+      "difficulty": "expert",
+      "category": "Arithmetic",
+      "question": "What is the sum of the digits of 7 to the power 875?",
+      "answer": "3325",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "sum(map(int, str(7875)))",
+          "correct": false,
+          "ms": 24166.950792
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "Unable to determine numerically",
+          "correct": false,
+          "ms": 16390.040792
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "sum(map(int, str(7875)))",
+          "correct": false,
+          "ms": 15631.019457999999
+        }
+      ]
+    },
+    {
+      "id": 100008,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Start at 2346749. If the number is even, halve it; if it is odd, multiply by 3 and add 1. Let S be the number of steps to reach 1. What is the smallest prime number greater than S × 100?",
+      "answer": "17401",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "17401",
+          "correct": true,
+          "ms": 22833.007125
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "17401",
+          "correct": true,
+          "ms": 13562.4195
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "17401",
+          "correct": true,
+          "ms": 15142.198125000003
+        }
+      ]
+    },
+    {
+      "id": 100009,
+      "difficulty": "expert",
+      "category": "Sorting",
+      "question": "Sort these words alphabetically: jungle, silver, ticket, summer, violin, dinner, cobalt, pocket, cherry, winter, puzzle, velvet, spider, engine, forest, salmon, ginger, marble, tunnel, tablet, helmet, planet, walnut, zipper, falcon, eagle, saddle, quartz, magnet, dragon, ribbon, parrot, parcel, kettle, canyon, basket, meadow, pencil, carpet, needle. Which word comes 8th?",
+      "answer": "eagle",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "eagle",
+          "correct": true,
+          "ms": 2931.4457079999993
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "eagle",
+          "correct": true,
+          "ms": 2111.1158749999995
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "eagle",
+          "correct": true,
+          "ms": 2150.608292000001
+        }
+      ]
+    },
+    {
+      "id": 100010,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Let N be the sum of the digits of 7 to the power 278. In the Gregorian calendar, what day of the week is it N days after 17 May 2018?",
+      "answer": "Thursday",
+      "aliases": [
+        "Thu"
+      ],
+      "rate": 0.5,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.89616599999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "Thursday",
+          "correct": true,
+          "ms": 19197.362332999997
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "Monday",
+          "correct": false,
+          "ms": 27477.173708
+        }
+      ]
+    },
+    {
+      "id": 100011,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "In the Gregorian calendar, what day of the week is 7 November 2067?",
+      "answer": "Monday",
+      "aliases": [
+        "Mon"
+      ],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "Monday",
+          "correct": true,
+          "ms": 4813.046665999995
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "Monday",
+          "correct": true,
+          "ms": 2452.0736249999973
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "Monday",
+          "correct": true,
+          "ms": 1978.3409589999974
+        }
+      ]
+    },
+    {
+      "id": 100012,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Multiply 46496211 by 65346221, then add up the digits of the product. What is the sum?",
+      "answer": "75",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "75",
+          "correct": true,
+          "ms": 4799.859291000001
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "81",
+          "correct": false,
+          "ms": 3770.920374999998
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "75",
+          "correct": true,
+          "ms": 4684.538292000001
+        }
+      ]
+    },
+    {
+      "id": 100013,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "How many days are there from 16 June 1970 to 27 June 2035? (Give the difference in days.)",
+      "answer": "23752",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "23,752 days",
+          "correct": true,
+          "ms": 2712.258750000001
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "23752",
+          "correct": true,
+          "ms": 1642.195083999999
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "23752 days",
+          "correct": true,
+          "ms": 2780.631709000001
+        }
+      ]
+    },
+    {
+      "id": 100014,
+      "difficulty": "expert",
+      "category": "Strings",
+      "question": "Write this string backwards: wktsgfwkznqldtqtdbttgjsbgcjxjlrdqtrmdlxmxzqfqqpxkxblgbnmtjvx",
+      "answer": "xvjtmnbglbxkxpqqfqzxmxldmrtqdrljxjcgbsjgttbdtqtdlqnzkwfgstkw",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "xvjtmnbglbxkxpqqfqzxmxldmrtqdrljxjcgbsjgttbdtqtdlqnzkwfgstkw",
+          "correct": true,
+          "ms": 5432.8164169999945
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "xvjtmnbglbxkxpqqfqzxmxldmrtqdrljxjcgbsjgttbdtqtdlqnzkwfgstkw",
+          "correct": true,
+          "ms": 4679.021624999998
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "xvjtmnbglbxkxpqqfqzxmxldmrtqdrljxjcgbsjgttbdtqtdlqnzkwfgstkw",
+          "correct": true,
+          "ms": 4792.614542000003
+        }
+      ]
+    },
+    {
+      "id": 100015,
+      "difficulty": "expert",
+      "category": "Modular arithmetic",
+      "question": "What is the remainder when 34085 to the power 561974746 is divided by 561872?",
+      "answer": "20553",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "20553",
+          "correct": true,
+          "ms": 48180.50075
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "20553",
+          "correct": true,
+          "ms": 32554.679000000004
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "20553",
+          "correct": true,
+          "ms": 57116.079834000004
+        }
+      ]
+    },
+    {
+      "id": 100016,
+      "difficulty": "expert",
+      "category": "Counting",
+      "question": "How many times does the letter \"h\" appear in this string: cbcccffadbhebeabdfkdfeddaffeacafkkeheackadhhdghfbabfeeecfghahedheddhfhbkdgbccgdeedggkakcadfdedgkgaccbeaacdcgcafekhdeffafdcghdgkkhhddbkgachfgaffacagakbdafghkakffcahbgkcdkhbgafdbabdfbkcadbdafkkcheckaaad",
+      "answer": "19",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "19",
+          "correct": true,
+          "ms": 4392.899666999998
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "19",
+          "correct": true,
+          "ms": 3775.9058749999967
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "18",
+          "correct": false,
+          "ms": 5222.682583000002
+        }
+      ]
+    },
+    {
+      "id": 100017,
+      "difficulty": "expert",
+      "category": "Sorting",
+      "question": "Sort these words alphabetically: saddle, teapot, cherry, yogurt, marble, pepper, bridge, planet, ladder, falcon, dinner, meadow, kettle, winter, magnet, jungle, anchor, engine, harbor, spider, needle, violin, forest, tablet, silver, pencil, garden, carpet, eagle, dragon, summer, basket, ticket, velvet, tunnel, candle, pebble, apple, rabbit, canyon. Which word comes 36th?",
+      "answer": "tunnel",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "tunnel",
+          "correct": true,
+          "ms": 2783.9041660000003
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "tunnel",
+          "correct": true,
+          "ms": 2791.4928329999966
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "tunnel",
+          "correct": true,
+          "ms": 3991.0491249999977
+        }
+      ]
+    },
+    {
+      "id": 100018,
+      "difficulty": "expert",
+      "category": "Multi-step",
+      "question": "Start at 75306066. If the number is even, halve it; if it is odd, multiply by 3 and add 1. Let S be the number of steps to reach 1. What is the smallest prime number greater than S × 100?",
+      "answer": "21503",
+      "aliases": [],
+      "rate": 0.3333333333333333,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "21503",
+          "correct": true,
+          "ms": 26519.989041999994
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "25903",
+          "correct": false,
+          "ms": 18678.485208
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "21001",
+          "correct": false,
+          "ms": 26829.11475
+        }
+      ]
+    },
+    {
+      "id": 100019,
+      "difficulty": "expert",
+      "category": "Calendar",
+      "question": "How many days are there from 3 February 2024 to 11 October 2052? (Give the difference in days.)",
+      "answer": "10478",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "10478",
+          "correct": true,
+          "ms": 3686.3646249999874
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "10478 days",
+          "correct": true,
+          "ms": 2707.493957999999
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "10,478 days",
+          "correct": true,
+          "ms": 3739.939624999999
+        }
+      ]
+    },
+    {
+      "id": 100020,
+      "difficulty": "expert",
+      "category": "Sequences",
+      "question": "Start at 880744029. If the number is even, halve it; if it is odd, multiply by 3 and add 1. How many steps does it take to reach 1?",
+      "answer": "229",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "229",
+          "correct": true,
+          "ms": 22155.67175000001
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "229",
+          "correct": true,
+          "ms": 13033.488666999998
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "229 steps",
+          "correct": true,
+          "ms": 11765.705875000007
+        }
+      ]
+    },
+    {
+      "id": 100021,
+      "difficulty": "expert",
+      "category": "Number bases",
+      "question": "Write the decimal number 795738218245 in base 9. Give just the digits, without a base subscript.",
+      "answer": "2731840753427",
+      "aliases": [],
+      "rate": 1,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "2731840753427",
+          "correct": true,
+          "ms": 7885.21691599999
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "2731840753427",
+          "correct": true,
+          "ms": 4150.892459000002
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "2731840753427",
+          "correct": true,
+          "ms": 5837.782041999999
+        }
+      ]
+    },
+    {
+      "id": 100022,
+      "difficulty": "expert",
+      "category": "Primes",
+      "question": "What is the 6th prime number greater than 340019787?",
+      "answer": "340019951",
+      "aliases": [],
+      "rate": 0,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "",
+          "correct": false,
+          "error": "The operation was aborted due to timeout",
+          "ms": 90001.283667
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "nextprime(340019787, 6)",
+          "correct": false,
+          "ms": 14440.037457999999
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "340019903",
+          "correct": false,
+          "ms": 80572.86720800001
+        }
+      ]
+    },
+    {
+      "id": 100023,
+      "difficulty": "expert",
+      "category": "Strings",
+      "question": "Write this string backwards: xxcvmkdlmgnznbznrbtvtxwrbrmzpqfsfnhgkdblcqfhmwpzkknhkplmdhpb",
+      "answer": "bphdmlpkhnkkzpwmhfqclbdkghnfsfqpzmrbrwxtvtbrnzbnzngmldkmvcxx",
+      "aliases": [],
+      "rate": 0.6666666666666666,
+      "attempts": [
+        {
+          "model": "gpt-6-astra",
+          "answer": "bphdmlpkhnkkzpwmhfqclbdkghnfsfqpzmrbrwxtvtbrnzbnzngmldkmvcxx",
+          "correct": true,
+          "ms": 7066.143499999991
+        },
+        {
+          "model": "gpt-6-sol",
+          "answer": "bphdmlpkhnkkzpwmhfqclbdkghnfsfqpzmrbrwxtvtbrnzbnzngmldkmvcxx",
+          "correct": true,
+          "ms": 4745.626415999999
+        },
+        {
+          "model": "gpt-6-luna",
+          "answer": "bphdmlpkhnkkzpwmhfqclbdkghnfsfqpzmrbrwxtvtbrnzbzngmldkmvcxx",
+          "correct": false,
+          "ms": 6300.76116699999
+        }
+      ]
+    }
+  ]
+}
