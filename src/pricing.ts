@@ -25,6 +25,7 @@ export const MODELS_DEV_PROVIDERS: Record<string, string> = {
   openrouter: 'openrouter',
   deepinfra: 'deepinfra',
   mistral: 'mistral',
+  meta: 'meta',
   cerebras: 'cerebras',
   huggingface: 'huggingface',
   gmi: 'gmicloud',

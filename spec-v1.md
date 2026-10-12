@@ -11,7 +11,7 @@ A fun, carnival-style horse racing game where 3 or 4 LLMs compete by answering q
 ### Horses and providers
 
 - Choose **3 or 4 horses**. Each horse has its own provider and model, so a race can compare providers (e.g. Nebius Token Factory vs OpenAI).
-- Built-in OpenAI-compatible providers, listed alphabetically: Anthropic, Baseten, Cerebras, DeepInfra, Fireworks AI, GMI Cloud, Google Gemini, Groq, Hugging Face, Mistral AI, Nebius Token Factory (default), OpenAI, OpenRouter and Together AI. Custom and Simulated come last.
+- Built-in OpenAI-compatible providers, listed alphabetically: Anthropic, Baseten, Cerebras, DeepInfra, Fireworks AI, GMI Cloud, Google Gemini, Groq, Hugging Face, Meta, Mistral AI, Nebius Token Factory (default), OpenAI, OpenRouter and Together AI. Custom and Simulated come last.
   - Anthropic is sent its required browser-access header automatically.
   - Baseten may not list models in the browser; its card notes that the model ID can be typed.
 - **Custom (OpenAI-compatible):** any base URL (e.g. `https://api.example.com/v1`), including local servers on `localhost`. Each Custom horse has its own base URL, key and model list, so different servers can race each other (e.g. a local vLLM against a private gateway). The key is optional. A Custom horse is labelled with its server's host (e.g. `localhost:8000`).

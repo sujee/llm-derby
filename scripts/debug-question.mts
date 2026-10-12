@@ -45,6 +45,7 @@ const KEY_ENV: Record<string, string> = {
   openrouter: 'OPENROUTER_API_KEY',
   deepinfra: 'DEEPINFRA_API_KEY',
   mistral: 'MISTRAL_API_KEY',
+  meta: 'META_MODEL_API_KEY',
   cerebras: 'CEREBRAS_API_KEY',
   huggingface: 'HF_TOKEN',
   gmi: 'GMI_API_KEY',

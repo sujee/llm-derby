@@ -1,6 +1,6 @@
 import type { Provider } from './types';
 
-// All presets passed a browser CORS check from a github.io origin (2026-10-08; GMI Cloud 2026-10-09).
+// All presets passed a browser CORS check from a github.io origin (2026-10-08; GMI Cloud 2026-10-09; Meta 2026-10-12).
 export const PROVIDERS: Provider[] = [
   {
     id: 'nebius',
@@ -50,6 +50,7 @@ export const PROVIDERS: Provider[] = [
     keyUrl: 'https://deepinfra.com/dash/api_keys',
   },
   { id: 'mistral', name: 'Mistral AI', baseUrl: 'https://api.mistral.ai/v1', keyUrl: 'https://console.mistral.ai/api-keys' },
+  { id: 'meta', name: 'Meta', baseUrl: 'https://api.meta.ai/v1', keyUrl: 'https://dev.meta.ai/' },
   { id: 'cerebras', name: 'Cerebras', baseUrl: 'https://api.cerebras.ai/v1', keyUrl: 'https://cloud.cerebras.ai/' },
   {
     id: 'huggingface',
