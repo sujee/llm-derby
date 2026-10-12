@@ -26,10 +26,11 @@ import { sortRows, type SortValue } from './sort';
 import type { AnswerResult, Difficulty, Endpoint, Question } from './types';
 
 const LANES = [
-  { color: '#e63946', coat: '#9a5530', mane: '#4a2512' },
-  { color: '#1e6fd9', coat: '#4b3426', mane: '#1f140d' },
-  { color: '#f2b705', coat: '#d9d2c5', mane: '#8c8274' },
-  { color: '#8e44ad', coat: '#2b2522', mane: '#0d0b0a' },
+  // Jewel-tone coats, a deeper shade of the lane colour so the jockey's silks (the lane colour) stay visible.
+  { color: '#e63946', coat: '#a52a38', mane: '#4a0f18' },
+  { color: '#1e6fd9', coat: '#2a62b4', mane: '#0f2548' },
+  { color: '#f2b705', coat: '#c98f12', mane: '#6b470a' },
+  { color: '#8e44ad', coat: '#8a52b5', mane: '#341a4d' },
 ];
 
 const MIN_DISTANCE = 3;
